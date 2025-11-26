@@ -18,19 +18,20 @@ export function Register() {
     setError('');
 
     try {
-      // 1. Cria o usuário
+      // Cria o usuário
       await api.post('/users/', {
         full_name: name,
         email: email,
         password: password
       });
 
-      // 2. Se deu certo, redireciona pro login
+      // Se deu certo, redireciona pro login
       alert('Conta criada com sucesso! Faça login.');
       navigate('/login');
 
     } catch (err: any) {
       console.error(err);
+
       // Tenta pegar a mensagem de erro da API (ex: Email already registered)
       const message = err.response?.data?.detail || 'Erro ao criar conta.';
       setError(message);
