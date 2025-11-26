@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import users
 
 app = FastAPI(
     title="NutriAgent API",
@@ -7,7 +8,6 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# Configuração de CORS (Permitindo tudo por enquanto para facilitar o dev)
 origins = ["*"]
 
 app.add_middleware(
@@ -17,6 +17,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(users.router, prefix="/users", tags=["users"])
 
 @app.get("/")
 def read_root():
