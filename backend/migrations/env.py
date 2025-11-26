@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.models.user import User
 from app.models.profile import Profile
+from app.models.recipe import Recipe
 
 config = context.config
 

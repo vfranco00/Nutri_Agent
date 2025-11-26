@@ -14,3 +14,5 @@ class User(Base):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
 
     profile = relationship("Profile", back_populates="user", uselist=False)
+    
+    recipes = relationship("Recipe", back_populates="creator")
