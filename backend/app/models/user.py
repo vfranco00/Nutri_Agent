@@ -1,6 +1,7 @@
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 class User(Base):
     __tablename__ = "users"
@@ -11,3 +12,5 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    profile = relationship("Profile", back_populates="user", uselist=False)
