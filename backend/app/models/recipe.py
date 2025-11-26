@@ -17,3 +17,6 @@ class Recipe(Base):
     
     # Saber quem criou/gerou a receita
     creator = relationship("User", back_populates="recipes")
+
+    # Ingredientes da receita
+    ingredients = relationship("Ingredient", back_populates="recipe", cascade="all, delete-orphan")
