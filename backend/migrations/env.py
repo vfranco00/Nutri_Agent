@@ -11,6 +11,9 @@ from alembic import context
 from app.core.config import settings
 from app.db.base import Base
 from app.models.user import User
+from app.models.profile import Profile
+from app.models.recipe import Recipe
+from app.models.ingredient import Ingredient
 
 config = context.config
 
