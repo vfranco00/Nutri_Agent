@@ -10,8 +10,7 @@ from alembic import context
 # IMPORTANTE: Importar nossa Base e Configurações
 from app.core.config import settings
 from app.db.base import Base
-# Importar modelos aqui futuramente para o autogenerate funcionar
-# from app.models.user import User (exemplo)
+from app.models.user import User
 
 config = context.config
 
