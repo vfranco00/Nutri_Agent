@@ -36,5 +36,18 @@ services:
       db:
         condition: service_healthy
 
+  # Nosso Frontend React
+  web:
+    build: ./frontend
+    container_name: nutri_web
+    restart: always
+    ports:
+      - "3000:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
 volumes:
   postgres_data:
