@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
+from app.schemas.ingredient import IngredientBase
 
 class RecipeBase(BaseModel):
     title: str
@@ -7,9 +8,10 @@ class RecipeBase(BaseModel):
     instructions: str
     prep_time: Optional[int] = None # minutos
     calories: Optional[float] = None
+    
 
 class RecipeCreate(RecipeBase):
-    pass
+    ingredients: list[IngredientBase] = []
 
 class RecipeResponse(RecipeBase):
     id: int
