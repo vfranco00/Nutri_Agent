@@ -24,3 +24,13 @@ export const GOALS = {
   maintain: 'Manter Peso',
   gain_muscle: 'Ganhar Massa Muscular',
 };
+
+export interface Recipe {
+  id: number;
+  user_id: number;
+  title: string;
+  description?: string;
+  instructions: string;
+  prep_time?: number;
+  calories?: number;
+}

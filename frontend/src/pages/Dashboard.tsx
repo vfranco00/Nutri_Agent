@@ -47,7 +47,7 @@ export function Dashboard() {
           </div>
 
           {/* Card 2: Receitas */}
-          <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-orange-500/50 transition-colors cursor-pointer group">
+          <div onClick={() => navigate('/recipes')} className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-orange-500/50 transition-colors cursor-pointer group">
             <div className="h-12 w-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-500/20 transition-colors">
               <ChefHat className="h-6 w-6 text-orange-500" />
             </div>
