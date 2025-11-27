@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
 import { NewRecipe } from './pages/NewRecipe';
+import { AdminUsers } from './pages/AdminUsers';
 
 // Componentes temporários (logo vamos criar arquivos pra eles)
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/recipes/new" element={<NewRecipe />} />
+          <Route path="/admin" element={<AdminUsers />} />
 
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
