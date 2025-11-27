@@ -14,6 +14,7 @@ from app.models.user import User
 from app.models.profile import Profile
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
+from app.models.weight_history import WeightHistory
 
 config = context.config
 
