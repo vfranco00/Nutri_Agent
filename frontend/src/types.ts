@@ -8,7 +8,19 @@ export interface Profile {
   gender: 'male' | 'female';
   activity_level: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'super_active';
   goal: 'lose_weight' | 'maintain' | 'gain_muscle';
+  diet_type?: string;
+  allergies?: string;
+  food_likes?: string;
+  food_dislikes?: string;
 }
+
+export const DIET_TYPES = {
+  omnivore: 'Onívoro (Come de tudo)',
+  vegetarian: 'Vegetariano',
+  vegan: 'Vegano',
+  paleo: 'Paleolítica',
+  keto: 'Cetogênica',
+};
 
 // Labels amigáveis para mostrar no select
 export const ACTIVITY_LEVELS = {

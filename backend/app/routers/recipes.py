@@ -43,3 +43,48 @@ def read_recipe(
     if db_recipe.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to access this recipe")
     return db_recipe
+
+@router.put("/{recipe_id}", response_model=RecipeResponse)
+def update_recipe(
+    recipe_id: int,
+    recipe_in: RecipeCreate, # Usa o mesmo schema de criação
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Atualiza uma receita existente."""
+    # 1. Busca a receita
+    db_recipe = crud_recipe.get_recipe(db, recipe_id=recipe_id)
+    if not db_recipe:
+        raise HTTPException(status_code=404, detail="Receita não encontrada")
+    
+    # 2. Verifica se é o dono
+    if db_recipe.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Você não tem permissão para editar esta receita")
+
+    # 3. Atualiza
+    # Transformamos em dict e removemos ingredientes para não bugar a edição simples
+    update_data = recipe_in.model_dump(exclude_unset=True)
+    if 'ingredients' in update_data:
+        del update_data['ingredients']
+
+    return crud_recipe.update_recipe(db=db, db_recipe=db_recipe, recipe_data=update_data)
+
+@router.delete("/{recipe_id}")
+def delete_recipe(
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Deleta uma receita."""
+    # 1. Busca a receita
+    db_recipe = crud_recipe.get_recipe(db, recipe_id=recipe_id)
+    if not db_recipe:
+        raise HTTPException(status_code=404, detail="Receita não encontrada")
+    
+    # 2. Verifica permissão (Dono ou Admin)
+    if db_recipe.user_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Você não tem permissão para excluir esta receita")
+
+    # 3. Deleta
+    crud_recipe.delete_recipe(db=db, recipe_id=recipe_id)
+    return {"message": "Receita deletada com sucesso"}

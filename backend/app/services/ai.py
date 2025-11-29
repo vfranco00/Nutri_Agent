@@ -37,11 +37,45 @@ def call_gemini(prompt: str):
         return None
 
 def generate_meal_plan(profile: ProfileResponse):
-    """Gera o plano alimentar diário."""
+    """Gera o plano alimentar diário com personalização total."""
+    
+    # Monta strings descritivas baseadas nos campos novos
+    diet_info = f"Dieta: {profile.diet_type}" if profile.diet_type else "Dieta: Sem restrições (Onívoro)"
+    allergies_info = f"ALERGIAS/INTOLERÂNCIAS (PROIBIDO): {profile.allergies}" if profile.allergies else "Sem alergias"
+    likes_info = f"Alimentos preferidos (tente incluir): {profile.food_likes}" if profile.food_likes else ""
+    dislikes_info = f"Alimentos odiados (NÃO INCLUIR): {profile.food_dislikes}" if profile.food_dislikes else ""
+
     prompt = f"""
-    Atue como nutricionista. Crie um plano diário para: Idade {profile.age}, Peso {profile.weight}, Meta {profile.goal}.
-    JSON estrito: {{ "calories_target": 2000, "macros": {{...}}, "meals": [...], "tip": "..." }}
+    Atue como um nutricionista esportivo de elite. Crie um plano alimentar diário altamente personalizado.
+    
+    DADOS DO PACIENTE:
+    - Idade: {profile.age} anos, Peso: {profile.weight} kg, Altura: {profile.height} cm
+    - TMB (Basal): {profile.bmr:.0f} kcal (JÁ CALCULADO)
+    - Meta Calórica do Dia: {profile.daily_calories:.0f} kcal (JÁ CALCULADO COM DÉFICIT/SUPERÁVIT)
+    - Objetivo: {profile.goal}
+    
+    PREFERÊNCIAS E RESTRIÇÕES:
+    - {diet_info}
+    - {allergies_info}
+    - {likes_info}
+    - {dislikes_info}
+    
+    REGRA DE OURO: Respeite RIGOROSAMENTE as alergias e exclusões.
+    
+    Responda APENAS um JSON estrito (sem markdown ```json) com esta estrutura:
+    {{
+      "calories_target": {profile.daily_calories:.0f},
+      "macros": {{ "protein": "200g", "carbs": "300g", "fats": "80g" }},
+      "meals": [
+        {{ "name": "Café da Manhã", "suggestion": "..." }},
+        {{ "name": "Almoço", "suggestion": "..." }},
+        {{ "name": "Lanche", "suggestion": "..." }},
+        {{ "name": "Jantar", "suggestion": "..." }}
+      ],
+      "tip": "Dica personalizada baseada nas restrições."
+    }}
     """
+    
     res = call_gemini(prompt)
     return json.loads(res) if res else None
 

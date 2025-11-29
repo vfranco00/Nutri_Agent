@@ -1,6 +1,7 @@
-from sqlalchemy import Integer, Float, String, ForeignKey
+from sqlalchemy import Integer, Float, String, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
+
 
 class Profile(Base):
     __tablename__ = "profiles"
@@ -18,6 +19,11 @@ class Profile(Base):
 
     bmr: Mapped[float] = mapped_column(Float, nullable=True) # Taxa Metabólica Basal
     daily_calories: Mapped[float] = mapped_column(Float, nullable=True) # Calorias Diárias Recomendadas
+
+    diet_type: Mapped[str] = mapped_column(String, nullable=True, default="omnivore") # vegan, vegetarian...
+    allergies: Mapped[str] = mapped_column(String, nullable=True) # Texto livre: "Glúten, Lactose"
+    food_likes: Mapped[str] = mapped_column(Text, nullable=True) # "Frango, Batata, Chocolate"
+    food_dislikes: Mapped[str] = mapped_column(Text, nullable=True) # "Cenoura, Peixe"
 
     # Relacionamento com a tabela User
     user = relationship("User", back_populates="profile")

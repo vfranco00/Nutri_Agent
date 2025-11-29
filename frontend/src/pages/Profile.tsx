@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { type Profile as ProfileType, ACTIVITY_LEVELS, GOALS } from '../types';
+import { type Profile as ProfileType, ACTIVITY_LEVELS, GOALS, DIET_TYPES } from '../types';
 import { Save, ArrowLeft, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
@@ -128,6 +128,60 @@ export function Profile() {
                   {Object.entries(GOALS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
               </div>
+
+              <div className="bg-zinc-950/50 p-4 rounded-lg border border-zinc-800 space-y-4">
+            <h3 className="text-md font-semibold text-green-500">Preferências Alimentares</h3>
+            
+            {/* Tipo de Dieta */}
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400">Tipo de Dieta</label>
+              <select 
+                value={formData.diet_type || 'omnivore'} 
+                onChange={e => setFormData({...formData, diet_type: e.target.value})} 
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 outline-none text-zinc-100"
+              >
+                {Object.entries(DIET_TYPES).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Alergias */}
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400">Alergias e Intolerâncias (Separar por vírgula)</label>
+              <input 
+                type="text" 
+                placeholder="Ex: Glúten, Lactose, Camarão"
+                value={formData.allergies || ''}
+                onChange={e => setFormData({...formData, allergies: e.target.value})}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50" 
+              />
+            </div>
+
+            {/* Gostos */}
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400">O que você MAIS gosta de comer?</label>
+              <textarea 
+                rows={2}
+                placeholder="Ex: Chocolate, Churrasco, Frutas Cítricas"
+                value={formData.food_likes || ''}
+                onChange={e => setFormData({...formData, food_likes: e.target.value})}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500 resize-none" 
+              />
+            </div>
+
+            {/* Desgostos */}
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400">O que você DETESTA comer?</label>
+              <textarea 
+                rows={2}
+                placeholder="Ex: Jiló, Fígado, Coentro"
+                value={formData.food_dislikes || ''}
+                onChange={e => setFormData({...formData, food_dislikes: e.target.value})}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50 resize-none" 
+              />
+            </div>
+          </div>
 
               <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2">
                 {loading ? <Loader2 className="animate-spin"/> : <Save className="h-5 w-5"/>} Salvar Dados
