@@ -42,3 +42,19 @@ export interface User {
   is_superuser: boolean;
   is_active: boolean;
 }
+
+export interface Meal {
+  name: string;
+  suggestion: string;
+}
+
+export interface AiPlan {
+  calories_target: number;
+  macros: {
+    protein: string;
+    carbs: string;
+    fats: string;
+  };
+  meals: Meal[];
+  tip: string;
+}
