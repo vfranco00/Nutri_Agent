@@ -37,42 +37,43 @@ def call_gemini(prompt: str):
         return None
 
 def generate_meal_plan(profile: ProfileResponse):
-    """Gera o plano alimentar diário com personalização total."""
+    """Gera o plano alimentar diário com inteligência nutricional ajustada."""
     
-    # Monta strings descritivas baseadas nos campos novos
-    diet_info = f"Dieta: {profile.diet_type}" if profile.diet_type else "Dieta: Sem restrições (Onívoro)"
-    allergies_info = f"ALERGIAS/INTOLERÂNCIAS (PROIBIDO): {profile.allergies}" if profile.allergies else "Sem alergias"
-    likes_info = f"Alimentos preferidos (tente incluir): {profile.food_likes}" if profile.food_likes else ""
-    dislikes_info = f"Alimentos odiados (NÃO INCLUIR): {profile.food_dislikes}" if profile.food_dislikes else ""
-
+    diet_info = f"Dieta: {profile.diet_type}" if profile.diet_type else "Dieta: Sem restrições"
+    likes_info = f"Gosta de: {profile.food_likes}" if profile.food_likes else ""
+    # Adicionamos uma instrução explícita sobre adaptação
+    likes_instruction = "Tente incluir os gostos do usuário, MAS ADAPTE PARA VERSÕES SAUDÁVEIS se o objetivo for perder peso (ex: Hambúrguer -> Hambúrguer caseiro magro sem pão)."
+    
     prompt = f"""
-    Atue como um nutricionista esportivo de elite. Crie um plano alimentar diário altamente personalizado.
+    Atue como um nutricionista esportivo rigoroso. Crie um plano alimentar diário.
     
-    DADOS DO PACIENTE:
-    - Idade: {profile.age} anos, Peso: {profile.weight} kg, Altura: {profile.height} cm
-    - TMB (Basal): {profile.bmr:.0f} kcal (JÁ CALCULADO)
-    - Meta Calórica do Dia: {profile.daily_calories:.0f} kcal (JÁ CALCULADO COM DÉFICIT/SUPERÁVIT)
-    - Objetivo: {profile.goal}
+    DADOS:
+    - Perfil: {profile.age} anos, {profile.weight} kg, {profile.height} cm.
+    - Meta Calculada: {profile.daily_calories:.0f} kcal (NÃO ULTRAPASSE ESTE VALOR).
+    - Objetivo: {profile.goal} (Se for 'lose_weight', foque em volume e baixa caloria).
     
-    PREFERÊNCIAS E RESTRIÇÕES:
+    PREFERÊNCIAS:
     - {diet_info}
-    - {allergies_info}
+    - Alergias (CRÍTICO): {profile.allergies or "Nenhuma"}
     - {likes_info}
-    - {dislikes_info}
+    - Odeia: {profile.food_dislikes or "Nada"}
     
-    REGRA DE OURO: Respeite RIGOROSAMENTE as alergias e exclusões.
+    DIRETRIZES:
+    1. {likes_instruction}
+    2. Respeite as alergias acima de tudo.
+    3. Distribua as calorias e macros de forma equilibrada.
     
-    Responda APENAS um JSON estrito (sem markdown ```json) com esta estrutura:
+    Responda APENAS JSON estrito:
     {{
       "calories_target": {profile.daily_calories:.0f},
-      "macros": {{ "protein": "200g", "carbs": "300g", "fats": "80g" }},
+      "macros": {{ "protein": "...", "carbs": "...", "fats": "..." }},
       "meals": [
-        {{ "name": "Café da Manhã", "suggestion": "..." }},
-        {{ "name": "Almoço", "suggestion": "..." }},
+        {{ "name": "Café da Manhã", "suggestion": "Descrição detalhada do prato..." }},
+        {{ "name": "Almoço", "suggestion": "Descrição detalhada..." }},
         {{ "name": "Lanche", "suggestion": "..." }},
         {{ "name": "Jantar", "suggestion": "..." }}
       ],
-      "tip": "Dica personalizada baseada nas restrições."
+      "tip": "Dica sobre como encaixar os gostos na dieta."
     }}
     """
     
