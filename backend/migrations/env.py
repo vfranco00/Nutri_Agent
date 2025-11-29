@@ -15,6 +15,7 @@ from app.models.profile import Profile
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
 from app.models.weight_history import WeightHistory
+from app.models.food_cache import FoodCache
 
 config = context.config
 

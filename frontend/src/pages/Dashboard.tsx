@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User as UserIcon, ChefHat, Activity, Shield } from 'lucide-react';
+import { LogOut, User as UserIcon, ChefHat, Activity, Shield, Sparkles } from 'lucide-react';
 import { api } from '../lib/api';
 import type { User } from '../types';
 
@@ -48,40 +48,61 @@ export function Dashboard() {
         </div>
       </header>
 
-      <main className="p-6 max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Bem-vindo ao seu Painel</h1>
-        <p className="text-zinc-400 mb-8">Aqui começa sua transformação.</p>
+      <main className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Olá, {user?.full_name || 'Visitante'} 👋</h1>
+          <p className="text-zinc-400">Gerencie sua dieta e use a IA a seu favor.</p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Grid ajustado para 4 colunas em telas grandes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
+          {/* Card 1: Perfil */}
           <div 
             onClick={() => navigate('/profile')}
-            className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-green-500/50 transition-colors cursor-pointer group"
+            className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-green-500/50 transition-all cursor-pointer group hover:-translate-y-1"
           >
             <div className="h-12 w-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
               <UserIcon className="h-6 w-6 text-green-500" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Meu Perfil</h3>
-            <p className="text-sm text-zinc-400">Atualize seu peso, altura e objetivos nutricionais.</p>
+            <p className="text-sm text-zinc-400">Seu peso, altura, histórico e objetivos.</p>
           </div>
 
+          {/* Card 2: Receitas */}
           <div 
             onClick={() => navigate('/recipes')}
-            className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-orange-500/50 transition-colors cursor-pointer group"
+            className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-orange-500/50 transition-all cursor-pointer group hover:-translate-y-1"
           >
             <div className="h-12 w-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-500/20 transition-colors">
               <ChefHat className="h-6 w-6 text-orange-500" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Minhas Receitas</h3>
-            <p className="text-sm text-zinc-400">Gerencie seus pratos e ingredientes favoritos.</p>
+            <p className="text-sm text-zinc-400">Seu livro de receitas com cálculo automático.</p>
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-purple-500/50 transition-colors cursor-pointer group opacity-75">
-            <div className="h-12 w-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
+          {/* Card 3: Cardápio IA */}
+          <div 
+            onClick={() => navigate('/ai-plan')}
+            className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-purple-500/50 transition-all cursor-pointer group hover:-translate-y-1"
+          >
+            <div className="h-12 w-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition-colors">
               <Activity className="h-6 w-6 text-purple-500" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Gerar Plano (IA)</h3>
-            <p className="text-sm text-zinc-400">Em breve: Inteligência Artificial para montar sua dieta.</p>
+            <h3 className="text-lg font-semibold mb-2">Gerar Cardápio</h3>
+            <p className="text-sm text-zinc-400">IA monta sua dieta baseada no seu perfil.</p>
+          </div>
+
+          {/* Card 4: Chef IA (NOVO) */}
+          <div 
+            onClick={() => navigate('/ai-chef')}
+            className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-blue-500/50 transition-all cursor-pointer group hover:-translate-y-1"
+          >
+            <div className="h-12 w-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
+              <Sparkles className="h-6 w-6 text-blue-500" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Chef IA</h3>
+            <p className="text-sm text-zinc-400">Diga o que tem na geladeira e a IA cria a receita.</p>
           </div>
 
         </div>

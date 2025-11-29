@@ -6,6 +6,8 @@ import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
 import { NewRecipe } from './pages/NewRecipe';
 import { AdminUsers } from './pages/AdminUsers';
+import { AiPlan } from './pages/AiPlain';
+import { AiChef } from './pages/AiChef';
 
 // Componentes temporários (logo vamos criar arquivos pra eles)
 
@@ -21,6 +23,8 @@ function App() {
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/recipes/new" element={<NewRecipe />} />
           <Route path="/admin" element={<AdminUsers />} />
+          <Route path="/ai-plan" element={<AiPlan />} />
+          <Route path="/ai-chef" element={<AiChef />} />
 
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>

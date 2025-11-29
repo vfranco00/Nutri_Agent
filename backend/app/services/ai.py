@@ -1,46 +1,21 @@
 import httpx
 import json
+from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.schemas.profile import ProfileResponse
+from app.models.food_cache import FoodCache
 
-def generate_meal_plan(profile: ProfileResponse):
-    """
-    Gera plano alimentar usando o modelo disponível na sua lista: gemini-flash-latest
-    """
-    
-    # URL EXATA baseada no seu log
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={settings.GEMINI_API_KEY}"
-    
-    # Prompt (Mantivemos o mesmo, pois é bom)
-    prompt_text = f"""
-    Atue como um nutricionista esportivo. Crie um plano alimentar diário para:
-    - Idade: {profile.age} anos, Peso: {profile.weight} kg, Altura: {profile.height} cm
-    - Objetivo: {profile.goal}
-    
-    Responda APENAS um JSON estrito (sem markdown ```json) com esta estrutura:
-    {{
-      "calories_target": 2500,
-      "macros": {{ "protein": "200g", "carbs": "300g", "fats": "80g" }},
-      "meals": [
-        {{ "name": "Café da Manhã", "suggestion": "Ovos e aveia..." }},
-        {{ "name": "Almoço", "suggestion": "Frango e salada..." }},
-        {{ "name": "Jantar", "suggestion": "Peixe e legumes..." }}
-      ],
-      "tip": "Dica rápida."
-    }}
-    """
+# URL Única e Correta (A que funcionou no seu teste)
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={settings.GEMINI_API_KEY}"
 
-    payload = {
-        "contents": [{
-            "parts": [{"text": prompt_text}]
-        }]
-    }
-
+def call_gemini(prompt: str):
+    """Função centralizada para chamar o Google."""
+    payload = { "contents": [{ "parts": [{"text": prompt}] }] }
+    
     try:
-        print(f"📡 Conectando no modelo: gemini-flash-latest") 
-
+        print(f"📡 Chamando IA...") # Debug
         with httpx.Client() as client:
-            response = client.post(url, json=payload, timeout=60.0)
+            response = client.post(GEMINI_URL, json=payload, timeout=60.0)
             
             if response.status_code != 200:
                 print(f"❌ Erro Google ({response.status_code}): {response.text}")
@@ -48,16 +23,73 @@ def generate_meal_plan(profile: ProfileResponse):
 
             data = response.json()
             
-            # Extração segura
-            try:
+            # Extração Segura
+            if 'candidates' in data and data['candidates']:
                 raw_text = data['candidates'][0]['content']['parts'][0]['text']
                 clean_text = raw_text.replace('```json', '').replace('```', '').strip()
-                print("✅ Sucesso! JSON gerado.")
-                return json.loads(clean_text)
-            except Exception as e:
-                print(f"❌ Erro ao ler resposta: {data}")
+                return clean_text
+            else:
+                print(f"⚠️ Resposta vazia da IA: {data}")
                 return None
 
     except Exception as e:
         print(f"❌ Erro Python: {e}")
         return None
+
+def generate_meal_plan(profile: ProfileResponse):
+    """Gera o plano alimentar diário."""
+    prompt = f"""
+    Atue como nutricionista. Crie um plano diário para: Idade {profile.age}, Peso {profile.weight}, Meta {profile.goal}.
+    JSON estrito: {{ "calories_target": 2000, "macros": {{...}}, "meals": [...], "tip": "..." }}
+    """
+    res = call_gemini(prompt)
+    return json.loads(res) if res else None
+
+def get_food_calories(db: Session, food_name: str, unit: str) -> float:
+    """Busca calorias no Cache ou IA."""
+    clean_name = food_name.lower().strip()
+    
+    # 1. Tenta Cache
+    cached = db.query(FoodCache).filter(FoodCache.name == clean_name).first()
+    if cached:
+        print(f"✅ Cache Hit: {clean_name}")
+        return cached.calories_per_unit
+
+    # 2. Pergunta pra IA
+    print(f"🤖 Cache Miss: Perguntando pra IA sobre {clean_name}...")
+    prompt = f"""
+    Responda APENAS um número (float).
+    Quantas calorias (kcal) tem em exatamente 1 {unit} de {food_name}?
+    Exemplo de resposta: 1.5
+    """
+    res_text = call_gemini(prompt)
+    
+    try:
+        if res_text:
+            calories = float(res_text)
+            # 3. Salva no Cache
+            new_cache = FoodCache(name=clean_name, calories_per_unit=calories, unit_type=unit)
+            db.add(new_cache)
+            db.commit()
+            return calories
+    except:
+        print(f"❌ Falha ao converter resposta da IA: {res_text}")
+    
+    return 0.0
+
+def generate_recipe_from_ingredients(ingredients: list[str]):
+    """Cria receita criativa."""
+    ing_list = ", ".join(ingredients)
+    prompt = f"""
+    Crie uma receita usando: {ing_list}.
+    Responda JSON estrito:
+    {{
+      "title": "Nome do Prato",
+      "prep_time": 30,
+      "calories": 500,
+      "instructions": "Passo a passo...",
+      "ingredients": [ {{ "name": "Ingrediente", "quantity": 100, "unit": "g" }} ]
+    }}
+    """
+    res = call_gemini(prompt)
+    return json.loads(res) if res else None
