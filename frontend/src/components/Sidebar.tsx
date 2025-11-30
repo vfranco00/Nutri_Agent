@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, User, ChefHat, Activity, LogOut, Moon, Sun, ArrowLeft, Sparkles } from 'lucide-react';
+import { Home, User, ChefHat, Activity, LogOut, Moon, Sun, ArrowLeft, Sparkles, ShoppingCart } from 'lucide-react';
 
 interface SidebarProps {
   toggleTheme: () => void;
@@ -14,8 +14,9 @@ export function Sidebar({ toggleTheme, isDark }: SidebarProps) {
     { name: 'Início', icon: Home, path: '/dashboard', color: 'text-zinc-500 dark:text-zinc-400' },
     { name: 'Meu Perfil', icon: User, path: '/profile', color: 'text-green-500' },
     { name: 'Minhas Receitas', icon: ChefHat, path: '/recipes', color: 'text-orange-500' },
-    { name: 'Gerar Cardápio', icon: Activity, path: '/ai-plan', color: 'text-purple-500' }, // <--- Corrigido
-    { name: 'Chef IA', icon: Sparkles, path: '/ai-chef', color: 'text-blue-500' }, // <--- Adicionado
+    { name: 'Gerar Cardápio', icon: Activity, path: '/ai-plan', color: 'text-purple-500' },
+    { name: 'Chef IA', icon: Sparkles, path: '/ai-chef', color: 'text-blue-500' },
+    { name: 'Lista de Compras', icon: ShoppingCart, path: '/shopping', color: 'text-pink-500' },
   ];
 
   function handleLogout() {

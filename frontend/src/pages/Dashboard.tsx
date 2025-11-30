@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User as UserIcon, ChefHat, Activity, Sparkles, Scale } from 'lucide-react';
+import { User as UserIcon, ChefHat, Activity, Sparkles, Scale, ShoppingCart } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { api } from '../lib/api';
@@ -106,6 +106,15 @@ export function Dashboard() {
           <h3 className="text-lg font-semibold mb-2 dark:text-white">Chef IA</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Receitas com o que você tem.</p>
         </div>
+
+        <div onClick={() => navigate('/shopping')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-pink-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
+          <div className="h-12 w-12 bg-pink-100 dark:bg-pink-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-pink-200 dark:group-hover:bg-pink-500/20 transition-colors">
+            <ShoppingCart className="h-6 w-6 text-pink-600 dark:text-pink-500" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2 dark:text-white">Lista de Compras</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Organize suas compras.</p>
+        </div>
+
       </div>
     </div>
   );

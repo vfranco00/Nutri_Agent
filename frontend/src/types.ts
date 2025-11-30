@@ -70,3 +70,16 @@ export interface AiPlan {
   meals: Meal[];
   tip: string;
 }
+
+export interface ShoppingItem {
+  id: number;
+  name: string;
+  checked: boolean;
+}
+
+export interface ShoppingList {
+  id: number;
+  title: string;
+  created_at: string;
+  items: ShoppingItem[];
+}

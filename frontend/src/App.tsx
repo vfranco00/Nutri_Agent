@@ -9,6 +9,7 @@ import { AdminUsers } from './pages/AdminUsers';
 import { AiPlan } from './pages/AiPlain';
 import { AiChef } from './pages/AiChef';
 import { AppLayout } from './layouts/AppLayout';
+import { ShoppingPage } from './pages/ShoppingList';
 
 const LayoutRoute = ({ children, color }: { children: React.ReactNode, color?: string }) => (
   <AppLayout accentColor={color}>{children}</AppLayout>
@@ -36,6 +37,9 @@ function App() {
           {/* IA = Roxo/Azul */}
           <Route path="/ai-plan" element={<LayoutRoute color="text-purple-500"><AiPlan /></LayoutRoute>} />
           <Route path="/ai-chef" element={<LayoutRoute color="text-blue-500"><AiChef /></LayoutRoute>} />
+
+          {/* Lista de Compras = Rosa */}
+          <Route path="/shopping" element={<LayoutRoute color="text-pink-500"><ShoppingPage /></LayoutRoute>} />
 
           {/* Admin = Vermelho */}
           <Route path="/admin" element={<LayoutRoute color="text-red-500"><AdminUsers /></LayoutRoute>} />
