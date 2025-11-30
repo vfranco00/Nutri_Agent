@@ -83,3 +83,19 @@ export interface ShoppingList {
   created_at: string;
   items: ShoppingItem[];
 }
+
+export interface DailyPlan {
+  day: string;
+  calories_target: number;
+  macros: {
+    protein: string;
+    carbs: string;
+    fats: string;
+  };
+  meals: Meal[];
+  tip: string;
+}
+
+export interface AiPlanResponse {
+  days: DailyPlan[];
+}

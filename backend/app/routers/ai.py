@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 from app.db.session import get_db
 from app.core.deps import get_current_user
@@ -10,7 +10,9 @@ from app.services.ai import generate_meal_plan, get_food_calories, generate_reci
 
 router = APIRouter()
 
-# --- SCHEMAS (Definidos no topo para evitar NameError) ---
+# --- SCHEMAS ---
+class GeneratePlanRequest(BaseModel):
+    days: int = 1 # 1 ou 7
 
 class FoodQuery(BaseModel):
     name: str
@@ -24,13 +26,16 @@ class IngredientList(BaseModel):
 
 @router.post("/generate-plan")
 def generate_ai_plan(
+    data: GeneratePlanRequest, # <--- Agora aceita JSON com { "days": 7 }
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     if not current_user.profile:
         raise HTTPException(status_code=400, detail="Perfil não encontrado.")
     
-    plan = generate_meal_plan(current_user.profile)
+    # Passa a quantidade de dias para o serviço
+    plan = generate_meal_plan(current_user.profile, days=data.days)
+    
     if not plan:
         raise HTTPException(status_code=500, detail="Erro ao gerar plano com a IA.")
         
@@ -42,13 +47,8 @@ def calculate_calories(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Calcula calorias totais de um alimento (Cache ou IA)."""
-    # Busca o valor unitário (1g ou 1un)
-    kcal_per_unit = get_food_calories(db, query.name, query.unit)
-    
-    # Multiplica pela quantidade que o usuário pediu
-    total = kcal_per_unit * query.quantity
-    
+    kcal_unit = get_food_calories(db, query.name, query.unit)
+    total = kcal_unit * query.quantity
     return {"total_calories": round(total, 1)}
 
 @router.post("/recipe-by-ingredients")
@@ -56,10 +56,7 @@ def create_recipe_idea(
     data: IngredientList,
     current_user: User = Depends(get_current_user)
 ):
-    """Gera uma ideia de receita baseada no que tem na geladeira."""
     recipe = generate_recipe_from_ingredients(data.ingredients)
-    
     if not recipe:
-        raise HTTPException(status_code=500, detail="A IA não conseguiu gerar a receita. Tente novamente.")
-        
+        raise HTTPException(status_code=500, detail="A IA não conseguiu gerar a receita.")
     return recipe
