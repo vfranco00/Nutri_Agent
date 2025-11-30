@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Recipe } from '../types';
-import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, AlertCircle, Carrot, Settings2, ArrowLeft } from 'lucide-react';
+import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, AlertCircle, Carrot, Settings2, ArrowLeft, Square, Volume2 } from 'lucide-react';
 
 interface EditFormData {
   title: string;
@@ -16,6 +16,7 @@ export function Recipes() {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   
   // Estados do Modal
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -23,6 +24,7 @@ export function Recipes() {
   const [editForm, setEditForm] = useState<EditFormData>({
     title: '', instructions: '', prep_time: 0, calories: 0, preparation_method: ''
   });
+
 
   async function loadRecipes() {
     try {
@@ -55,6 +57,39 @@ export function Recipes() {
   function handleCloseModal() {
     setSelectedRecipe(null);
     setIsEditing(false);
+  }
+
+  function handleSpeak() {
+    if (!selectedRecipe) return;
+
+    // Se já estiver falando, para.
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    // Monta o texto para leitura
+    // @ts-ignore
+    const ingredientsText = selectedRecipe.ingredients?.map(i => `${i.quantity} ${i.unit} de ${i.name}`).join('. ');
+    
+    const textToRead = `
+      Receita: ${selectedRecipe.title}.
+      Tempo de preparo: ${selectedRecipe.prep_time} minutos.
+      
+      Ingredientes: ${ingredientsText || 'Não informados'}.
+      
+      Modo de Preparo: ${selectedRecipe.instructions}
+    `;
+
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    utterance.lang = 'pt-BR'; // Força português do Brasil
+    utterance.rate = 1.0; // Velocidade normal
+    
+    utterance.onend = () => setIsSpeaking(false); // Quando acabar, reseta o ícone
+    
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
   }
 
   async function handleDelete(id: number) {
@@ -171,7 +206,18 @@ export function Recipes() {
                   className="bg-zinc-100 dark:bg-zinc-800 text-xl font-bold dark:text-white rounded px-2 py-1 w-full mr-4 outline-none focus:ring-2 focus:ring-orange-500"
                 />
               ) : (
-                <h2 className="text-2xl font-bold dark:text-white">{selectedRecipe.title}</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold dark:text-white">{selectedRecipe.title}</h2>
+                  
+                  {/* BOTÃO DE OUVIR 🔊 */}
+                  <button 
+                    onClick={handleSpeak}
+                    className={`p-2 rounded-full transition-colors ${isSpeaking ? 'bg-orange-500 text-white animate-pulse' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-orange-500'}`}
+                    title={isSpeaking ? "Parar leitura" : "Ouvir receita"}
+                  >
+                    {isSpeaking ? <Square className="h-4 w-4 fill-current" /> : <Volume2 className="h-5 w-5" />}
+                  </button>
+                </div>
               )}
               <button onClick={handleCloseModal} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-500 dark:text-zinc-400 transition-colors">
                 <X className="h-6 w-6" />
