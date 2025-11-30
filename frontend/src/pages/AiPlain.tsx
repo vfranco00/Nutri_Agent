@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { AiPlanResponse, DailyPlan } from '../types';
-import { ArrowLeft, Sparkles, Loader2, Target, Zap, Utensils, Lightbulb, Save, Calendar, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Target, Zap, Utensils, Lightbulb, Save, Calendar, ShoppingCart } from 'lucide-react';
 
 export function AiPlan() {
   const navigate = useNavigate();
@@ -40,6 +40,24 @@ export function AiPlan() {
       alert('Erro ao salvar.');
     } finally {
       setSavingMealIndex(null);
+    }
+  }
+
+  async function handleCreateShoppingList() {
+    if (!planData) return;
+    
+    const confirmGen = confirm("Deseja gerar uma lista de compras baseada neste cardápio?");
+    if (!confirmGen) return;
+    
+    setLoading(true); // Reusa o loading ou cria um novo se preferir
+    try {
+      await api.post('/ai/plan-to-shopping-list', planData); // Envia o plano atual
+      alert('Lista de compras criada! Verifique na aba "Lista de Compras".');
+      navigate('/shopping'); // Redireciona para lá
+    } catch (error) {
+      alert('Erro ao criar lista.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -189,10 +207,22 @@ export function AiPlan() {
             </div>
           </div>
 
-          <button onClick={() => setPlanData(null)} className="w-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 py-3 rounded-lg transition-colors">
-            Gerar Novo Plano
-          </button>
+          <div className="flex gap-4">
+            <button 
+              onClick={handleCreateShoppingList}
+              className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-pink-900/20"
+            >
+              <ShoppingCart className="h-5 w-5" /> Gerar Lista de Compras
+            </button>
 
+            <button 
+              onClick={() => setPlanData(null)} 
+              className="flex-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 py-3 rounded-lg transition-colors"
+            >
+              Gerar Novo Plano
+            </button>
+            
+          </div>
         </div>
       )}
 

@@ -112,3 +112,36 @@ def generate_recipe_from_ingredients(ingredients: list[str]):
     """
     res = call_gemini(prompt)
     return json.loads(res) if res else None
+
+def generate_shopping_list_from_plan(plan_data: dict):
+    """
+    Recebe o JSON do plano alimentar e cria uma lista de compras consolidada.
+    """
+    # Transforma o JSON do plano em texto para a IA ler
+    plan_text = json.dumps(plan_data, indent=2, ensure_ascii=False)
+    
+    prompt = f"""
+    Atue como um assistente de compras inteligente. Analise este plano alimentar semanal/diário:
+    
+    {plan_text}
+    
+    TAREFA:
+    1. Extraia TODOS os ingredientes necessários para preparar essas refeições.
+    2. CONSOLIDE as quantidades (ex: se tem ovos no café e no jantar, some tudo).
+    3. Ignore itens básicos de despensa como sal, óleo e água, a menos que sejam específicos.
+    4. Gere uma lista de compras prática.
+    
+    Responda APENAS um JSON estrito com esta estrutura:
+    {{
+      "title": "Compras do Cardápio NutriAgent",
+      "items": [
+        "1 dúzia de Ovos",
+        "500g de Peito de Frango",
+        "1kg de Batata Doce",
+        "2 litros de Leite Desnatado"
+      ]
+    }}
+    """
+    
+    res = call_gemini(prompt)
+    return json.loads(res) if res else None
