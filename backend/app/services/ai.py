@@ -31,19 +31,34 @@ def call_gemini(prompt: str):
         print(f"❌ Erro Python: {e}")
         return None
 
-def generate_meal_plan(profile: ProfileResponse, days: int = 1):
+def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: str = "varied"):
     """
-    Gera o plano alimentar (1 dia ou 7 dias).
+    Gera o plano alimentar com controle de variedade.
+    variety_mode: 'varied' (muita variedade) ou 'repetitive' (meal prep/prático).
     """
-    duration_text = "UM DIA (1 dia)" if days == 1 else "UMA SEMANA (7 dias)"
     
     # Lógica de Variedade
     variety_instruction = ""
     if days > 1:
-        variety_instruction = "VARIEDADE É OBRIGATÓRIA: Não repita as mesmas refeições todos os dias. Alterne as fontes de proteína e carboidrato. Não coloque todos os 'gostos' do usuário no mesmo dia."
+        if variety_mode == "repetitive":
+            variety_instruction = """
+            ESTRATÉGIA DE PRATICIDADE (MEAL PREP):
+            - O usuário prefere cozinhar pouco e repetir as refeições.
+            - Mantenha o MESMO Café da Manhã e Lanches todos os dias.
+            - Alterne no máximo entre 2 opções de Almoço/Jantar durante a semana.
+            - Foco em ingredientes que podem ser feitos em grande quantidade.
+            """
+        else:
+            variety_instruction = """
+            ESTRATÉGIA DE VARIEDADE TOTAL:
+            - O usuário odeia rotina.
+            - Crie refeições DIFERENTES para cada dia.
+            - Explore diferentes texturas e sabores.
+            - Não repita o prato principal em dias seguidos.
+            """
 
     prompt = f"""
-    Atue como um nutricionista esportivo. Crie um plano alimentar para {duration_text}.
+    Atue como um nutricionista esportivo. Crie um plano alimentar para {days} dias.
     
     DADOS:
     - Perfil: {profile.age} anos, {profile.weight} kg, {profile.height} cm.
@@ -51,7 +66,7 @@ def generate_meal_plan(profile: ProfileResponse, days: int = 1):
     - Objetivo: {profile.goal}.
     - Dieta: {profile.diet_type}.
     - Alergias (CRÍTICO): {profile.allergies or "Nenhuma"}.
-    - Gosta: {profile.food_likes} (Use com moderação).
+    - Gosta: {profile.food_likes}.
     - Odeia: {profile.food_dislikes}.
     
     {variety_instruction}
@@ -69,9 +84,8 @@ def generate_meal_plan(profile: ProfileResponse, days: int = 1):
             {{ "name": "Lanche", "suggestion": "..." }},
             {{ "name": "Jantar", "suggestion": "..." }}
           ],
-          "tip": "Dica do dia."
+          "tip": "Dica específica."
         }}
-        // ... repita para os outros dias se for semanal
       ]
     }}
     """
