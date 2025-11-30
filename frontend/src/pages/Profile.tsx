@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { Profile as ProfileType } from '../types';
 import { ACTIVITY_LEVELS, GOALS, DIET_TYPES } from '../types';
-import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus, UserIcon, ArrowLeft } from 'lucide-react';
+import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus, UserIcon, ArrowLeft, Info } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,10 @@ export function Profile() {
     age: 0, weight: 0, height: 0, gender: 'male', activity_level: 'sedentary', goal: 'lose_weight',
     diet_type: 'omnivore', allergies: '', food_likes: '', food_dislikes: ''
   });
+
+  const heightM = formData.height / 100;
+  const minWeight = heightM > 0 ? (18.5 * heightM * heightM).toFixed(1) : 0;
+  const maxWeight = heightM > 0 ? (24.9 * heightM * heightM).toFixed(1) : 0;
 
   const [history, setHistory] = useState<WeightData[]>([]);
   const [newWeight, setNewWeight] = useState('');
@@ -103,6 +107,18 @@ export function Profile() {
         <div className="lg:col-span-2">
           <form onSubmit={handleSave} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-6 shadow-sm">
             <h2 className="text-lg font-semibold dark:text-zinc-100">Dados Corporais</h2>
+
+            {formData.height > 0 && (
+              <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 p-4 rounded-lg flex gap-3 items-start">
+                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-blue-700 dark:text-blue-300 text-sm">Estimativa de Peso Ideal</h4>
+                  <p className="text-blue-600/80 dark:text-blue-200/70 text-sm">
+                    Baseado na sua altura, uma faixa saudável seria entre <strong>{minWeight}kg</strong> e <strong>{maxWeight}kg</strong>.
+                  </p>
+                </div>
+              </div>
+            )}
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
@@ -143,8 +159,8 @@ export function Profile() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400">Alergias (Separar por vírgula)</label>
-                <input type="text" value={formData.allergies || ''} onChange={e => setFormData({...formData, allergies: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50 dark:text-white" />
+                <label className="text-sm text-zinc-500 dark:text-zinc-400">Alergias ou Intolerância (Separar por vírgula)</label>
+                <input type="text" value={formData.allergies || ''} onChange={e => setFormData({...formData, allergies: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500/50 dark:text-white" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-zinc-500 dark:text-zinc-400">O que você MAIS gosta?</label>
@@ -152,7 +168,7 @@ export function Profile() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-zinc-500 dark:text-zinc-400">O que você DETESTA?</label>
-                <textarea rows={2} value={formData.food_dislikes || ''} onChange={e => setFormData({...formData, food_dislikes: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50 dark:text-white resize-none" />
+                <textarea rows={2} value={formData.food_dislikes || ''} onChange={e => setFormData({...formData, food_dislikes: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500/50 dark:text-white resize-none" />
               </div>
             </div>
 

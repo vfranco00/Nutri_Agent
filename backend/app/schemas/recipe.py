@@ -10,6 +10,8 @@ class RecipeBase(BaseModel):
     prep_time: Optional[int] = None # minutos
     calories: Optional[float] = None
     preparation_method: Optional[str] = "fogao"
+    category: Optional[str] = "almoco"
+    is_favorite: bool = False
     
 
 class RecipeCreate(RecipeBase):
