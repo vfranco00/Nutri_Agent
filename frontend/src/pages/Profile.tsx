@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { Profile as ProfileType } from '../types';
 import { ACTIVITY_LEVELS, GOALS, DIET_TYPES } from '../types';
-import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus, UserIcon } from 'lucide-react';
+import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus, UserIcon, ArrowLeft } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface WeightData {
   id: number;
@@ -13,6 +14,7 @@ interface WeightData {
 }
 
 export function Profile() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   
@@ -85,9 +87,15 @@ export function Profile() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6">
-        <UserIcon className="h-6 w-6"/>Meu Perfil Nutricional
-      </h1>
+
+      <div className="flex items-center gap-4 mb-8">
+          <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
+            <ArrowLeft className="h-6 w-6 text-zinc-400" />
+          </button>
+          <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6 flex items-center gap-2">
+            <UserIcon className="h-6 w-6" /> Meu Perfil Nutricional
+          </h1>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         

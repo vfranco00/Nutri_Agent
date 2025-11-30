@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { ShoppingList } from '../types';
-import { Plus, Trash2, Calendar, CheckCircle, Circle, ShoppingCart, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Calendar, CheckCircle, Circle, ShoppingCart, Loader2 , ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 export function ShoppingPage() {
+  const navigate = useNavigate();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [loading, setLoading] = useState(true);
   const [newListTitle, setNewListTitle] = useState('');
@@ -97,9 +99,15 @@ export function ShoppingPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-pink-500 mb-8 flex items-center gap-2">
-        <ShoppingCart className="h-8 w-8" /> Lista de Compras
-      </h1>
+
+      <div className="flex items-center gap-4 mb-8">
+        <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+          <ArrowLeft className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
+        </button>
+        <h1 className="text-2xl font-bold text-pink-500 mb-8 flex items-center gap-2">
+          <ShoppingCart className="h-8 w-8" /> Chef IA
+        </h1>
+      </div>
 
       {/* Criar Nova Lista */}
       <form onSubmit={handleCreateList} className="flex gap-4 mb-8 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">

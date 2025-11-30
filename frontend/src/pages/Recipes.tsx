@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Recipe } from '../types';
-import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, AlertCircle, Carrot, Settings2 } from 'lucide-react';
+import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, AlertCircle, Carrot, Settings2, ArrowLeft } from 'lucide-react';
 
 interface EditFormData {
   title: string;
@@ -88,9 +88,17 @@ export function Recipes() {
   return (
     <>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-orange-500">
-          <ChefHat/>Minhas Receitas
-        </h1>
+
+        <div className="flex items-center gap-4 mb-8">
+          <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
+            <ArrowLeft className="h-6 w-6 text-zinc-400" />
+          </button>
+          <h1 className="text-2xl font-bold text-orange-500 mb-6 flex items-center gap-2">
+            <ChefHat className="h-6 w-6" /> Minhas Receitas
+          </h1>
+        </div>
+
+
         <button 
           onClick={() => navigate('/recipes/new')}
           className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
