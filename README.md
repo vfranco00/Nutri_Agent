@@ -166,17 +166,17 @@ docker compose exec api python -m pytest
 ## ⏳ Sprint 5 — Interface do Usuário (Em Breve)
 **Objetivo:** Construir as telas para consumir a API desenvolvida na Sprint 4.
 
-- [ ] **Auth Pages:** Telas de Login e Cadastro.
-- [ ] **Onboarding:** Formulário de criação de Perfil Nutricional.
-- [ ] **Dashboard:** Visualização das receitas do usuário.
-- [ ] **Forms:** Telas para adicionar receitas e ingredientes dinamicamente.
+- [x] **Auth Pages:** Telas de Login e Cadastro.
+- [x] **Onboarding:** Formulário de criação de Perfil Nutricional.
+- [x] **Dashboard:** Visualização das receitas do usuário.
+- [x] **Forms:** Telas para adicionar receitas e ingredientes dinamicamente.
 
 ## 🔮 Sprint 6 — Inteligência Artificial (Futuro)
 **Objetivo:** Integração com LLM para gerar valor ao usuário.
 
-- [ ] **AI Integration:** Conexão com OpenAI API ou Gemini API.
-- [ ] **Feature:** "Gerar Cardápio Semanal" baseado no Perfil e Receitas.
-- [ ] **Chat:** Assistente nutricional interativo.
+- [x] **AI Integration:** Conexão com OpenAI API ou Gemini API.
+- [x] **Feature:** "Gerar Cardápio Semanal" baseado no Perfil e Receitas.
+- [x] **Chat:** Assistente nutricional interativo.
 
 ------------------------------------------------------------------------
 
