@@ -20,3 +20,4 @@ class Recipe(Base):
 
     # Ingredientes da receita
     ingredients = relationship("Ingredient", back_populates="recipe", cascade="all, delete-orphan")
+    preparation_method: Mapped[str] = mapped_column(String, nullable=True, default="fogao")

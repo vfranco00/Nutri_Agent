@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { Profile as ProfileType } from '../types';
 import { ACTIVITY_LEVELS, GOALS, DIET_TYPES } from '../types';
-import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus } from 'lucide-react';
+import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus, UserIcon } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 
@@ -85,7 +85,9 @@ export function Profile() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6">Meu Perfil Nutricional</h1>
+      <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6">
+        <UserIcon className="h-6 w-6"/>Meu Perfil Nutricional
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         

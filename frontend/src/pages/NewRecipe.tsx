@@ -1,9 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft } from 'lucide-react';
+import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2 } from 'lucide-react';
 
 interface IngredientInput { name: string; quantity: string; unit: string; calories?: number; }
+
+const PREP_METHODS = [
+  { value: 'fogao', label: 'Fogão' },
+  { value: 'forno', label: 'Forno' },
+  { value: 'airfryer', label: 'Airfryer' },
+  { value: 'microondas', label: 'Microondas' },
+  { value: 'cru', label: 'Não vai ao fogo (Cru)' },
+];
 
 export function NewRecipe() {
   const navigate = useNavigate();
@@ -13,6 +21,7 @@ export function NewRecipe() {
   const [instructions, setInstructions] = useState('');
   const [prepTime, setPrepTime] = useState('');
   const [totalCalories, setTotalCalories] = useState('');
+  const [method, setMethod] = useState('fogao');
   const [ingredients, setIngredients] = useState<IngredientInput[]>([{ name: '', quantity: '', unit: '', calories: 0 }]);
 
   async function calculateIngredientCalories(index: number) {
@@ -51,7 +60,7 @@ export function NewRecipe() {
         name: ing.name, quantity: Number(ing.quantity), unit: ing.unit || 'un'
       }));
       await api.post('/recipes/', {
-        title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, ingredients: validIngredients
+        title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, ingredients: validIngredients
       });
       navigate('/recipes');
     } catch (error) { alert('Erro ao criar.'); } finally { setLoading(false); }
@@ -85,6 +94,12 @@ export function NewRecipe() {
               <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" placeholder="Auto" />
             </div>
           </div>
+          <div className="space-y-2">
+              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Settings2 className="h-4 w-4"/> Preparo</label>
+              <select value={method} onChange={e => setMethod(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white">
+                {PREP_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+              </select>
+            </div>
         </div>
 
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">

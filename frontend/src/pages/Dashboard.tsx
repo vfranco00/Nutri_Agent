@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User as UserIcon, ChefHat, Activity, Sparkles, Scale, ShoppingCart } from 'lucide-react';
+import { User as UserIcon, ChefHat, Activity, Sparkles, Scale, ShoppingCart, LibrarySquare, Book, CheckCheck } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { api } from '../lib/api';
@@ -85,7 +85,7 @@ export function Dashboard() {
 
         <div onClick={() => navigate('/recipes')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-orange-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-orange-100 dark:bg-orange-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-200 dark:group-hover:bg-orange-500/20 transition-colors">
-            <ChefHat className="h-6 w-6 text-orange-600 dark:text-orange-500" />
+            <Book className="h-6 w-6 text-orange-600 dark:text-orange-500" />
           </div>
           <h3 className="text-lg font-semibold mb-2 dark:text-white">Minhas Receitas</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Gerencie seus pratos.</p>
@@ -93,7 +93,7 @@ export function Dashboard() {
 
         <div onClick={() => navigate('/ai-plan')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-purple-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-purple-100 dark:bg-purple-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-200 dark:group-hover:bg-purple-500/20 transition-colors">
-            <Activity className="h-6 w-6 text-purple-600 dark:text-purple-500" />
+            <CheckCheck className="h-6 w-6 text-purple-600 dark:text-purple-500" />
           </div>
           <h3 className="text-lg font-semibold mb-2 dark:text-white">Gerar Cardápio</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Dieta personalizada com IA.</p>
@@ -101,7 +101,7 @@ export function Dashboard() {
 
         <div onClick={() => navigate('/ai-chef')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-blue-100 dark:bg-blue-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-500/20 transition-colors">
-            <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+            <ChefHat className="h-6 w-6 text-blue-600 dark:text-blue-500" />
           </div>
           <h3 className="text-lg font-semibold mb-2 dark:text-white">Chef IA</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Receitas com o que você tem.</p>
