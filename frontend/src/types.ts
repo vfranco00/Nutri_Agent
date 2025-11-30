@@ -15,11 +15,16 @@ export interface Profile {
 }
 
 export const DIET_TYPES = {
-  omnivore: 'Onívoro (Come de tudo)',
-  vegetarian: 'Vegetariano',
-  vegan: 'Vegano',
+  omnivore: 'Onívoro (Sem restrições)',
+  flexitarian: 'Flexitariano (Reduz carne)',
+  pescatarian: 'Pescetariano (Peixe sim, carne não)',
+  vegetarian_ovo_lacto: 'Vegetariano (Ovo-Lacto)',
+  vegetarian_lacto: 'Vegetariano (Lacto)',
+  vegetarian_ovo: 'Vegetariano (Ovo)',
+  vegan: 'Vegano (Nada animal)',
   paleo: 'Paleolítica',
   keto: 'Cetogênica',
+  low_carb: 'Low Carb',
 };
 
 // Labels amigáveis para mostrar no select
@@ -45,6 +50,10 @@ export interface Recipe {
   instructions: string;
   prep_time?: number;
   calories?: number;
+  preparation_method?: string;
+  category?: string;
+  is_favorite?: boolean;
+  ingredients?: Ingredient[];
 }
 
 export interface User {
@@ -70,3 +79,49 @@ export interface AiPlan {
   meals: Meal[];
   tip: string;
 }
+
+export interface ShoppingItem {
+  id: number;
+  name: string;
+  checked: boolean;
+}
+
+export interface ShoppingList {
+  id: number;
+  title: string;
+  created_at: string;
+  items: ShoppingItem[];
+}
+
+export interface DailyPlan {
+  day: string;
+  calories_target: number;
+  macros: {
+    protein: string;
+    carbs: string;
+    fats: string;
+  };
+  meals: Meal[];
+  tip: string;
+}
+
+export interface AiPlanResponse {
+  days: DailyPlan[];
+}
+
+export interface Ingredient {
+  id?: number;
+  name: string;
+  quantity: number;
+  unit: string;
+  calories?: number; // <--- Novo
+}
+
+export const CATEGORIES = {
+  all: 'Todas',
+  almoco: 'Almoço',
+  jantar: 'Jantar',
+  lanche: 'Lanche',
+  doce: 'Doce',
+  salgado: 'Salgado'
+};

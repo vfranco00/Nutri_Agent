@@ -16,6 +16,7 @@ from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
 from app.models.weight_history import WeightHistory
 from app.models.food_cache import FoodCache
+from app.models.shopping import ShoppingList, ShoppingItem
 
 config = context.config
 

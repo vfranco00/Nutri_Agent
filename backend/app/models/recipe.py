@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Text, Float, ForeignKey
+from sqlalchemy import Integer, String, Text, Float, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
@@ -20,3 +20,7 @@ class Recipe(Base):
 
     # Ingredientes da receita
     ingredients = relationship("Ingredient", back_populates="recipe", cascade="all, delete-orphan")
+    preparation_method: Mapped[str] = mapped_column(String, nullable=True, default="fogao")
+
+    category: Mapped[str] = mapped_column(String, nullable=True, default="almoco") # doce, salgado, almoco...
+    is_favorite: Mapped[bool] = mapped_column(Boolean, default=False)
