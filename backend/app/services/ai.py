@@ -8,83 +8,70 @@ from app.models.food_cache import FoodCache
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={settings.GEMINI_API_KEY}"
 
 def call_gemini(prompt: str):
-    """Função centralizada para chamar o Google."""
     payload = { "contents": [{ "parts": [{"text": prompt}] }] }
     try:
-        print(f"📡 Chamando IA...")
         with httpx.Client() as client:
-            # Aumentei o timeout para 120s porque gerar 7 dias demora mais
             response = client.post(GEMINI_URL, json=payload, timeout=120.0)
-            
-            if response.status_code != 200:
-                print(f"❌ Erro Google ({response.status_code}): {response.text}")
-                return None
-
+            if response.status_code != 200: return None
             data = response.json()
             if 'candidates' in data and data['candidates']:
-                raw_text = data['candidates'][0]['content']['parts'][0]['text']
-                clean_text = raw_text.replace('```json', '').replace('```', '').strip()
-                return clean_text
-            else:
-                return None
-    except Exception as e:
-        print(f"❌ Erro Python: {e}")
-        return None
+                return data['candidates'][0]['content']['parts'][0]['text'].replace('```json', '').replace('```', '').strip()
+    except: return None
+    return None
 
-def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: str = "varied"):
+def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: str = "varied", meals_count: int = 4):
     """
-    Gera o plano alimentar com controle de variedade.
-    variety_mode: 'varied' (muita variedade) ou 'repetitive' (meal prep/prático).
+    Gera o plano alimentar com controle estrito de porções e frequência.
     """
     
-    # Lógica de Variedade
-    variety_instruction = ""
-    if days > 1:
-        if variety_mode == "repetitive":
-            variety_instruction = """
-            ESTRATÉGIA DE PRATICIDADE (MEAL PREP):
-            - O usuário prefere cozinhar pouco e repetir as refeições.
-            - Mantenha o MESMO Café da Manhã e Lanches todos os dias.
-            - Alterne no máximo entre 2 opções de Almoço/Jantar durante a semana.
-            - Foco em ingredientes que podem ser feitos em grande quantidade.
-            """
-        else:
-            variety_instruction = """
-            ESTRATÉGIA DE VARIEDADE TOTAL:
-            - O usuário odeia rotina.
-            - Crie refeições DIFERENTES para cada dia.
-            - Explore diferentes texturas e sabores.
-            - Não repita o prato principal em dias seguidos.
-            """
+    # 1. Definição da Estrutura de Refeições
+    if meals_count == 3:
+        structure = "3 Refeições: Café da Manhã, Almoço, Jantar."
+    elif meals_count == 4:
+        structure = "4 Refeições: Café da Manhã, Almoço, Lanche da Tarde, Jantar."
+    elif meals_count == 5:
+        structure = "5 Refeições: Café da Manhã, Lanche da Manhã, Almoço, Lanche da Tarde, Jantar."
+    else: # 6
+        structure = "6 Refeições: Café, Lanche Manhã, Almoço, Lanche Tarde, Jantar, Ceia."
+
+    # 2. Cálculo de Calorias por Refeição (Para a IA não se perder)
+    avg_cal_per_meal = profile.daily_calories / meals_count
+    
+    # 3. Instruções de Perfil
+    fruit_instruction = "INCLUA FRUTAS: O usuário gosta de frutas." if getattr(profile, 'eats_fruit', True) else "SEM FRUTAS: Substitua por vegetais."
+    fat_instruction = "FOCO PERDA DE GORDURA: Baixo carbo simples, alta proteína." if getattr(profile, 'body_fat_goal', False) else ""
+    variety_instruction = "VARIEDADE TOTAL." if variety_mode == "varied" else "MEAL PREP (Repita almoço/jantar)."
 
     prompt = f"""
-    Atue como um nutricionista esportivo. Crie um plano alimentar para {days} dias.
+    Atue como um nutricionista pessoal. Crie um plano alimentar para {days} dia(s).
     
-    DADOS:
-    - Perfil: {profile.age} anos, {profile.weight} kg, {profile.height} cm.
-    - Meta Diária: {profile.daily_calories:.0f} kcal.
+    PERFIL DO USUÁRIO:
+    - Meta Diária TOTAL: {profile.daily_calories:.0f} kcal (NÃO ULTRAPASSE).
+    - Refeições por dia: {meals_count}.
+    - Calorias Média por refeição: ~{avg_cal_per_meal:.0f} kcal.
     - Objetivo: {profile.goal}.
     - Dieta: {profile.diet_type}.
-    - Alergias (CRÍTICO): {profile.allergies or "Nenhuma"}.
-    - Gosta: {profile.food_likes}.
-    - Odeia: {profile.food_dislikes}.
+    - Alergias: {profile.allergies or "Nenhuma"}.
     
-    {variety_instruction}
+    REGRAS CRÍTICAS (OBRIGATÓRIO):
+    1. {structure} (Gere EXATAMENTE essas refeições).
+    2. PORÇÕES PARA 1 PESSOA APENAS. (Ex: 100g de frango, não 1kg).
+    3. Quantidades realistas (Nada de "500g de arroz" numa sentada).
+    4. {fruit_instruction}
+    5. {fat_instruction}
+    6. {variety_instruction}
     
-    Responda APENAS JSON estrito com esta estrutura:
+    Responda APENAS JSON estrito:
     {{
       "days": [
         {{
           "day": "Dia 1",
-          "calories_target": 2000,
+          "calories_target": {profile.daily_calories:.0f},
           "macros": {{ "protein": "...", "carbs": "...", "fats": "..." }},
           "meals": [
-            {{ "name": "Café da Manhã", "suggestion": "..." }},
-            {{ "name": "Almoço", "suggestion": "..." }},
-            {{ "name": "Lanche", "suggestion": "..." }},
-            {{ "name": "Jantar", "suggestion": "..." }}
+            {{ "name": "Nome da Refeição (ex: Almoço)", "suggestion": "Descrição detalhada com quantidades para 1 pessoa...", "category": "almoco" }}
           ],
-          "tip": "Dica específica."
+          "tip": "Dica."
         }}
       ]
     }}

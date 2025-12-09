@@ -23,6 +23,7 @@ class IngredientList(BaseModel):
 class GeneratePlanRequest(BaseModel):
     days: int = 1
     variety: str = "varied" # varied ou repetitive
+    meals_count: int = 4
 
 # --- ROTAS ---
 
@@ -35,10 +36,16 @@ def generate_ai_plan(
     if not current_user.profile:
         raise HTTPException(status_code=400, detail="Perfil não encontrado.")
     
-    plan = generate_meal_plan(current_user.profile, days=data.days, variety_mode=data.variety)
+    # Passa o meals_count para a função
+    plan = generate_meal_plan(
+        current_user.profile, 
+        days=data.days, 
+        variety_mode=data.variety,
+        meals_count=data.meals_count
+    )
     
     if not plan:
-        raise HTTPException(status_code=500, detail="Erro ao gerar plano com a IA.")
+        raise HTTPException(status_code=500, detail="Erro ao gerar plano.")
         
     return plan
 
