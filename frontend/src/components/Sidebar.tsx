@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, User, ChefHat, Activity, LogOut, Moon, Sun, ArrowLeft, Sparkles, ShoppingCart, UserIcon, Book, CheckCheck } from 'lucide-react';
+import { Home, ChefHat, LogOut, Moon, Sun, ArrowLeft, ShoppingCart, UserIcon, Book, CheckCheck } from 'lucide-react';
 
 interface SidebarProps {
   toggleTheme: () => void;

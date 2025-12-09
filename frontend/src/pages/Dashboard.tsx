@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User as UserIcon, ChefHat, Activity, Sparkles, Scale, ShoppingCart, LibrarySquare, Book, CheckCheck } from 'lucide-react';
+import { User as UserIcon, ChefHat, Scale, ShoppingCart, Book, CheckCheck } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { api } from '../lib/api';
