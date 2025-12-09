@@ -1,20 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import type { Recipe } from '../types';
-import { CATEGORIES } from '../types';
-import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, AlertCircle, Carrot, Settings2, Volume2, Square, Star, Filter } from 'lucide-react';
-
-function cleanMarkdown(md?: string) {
-  if (!md) return '';
-  return md
-    .replace(/!\[.*?\]\(.*?\)/g, '') // remove images
-    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // convert links to text
-    .replace(/(^|\s)[#>*\-+`~]{1,}/g, '') // remove common markdown symbols
-    .replace(/<\/?[^>]+(>|$)/g, '') // strip HTML tags
-    .replace(/\r\n|\r/g, '\n') // normalize newlines
-    .trim();
-}
+import { cleanMarkdown } from '../lib/utils';
+import { type Recipe, CATEGORIES } from '../types';
+import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, Carrot, Settings2, Volume2, Square, Star, Filter } from 'lucide-react';
 
 interface EditFormData {
   title: string;
@@ -29,7 +18,7 @@ export function Recipes() {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // Estado do filtro
+  const [filter, setFilter] = useState('all');
   
   // Estados do Modal
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -53,29 +42,23 @@ export function Recipes() {
     if (!selectedRecipe) { window.speechSynthesis.cancel(); setIsSpeaking(false); }
   }, [selectedRecipe]);
 
-  // Lógica de Favoritar
+  // Favoritar
   async function toggleFavorite(e: React.MouseEvent, recipe: Recipe) {
-    e.stopPropagation(); // Evita abrir o modal ao clicar na estrela
+    e.stopPropagation();
     try {
-      // Atualiza visualmente na hora (Optimistic UI)
-      const updatedList = recipes.map(r => 
-        r.id === recipe.id ? { ...r, is_favorite: !r.is_favorite } : r
-      );
+      const updatedList = recipes.map(r => r.id === recipe.id ? { ...r, is_favorite: !r.is_favorite } : r);
       setRecipes(updatedList);
-
-      // Manda pro backend (usando o endpoint de update que já criamos)
-      await api.put(`/recipes/${recipe.id}`, { 
-        ...recipe, 
-        is_favorite: !recipe.is_favorite 
-      });
+      await api.put(`/recipes/${recipe.id}`, { ...recipe, is_favorite: !recipe.is_favorite });
     } catch (error) {
       alert('Erro ao favoritar.');
-      loadRecipes(); // Reverte em caso de erro
+      loadRecipes();
     }
   }
 
-  function handleOpenRecipe(recipe: Recipe) {
+  // --- ABRIR RECEITA (E MARCAR COMO VISTA) ---
+  async function handleOpenRecipe(recipe: Recipe) {
     setSelectedRecipe(recipe);
+    
     setEditForm({
       title: recipe.title,
       instructions: recipe.instructions,
@@ -85,6 +68,20 @@ export function Recipes() {
       preparation_method: recipe.preparation_method || 'fogao',
       category: recipe.category || 'almoco'
     });
+
+    // SE FOR NOVA, REMOVE O SELO
+    if (recipe.is_new) {
+      try {
+        // 1. Atualiza visualmente agora (UI Otimista)
+        setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, is_new: false } : r));
+        
+        // 2. Avisa o backend silenciosamente
+        await api.put(`/recipes/${recipe.id}`, { ...recipe, is_new: false });
+      } catch (error) {
+        console.error("Erro ao marcar como lida", error);
+      }
+    }
+
     setIsEditing(false);
   }
 
@@ -127,13 +124,14 @@ export function Recipes() {
     } catch (error) { alert('Erro ao atualizar.'); }
   }
 
-  // Filtragem
-  const filteredRecipes = filter === 'all' 
-    ? recipes 
-    : recipes.filter(r => r.category === filter);
-
-  // Ordena favoritos primeiro
-  const sortedRecipes = [...filteredRecipes].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
+  const filteredRecipes = filter === 'all' ? recipes : recipes.filter(r => r.category === filter);
+  
+  // Ordenação: Novas primeiro, depois Favoritas
+  const sortedRecipes = [...filteredRecipes].sort((a, b) => {
+    if (a.is_new && !b.is_new) return -1;
+    if (!a.is_new && b.is_new) return 1;
+    return (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0);
+  });
 
   return (
     <>
@@ -145,10 +143,7 @@ export function Recipes() {
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap
-                ${filter === key 
-                  ? 'bg-orange-500 text-white' 
-                  : 'bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-orange-500'}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${filter === key ? 'bg-orange-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-orange-500'}`}
             >
               {label}
             </button>
@@ -172,25 +167,24 @@ export function Recipes() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sortedRecipes.map((recipe) => (
-          <div key={recipe.id} onClick={() => handleOpenRecipe(recipe)} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 hover:border-orange-500/50 hover:-translate-y-1 transition-all cursor-pointer group shadow-sm relative">
+          <div key={recipe.id} onClick={() => handleOpenRecipe(recipe)} className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 hover:border-orange-500/50 hover:-translate-y-1 transition-all cursor-pointer group shadow-sm">
             
-            {/* Botão de Favorito (Absoluto no topo direito) */}
-            <button 
-              onClick={(e) => toggleFavorite(e, recipe)}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors z-10"
-            >
+            {/* --- SELO DE NOVIDADE --- */}
+            {recipe.is_new && (
+              <div className="absolute -top-2 -left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg z-20 animate-bounce">
+                NOVA
+              </div>
+            )}
+
+            <button onClick={(e) => toggleFavorite(e, recipe)} className="absolute top-4 right-4 p-1.5 rounded-full bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors z-10">
               <Star className={`h-5 w-5 ${recipe.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-zinc-400'}`} />
             </button>
 
             <div className="flex justify-between items-start mb-3 pr-8">
-              <h3 className="text-lg font-bold dark:text-zinc-100 group-hover:text-orange-500 transition-colors line-clamp-1">
-                {recipe.title}
-              </h3>
+              <h3 className="text-lg font-bold dark:text-zinc-100 group-hover:text-orange-500 transition-colors line-clamp-1">{recipe.title}</h3>
             </div>
             
-            <p className="text-zinc-500 dark:text-zinc-400 text-sm line-clamp-3 mb-4 h-12">
-              {cleanMarkdown(recipe.instructions)}
-            </p>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm line-clamp-3 mb-4 h-12">{cleanMarkdown(recipe.instructions)}</p>
 
             <div className="flex items-center gap-4 text-xs text-zinc-400 border-t border-zinc-100 dark:border-zinc-800 pt-4">
               <div className="flex items-center gap-1"><Clock className="h-3 w-3" />{recipe.prep_time}m</div>
@@ -220,9 +214,7 @@ export function Recipes() {
             </div>
 
             <div className="p-6 overflow-y-auto space-y-6">
-              
               <div className="flex flex-wrap gap-4">
-                {/* Inputs de Métricas... (Mantidos) */}
                 <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
                   <Clock className="h-4 w-4 text-blue-500" />
                   {isEditing ? <input type="number" className="w-16 bg-transparent outline-none border-b border-zinc-300 dark:border-zinc-700" value={editForm.prep_time} onChange={e => setEditForm({...editForm, prep_time: Number(e.target.value)})} /> : <span>{selectedRecipe.prep_time} min</span>}
@@ -232,7 +224,6 @@ export function Recipes() {
                   {isEditing ? <input type="number" className="w-16 bg-transparent outline-none border-b border-zinc-300 dark:border-zinc-700" value={editForm.calories} onChange={e => setEditForm({...editForm, calories: Number(e.target.value)})} /> : <span>{Math.round(selectedRecipe.calories || 0)} kcal</span>}
                 </div>
                 
-                {/* Seletor de Categoria (NOVO NO EDIT) */}
                 <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
                   <Filter className="h-4 w-4 text-green-500" />
                   {isEditing ? (

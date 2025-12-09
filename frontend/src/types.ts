@@ -58,6 +58,7 @@ export interface Recipe {
   category?: string;
   is_favorite?: boolean;
   ingredients?: Ingredient[];
+  is_new?: boolean;
 }
 
 export interface User {
