@@ -1,88 +1,73 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { User } from '../types';
-import { ArrowLeft, Shield, Trash2, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Shield, Users, Mail, CheckCircle2, XCircle } from 'lucide-react';
 
-export function AdminUsers() {
-  const navigate = useNavigate();
+export function Admin() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadUsers() {
       try {
-        const response = await api.get('/admin/users');
-        setUsers(response.data);
+        const res = await api.get('/users/');
+        setUsers(res.data);
       } catch (error) {
-        console.error("Erro ao carregar usuários", error);
-        alert("Acesso negado: Você não é administrador.");
-        navigate('/dashboard');
+        alert('Acesso negado: Você não é Admin.');
       } finally {
         setLoading(false);
       }
     }
     loadUsers();
-  }, [navigate]);
+  }, []);
 
-  if (loading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center"><Loader2 className="animate-spin text-green-500 h-8 w-8"/></div>;
+  if (loading) return <div className="p-10 text-center">Carregando painel...</div>;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 p-4">
-      <div className="max-w-6xl mx-auto">
-        
-        <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
-            <ArrowLeft className="h-6 w-6 text-zinc-400" />
-          </button>
-          <h1 className="text-2xl font-bold text-red-500 flex items-center gap-2">
-            <Shield className="h-6 w-6" /> Painel Administrativo
-          </h1>
-        </div>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-red-600 mb-8 flex items-center gap-2">
+        <Shield className="h-8 w-8" /> Painel Administrativo
+      </h1>
 
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-zinc-950 text-zinc-400 uppercase text-xs">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 flex items-center gap-2">
+          <Users className="h-5 w-5 text-zinc-500" />
+          <h2 className="font-semibold dark:text-white">Usuários Cadastrados ({users.length})</h2>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-zinc-500 uppercase bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
               <tr>
-                <th className="px-6 py-4">ID</th>
-                <th className="px-6 py-4">Nome</th>
-                <th className="px-6 py-4">Email</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Admin</th>
-                <th className="px-6 py-4 text-right">Ações</th>
+                <th className="px-6 py-3">ID</th>
+                <th className="px-6 py-3">Nome</th>
+                <th className="px-6 py-3">Email</th>
+                <th className="px-6 py-3 text-center">Admin?</th>
+                <th className="px-6 py-3 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody>
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-zinc-800/50 transition-colors">
-                  <td className="px-6 py-4 text-zinc-500">#{user.id}</td>
-                  <td className="px-6 py-4 font-medium">{user.full_name}</td>
-                  <td className="px-6 py-4 text-zinc-400">{user.email}</td>
-                  <td className="px-6 py-4">
-                    {user.is_active ? 
-                      <span className="inline-flex items-center gap-1 text-green-400 text-xs bg-green-400/10 px-2 py-1 rounded-full">Ativo <CheckCircle className="h-3 w-3"/></span> : 
-                      <span className="inline-flex items-center gap-1 text-red-400 text-xs bg-red-400/10 px-2 py-1 rounded-full">Inativo <XCircle className="h-3 w-3"/></span>
-                    }
+                <tr key={user.id} className="bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+                  <td className="px-6 py-4 font-mono text-zinc-400">#{user.id}</td>
+                  <td className="px-6 py-4 font-medium dark:text-white">{user.full_name}</td>
+                  <td className="px-6 py-4 text-zinc-500 flex items-center gap-2">
+                    <Mail className="h-3 w-3" /> {user.email}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center">
                     {user.is_superuser ? 
-                      <span className="text-red-400 font-bold text-xs border border-red-400/20 px-2 py-1 rounded">SUPERUSER</span> : 
-                      <span className="text-zinc-600 text-xs">User</span>
+                      <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">SIM</span> : 
+                      <span className="text-zinc-300">-</span>
                     }
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    {!user.is_superuser && (
-                      <button className="text-zinc-500 hover:text-red-500 transition-colors" title="Banir Usuário">
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    )}
+                  <td className="px-6 py-4 text-center">
+                    {user.is_active ? <CheckCircle2 className="h-4 w-4 text-green-500 mx-auto"/> : <XCircle className="h-4 w-4 text-red-500 mx-auto"/>}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );

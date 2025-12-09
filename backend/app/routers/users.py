@@ -1,22 +1,50 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import List
+
 from app.db.session import get_db
-from app.schemas.user import UserCreate, UserResponse
-from app.crud import user as crud_user
 from app.core.deps import get_current_user
 from app.models.user import User
+# CORREÇÃO AQUI: Importamos UserResponse em vez de User
+from app.schemas.user import UserCreate, UserResponse 
 
 router = APIRouter()
 
 @router.post("/", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = crud_user.get_user_by_email(db, email=user.email)
+    db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    return crud_user.create_user(db=db, user=user)
+    from app.core.security import get_password_hash
+    hashed_password = get_password_hash(user.password)
+    
+    db_user = User(
+        email=user.email,
+        full_name=user.full_name,
+        hashed_password=hashed_password,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 @router.get("/me", response_model=UserResponse)
-def read_user_me(current_user: User = Depends(get_current_user)):
-    """Retorna os dados do usuário logado (incluindo is_superuser)."""
+def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+# Rota de Admin
+@router.get("/", response_model=List[UserResponse])
+def read_users(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Privilégio insuficiente.")
+        
+    users = db.query(User).offset(skip).limit(limit).all()
+    return users

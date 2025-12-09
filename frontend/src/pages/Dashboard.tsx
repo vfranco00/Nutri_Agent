@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User as UserIcon, ChefHat, Activity, Sparkles, Scale, ShoppingCart, LibrarySquare, Book, CheckCheck } from 'lucide-react';
+import { User as UserIcon, ChefHat,Scale, ShoppingCart, Book, CheckCheck, Shield } from 'lucide-react'; // Adicionei Shield
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { api } from '../lib/api';
@@ -28,6 +28,7 @@ export function Dashboard() {
         <p className="text-zinc-500 dark:text-zinc-400">Acompanhe seu progresso e gerencie sua dieta.</p>
       </div>
 
+      {/* Gráfico de Peso (Mantido igual) */}
       <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold dark:text-white flex items-center gap-2">
@@ -75,6 +76,8 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        {/* Card Perfil */}
         <div onClick={() => navigate('/profile')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-green-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-green-100 dark:bg-green-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-200 dark:group-hover:bg-green-500/20 transition-colors">
             <UserIcon className="h-6 w-6 text-green-600 dark:text-green-500" />
@@ -83,6 +86,7 @@ export function Dashboard() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Metas e dados corporais.</p>
         </div>
 
+        {/* Card Receitas */}
         <div onClick={() => navigate('/recipes')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-orange-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-orange-100 dark:bg-orange-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-200 dark:group-hover:bg-orange-500/20 transition-colors">
             <Book className="h-6 w-6 text-orange-600 dark:text-orange-500" />
@@ -91,6 +95,7 @@ export function Dashboard() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Gerencie seus pratos.</p>
         </div>
 
+        {/* Card IA */}
         <div onClick={() => navigate('/ai-plan')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-purple-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-purple-100 dark:bg-purple-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-200 dark:group-hover:bg-purple-500/20 transition-colors">
             <CheckCheck className="h-6 w-6 text-purple-600 dark:text-purple-500" />
@@ -99,6 +104,7 @@ export function Dashboard() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Dieta personalizada com IA.</p>
         </div>
 
+        {/* Card Chef */}
         <div onClick={() => navigate('/ai-chef')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-blue-100 dark:bg-blue-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-500/20 transition-colors">
             <ChefHat className="h-6 w-6 text-blue-600 dark:text-blue-500" />
@@ -107,6 +113,7 @@ export function Dashboard() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Receitas com o que você tem.</p>
         </div>
 
+        {/* Card Shopping */}
         <div onClick={() => navigate('/shopping')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-pink-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
           <div className="h-12 w-12 bg-pink-100 dark:bg-pink-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-pink-200 dark:group-hover:bg-pink-500/20 transition-colors">
             <ShoppingCart className="h-6 w-6 text-pink-600 dark:text-pink-500" />
@@ -114,8 +121,28 @@ export function Dashboard() {
           <h3 className="text-lg font-semibold mb-2 dark:text-white">Lista de Compras</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Organize suas compras.</p>
         </div>
-
       </div>
+
+      {/* --- ÁREA ADMINISTRATIVA (SEPARADA, VISÍVEL SÓ PARA SUPERUSER) --- */}
+      {user?.is_superuser && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-red-500 flex items-center gap-2">
+            <Shield className="h-5 w-5" /> Área Restrita
+          </h2>
+          <div 
+            onClick={() => navigate('/admin')} 
+            className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-red-200 dark:border-red-900/50 hover:border-red-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm flex items-center gap-4"
+          >
+            <div className="h-12 w-12 bg-red-100 dark:bg-red-500/10 rounded-lg flex items-center justify-center group-hover:bg-red-200 dark:group-hover:bg-red-500/20 transition-colors">
+              <Shield className="h-6 w-6 text-red-600 dark:text-red-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-1 dark:text-white text-red-600 dark:text-red-500">Painel Admin</h3>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Gerenciar todos os usuários do sistema.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
