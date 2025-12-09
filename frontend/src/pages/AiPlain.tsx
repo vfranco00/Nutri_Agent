@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { AiPlanResponse, DailyPlan } from '../types';
-import { ArrowLeft, Sparkles, Loader2, Target, Zap, Utensils, Lightbulb, Save, Calendar, Repeat, Shuffle, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Target, Zap, Utensils, Lightbulb, Save, Calendar, Repeat, Shuffle, ShoppingCart, CheckSquare, Square, X, Check } from 'lucide-react';
 
 export function AiPlan() {
   const navigate = useNavigate();
@@ -17,6 +17,11 @@ export function AiPlan() {
   // --- ESTADOS DE NAVEGAÇÃO E AÇÃO ---
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [savingMealIndex, setSavingMealIndex] = useState<number | null>(null); // Qual botão está carregando
+
+  // --- ESTADOS DA LISTA DE COMPRAS ---
+  const [isShoppingModalOpen, setIsShoppingModalOpen] = useState(false);
+  const [proposedItems, setProposedItems] = useState<string[]>([]); // Itens que a IA sugeriu
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set()); // Itens que o usuário quer comprar
 
   // 1. GERAR CARDÁPIO
   async function handleGenerate() {
@@ -72,22 +77,55 @@ export function AiPlan() {
     return 'almoco';
   }
 
-  // 3. GERAR LISTA DE COMPRAS
-  async function handleCreateShoppingList() {
+  // 1. Função que chama a IA e abre o Modal
+  async function handleOpenShoppingList() {
     if (!planData) return;
-    
-    const confirmGen = confirm("Deseja gerar uma lista de compras baseada neste cardápio completo?");
-    if (!confirmGen) return;
-
     setLoading(true);
     try {
-      await api.post('/ai/plan-to-shopping-list', planData);
-      alert('Lista de compras criada! Redirecionando...');
-      navigate('/shopping');
+      // Chama a rota que CRIAMOS ACIMA (que só retorna JSON)
+      const response = await api.post('/ai/plan-to-shopping-list', planData);
+      
+      const items = response.data.items || [];
+      setProposedItems(items);
+      setSelectedItems(new Set(items)); // Marca todos como selecionados por padrão
+      setIsShoppingModalOpen(true); // Abre o modal
     } catch (error) {
-      alert('Erro ao criar lista de compras.');
+      alert('Erro ao gerar sugestão de compras.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  // 2. Função para Marcar/Desmarcar item
+  function toggleItem(item: string) {
+    const newSet = new Set(selectedItems);
+    if (newSet.has(item)) {
+      newSet.delete(item);
+    } else {
+      newSet.add(item);
+    }
+    setSelectedItems(newSet);
+  }
+
+  // 3. Função Final: Salvar no Banco
+  async function handleSaveShoppingList() {
+    try {
+      // Cria a lista vazia
+      const listRes = await api.post('/shopping/', { title: `Compras - ${new Date().toLocaleDateString()}` });
+      const listId = listRes.data.id;
+
+      // Salva item por item (ou em lote se tiver rota bulk)
+      const itemsToSave = Array.from(selectedItems);
+      // Dica: Use Promise.all para ser rápido
+      await Promise.all(itemsToSave.map(name => 
+        api.post(`/shopping/${listId}/items`, { name })
+      ));
+
+      setIsShoppingModalOpen(false);
+      alert('Lista de compras salva com sucesso! 🛒');
+      navigate('/shopping'); // Redireciona
+    } catch (error) {
+      alert('Erro ao salvar a lista final.');
     }
   }
 
@@ -310,11 +348,66 @@ export function AiPlan() {
           {/* Ações Finais */}
           <div className="flex flex-col md:flex-row gap-4">
             <button 
-              onClick={handleCreateShoppingList}
+              onClick={handleOpenShoppingList}
               className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-pink-900/20"
             >
               <ShoppingCart className="h-5 w-5" /> Gerar Lista de Compras
             </button>
+
+            {/* --- O MODAL (POPUP) --- */}
+      {isShoppingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-800 flex flex-col max-h-[80vh]">
+            
+            {/* Header do Modal */}
+            <div className="p-5 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 rounded-t-2xl">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5 text-pink-500"/> O que comprar?
+                </h3>
+                <p className="text-xs text-zinc-500 mt-1">Desmarque o que você já tem em casa.</p>
+              </div>
+              <button onClick={() => setIsShoppingModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            {/* Lista de Itens (Scrollável) */}
+            <div className="p-4 overflow-y-auto space-y-2 bg-zinc-950/30">
+              {proposedItems.map((item, idx) => {
+                const isSelected = selectedItems.has(item);
+                return (
+                  <div 
+                    key={idx} 
+                    onClick={() => toggleItem(item)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all select-none
+                      ${isSelected 
+                        ? 'bg-zinc-800 border-pink-500/30 text-white' 
+                        : 'bg-transparent border-zinc-800 text-zinc-500 opacity-60'}`}
+                  >
+                    {isSelected 
+                      ? <CheckSquare className="h-5 w-5 text-pink-500 shrink-0" /> 
+                      : <Square className="h-5 w-5 text-zinc-600 shrink-0" />
+                    }
+                    <span className={isSelected ? 'font-medium' : 'line-through'}>{item}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="p-5 border-t border-zinc-800 bg-zinc-900 rounded-b-2xl">
+              <button 
+                onClick={handleSaveShoppingList}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl flex justify-center gap-2 transition-transform active:scale-95"
+              >
+                <Check className="h-5 w-5" /> Confirmar Lista ({selectedItems.size})
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
             
             <button 
               onClick={() => setPlanData(null)} 

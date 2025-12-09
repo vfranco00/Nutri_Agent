@@ -70,24 +70,19 @@ def create_recipe_idea(
     return recipe
 
 @router.post("/plan-to-shopping-list")
-def create_shopping_list_from_plan(
+def create_shopping_list_proposal(
     plan_data: Dict[str, Any],
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    1. Recebe o cardápio completo.
+    2. Usa a IA para extrair e somar os ingredientes.
+    3. Retorna a lista para o usuário aprovar (NÃO SALVA NO BANCO AINDA).
+    """
     shopping_data = generate_shopping_list_from_plan(plan_data)
     
     if not shopping_data:
-        raise HTTPException(status_code=500, detail="Erro ao gerar lista de compras.")
+        raise HTTPException(status_code=500, detail="A IA não conseguiu ler os ingredientes.")
     
-    db_list = ShoppingList(title=shopping_data.get("title", "Lista Automática"), user_id=current_user.id)
-    db.add(db_list)
-    db.commit()
-    db.refresh(db_list)
-    
-    for item_name in shopping_data.get("items", []):
-        db_item = ShoppingItem(name=item_name, list_id=db_list.id)
-        db.add(db_item)
-    
-    db.commit()
-    return {"message": "Lista criada!", "list_id": db_list.id}
+    # Retorna JSON puro: { "title": "Compras da Semana", "items": ["Arroz", "Feijão"] }
+    return shopping_data

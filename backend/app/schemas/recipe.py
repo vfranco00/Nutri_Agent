@@ -12,6 +12,7 @@ class RecipeBase(BaseModel):
     preparation_method: Optional[str] = "fogao"
     category: Optional[str] = "almoco"
     is_favorite: bool = False
+    is_new: bool = True
     
 
 class RecipeCreate(RecipeBase):
