@@ -1,23 +1,23 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 
-# Base: Campos comuns que todo User tem
+# Base comum
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
-    is_active: Optional[bool] = True
+    is_active: bool = True
+    is_superuser: bool = False
 
-# Create: O que é preciso enviar para criar uma conta (Senha é obrigatória)
+# Usado para criar (tem senha)
 class UserCreate(UserBase):
     password: str
 
-# Update: O que pode ser atualizado (tudo opcional)
+# Usado para atualizar
 class UserUpdate(UserBase):
     password: Optional[str] = None
 
-# Response: O que a API devolve para o frontend (SEM SENHA!)
+# Usado para devolver na API (tem ID, sem senha)
 class UserResponse(UserBase):
     id: int
-    is_superuser: bool
-
+    
     model_config = ConfigDict(from_attributes=True)

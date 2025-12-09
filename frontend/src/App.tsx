@@ -5,7 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
 import { NewRecipe } from './pages/NewRecipe';
-import { AdminUsers } from './pages/AdminUsers';
+// import { Admin } from './pages/AdminUsers';
 import { AiPlan } from './pages/AiPlain';
 import { AiChef } from './pages/AiChef';
 import { AppLayout } from './layouts/AppLayout';
@@ -13,6 +13,7 @@ import { ShoppingPage } from './pages/ShoppingList';
 import { Loader2 } from 'lucide-react';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import type { JSX } from 'react';
+import { Admin } from './pages/Admin'
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -53,7 +54,7 @@ function AppRoutes() {
           <Route path="/shopping" element={<PrivateRoute><LayoutRoute color="text-pink-500"><ShoppingPage /></LayoutRoute></PrivateRoute>} />
 
           {/* Admin = Vermelho */}
-          <Route path="/admin" element={<PrivateRoute><LayoutRoute color="text-red-500"><AdminUsers /></LayoutRoute></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute><LayoutRoute color="text-red-500"><Admin /></LayoutRoute></PrivateRoute>} />
 
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
