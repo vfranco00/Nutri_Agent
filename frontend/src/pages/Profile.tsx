@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
-import type { Profile as ProfileType } from '../types';
-import { ACTIVITY_LEVELS, GOALS, DIET_TYPES } from '../types';
-import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus, UserIcon, ArrowLeft, Info } from 'lucide-react';
+import { type Profile as ProfileType, ACTIVITY_LEVELS, DIET_TYPES, GOALS } from '../types';
+import { Save, Loader2, Scale, Ruler, Calendar, Activity, Target, Plus, Info, Flame, Apple, CheckCircle2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
 
 interface WeightData {
   id: number;
@@ -14,23 +12,23 @@ interface WeightData {
 }
 
 export function Profile() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   
   const [formData, setFormData] = useState<ProfileType>({
     age: 0, weight: 0, height: 0, gender: 'male', activity_level: 'sedentary', goal: 'lose_weight',
-    diet_type: 'omnivore', allergies: '', food_likes: '', food_dislikes: ''
+    diet_type: 'omnivore', allergies: '', food_likes: '', food_dislikes: '',
+    eats_fruit: true, body_fat_goal: false
   });
-
-  const heightM = formData.height / 100;
-  const minWeight = heightM > 0 ? (18.5 * heightM * heightM).toFixed(1) : 0;
-  const maxWeight = heightM > 0 ? (24.9 * heightM * heightM).toFixed(1) : 0;
 
   const [history, setHistory] = useState<WeightData[]>([]);
   const [newWeight, setNewWeight] = useState('');
 
-  // Carregar Dados Iniciais
+  // Cálculo do Peso Ideal
+  const heightM = formData.height / 100;
+  const minWeight = heightM > 0 ? (18.5 * heightM * heightM).toFixed(1) : 0;
+  const maxWeight = heightM > 0 ? (24.9 * heightM * heightM).toFixed(1) : 0;
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -50,21 +48,18 @@ export function Profile() {
     loadData();
   }, []);
 
-  // --- CORREÇÃO AQUI: Salvar Perfil AGORA ATUALIZA O GRÁFICO ---
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      // 1. Salva os dados cadastrais
       await api.put('/profiles/me', formData);
+      await api.post('/profiles/weight', { weight: formData.weight });
       
-      // 2. FORÇA O SALVAMENTO DO PESO NO HISTÓRICO
-      const weightRes = await api.post('/profiles/weight', { weight: formData.weight });
+      // Recarrega para garantir que pegamos o BMR calculado pelo backend
+      const res = await api.get('/profiles/me');
+      setFormData(res.data);
       
-      // 3. Atualiza o gráfico localmente com o novo ponto
-      setHistory([...history, weightRes.data]);
-      
-      alert('Perfil e Peso salvos com sucesso!');
+      alert('Perfil salvo e métricas calculadas!');
     } catch (error) {
       alert('Erro ao salvar perfil.');
     } finally {
@@ -72,15 +67,13 @@ export function Profile() {
     }
   }
 
-  // Função do Botãozinho "Pesagem Rápida"
   async function handleAddWeight() {
     if (!newWeight) return;
     try {
       const weightVal = Number(newWeight);
       const res = await api.post('/profiles/weight', { weight: weightVal });
-      
       setHistory([...history, res.data]);
-      setFormData({ ...formData, weight: weightVal }); // Atualiza o input principal também
+      setFormData({ ...formData, weight: weightVal });
       setNewWeight('');
     } catch (error) {
       alert('Erro ao registrar peso.');
@@ -90,36 +83,51 @@ export function Profile() {
   if (fetching) return <div className="flex justify-center mt-20"><Loader2 className="animate-spin h-8 w-8 text-green-500" /></div>;
 
   return (
-    <div className="max-w-5xl mx-auto">
-
-      <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
-            <ArrowLeft className="h-6 w-6 text-zinc-400" />
-          </button>
-          <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6 flex items-center gap-2">
-            <UserIcon className="h-6 w-6" /> Meu Perfil Nutricional
-          </h1>
-      </div>
+    <div className="max-w-6xl mx-auto">
+      <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6">Meu Perfil Nutricional</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* COLUNA 1: Formulário */}
-        <div className="lg:col-span-2">
+        {/* COLUNA 1: Formulário (Esquerda) */}
+        <div className="lg:col-span-2 space-y-6">
+          
           <form onSubmit={handleSave} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-6 shadow-sm">
             <h2 className="text-lg font-semibold dark:text-zinc-100">Dados Corporais</h2>
-
-            {formData.height > 0 && (
+            
+            {/* Cards de Métricas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Peso Ideal */}
               <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 p-4 rounded-lg flex gap-3 items-start">
                 <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-bold text-blue-700 dark:text-blue-300 text-sm">Estimativa de Peso Ideal</h4>
-                  <p className="text-blue-600/80 dark:text-blue-200/70 text-sm">
-                    Baseado na sua altura, uma faixa saudável seria entre <strong>{minWeight}kg</strong> e <strong>{maxWeight}kg</strong>.
-                  </p>
+                  {formData.height > 0 ? (
+                    <p className="text-blue-600/80 dark:text-blue-200/70 text-xs mt-1">
+                      Faixa saudável: <strong>{minWeight}kg</strong> - <strong>{maxWeight}kg</strong>
+                    </p>
+                  ) : <p className="text-xs text-blue-400">Preencha sua altura</p>}
                 </div>
               </div>
-            )}
-            
+
+              {/* TMB (Basal) */}
+              {formData.bmr ? (
+                <div className="bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 p-4 rounded-lg flex gap-3 items-start">
+                  <Flame className="h-5 w-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-orange-700 dark:text-orange-300 text-sm">Metabolismo Basal</h4>
+                    <p className="text-orange-600/80 dark:text-orange-200/70 text-xs mt-1">
+                      Seu corpo gasta <strong>{Math.round(formData.bmr)} kcal</strong> em repouso.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 p-4 rounded-lg flex gap-3 items-center text-zinc-500">
+                  <Activity className="h-5 w-5" />
+                  <span className="text-xs">Salve para calcular sua TMB.</span>
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Calendar className="h-4 w-4"/> Idade</label>
@@ -150,6 +158,35 @@ export function Profile() {
               </div>
             </div>
 
+            {/* CHECKBOXES - Agora vão funcionar sem erro */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div 
+                onClick={() => setFormData({...formData, eats_fruit: !formData.eats_fruit})}
+                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${formData.eats_fruit ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700'}`}
+              >
+                <div className={`p-2 rounded-full ${formData.eats_fruit ? 'bg-green-100 dark:bg-green-500/20' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                  <Apple className={`h-5 w-5 ${formData.eats_fruit ? 'text-green-600 dark:text-green-400' : 'text-zinc-400'}`} />
+                </div>
+                <div className="flex-1">
+                  <span className={`text-sm font-bold block ${formData.eats_fruit ? 'text-green-700 dark:text-green-300' : 'text-zinc-500'}`}>Consumo Frutas</span>
+                </div>
+                {formData.eats_fruit && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+              </div>
+
+              <div 
+                onClick={() => setFormData({...formData, body_fat_goal: !formData.body_fat_goal})}
+                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${formData.body_fat_goal ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700'}`}
+              >
+                <div className={`p-2 rounded-full ${formData.body_fat_goal ? 'bg-purple-100 dark:bg-purple-500/20' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                  <Target className={`h-5 w-5 ${formData.body_fat_goal ? 'text-purple-600 dark:text-purple-400' : 'text-zinc-400'}`} />
+                </div>
+                <div className="flex-1">
+                  <span className={`text-sm font-bold block ${formData.body_fat_goal ? 'text-purple-700 dark:text-purple-300' : 'text-zinc-500'}`}>Focar em % Gordura</span>
+                </div>
+                {formData.body_fat_goal && <CheckCircle2 className="h-5 w-5 text-purple-500" />}
+              </div>
+            </div>
+
             <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
               <h3 className="text-md font-semibold text-green-600 dark:text-green-500">Preferências Alimentares</h3>
               <div className="space-y-2">
@@ -159,8 +196,8 @@ export function Profile() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400">Alergias ou Intolerância (Separar por vírgula)</label>
-                <input type="text" value={formData.allergies || ''} onChange={e => setFormData({...formData, allergies: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500/50 dark:text-white" />
+                <label className="text-sm text-zinc-500 dark:text-zinc-400">Alergias (Separar por vírgula)</label>
+                <input type="text" value={formData.allergies || ''} onChange={e => setFormData({...formData, allergies: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50 dark:text-white" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-zinc-500 dark:text-zinc-400">O que você MAIS gosta?</label>
@@ -168,7 +205,7 @@ export function Profile() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-zinc-500 dark:text-zinc-400">O que você DETESTA?</label>
-                <textarea rows={2} value={formData.food_dislikes || ''} onChange={e => setFormData({...formData, food_dislikes: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500/50 dark:text-white resize-none" />
+                <textarea rows={2} value={formData.food_dislikes || ''} onChange={e => setFormData({...formData, food_dislikes: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50 dark:text-white resize-none" />
               </div>
             </div>
 
@@ -178,9 +215,8 @@ export function Profile() {
           </form>
         </div>
 
-        {/* COLUNA 2: Gráfico e Histórico */}
+        {/* COLUNA 2: Gráfico (Direita) */}
         <div className="space-y-6">
-          
           <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
             <h3 className="text-zinc-800 dark:text-zinc-100 font-semibold mb-4 flex items-center gap-2">
               <Scale className="h-5 w-5 text-blue-500" /> Pesagem Rápida
@@ -235,7 +271,6 @@ export function Profile() {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>

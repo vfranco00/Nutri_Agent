@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Float, String, ForeignKey, Text
+from sqlalchemy import Integer, Float, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
@@ -16,10 +16,12 @@ class Profile(Base):
     # Vamos salvar como string (ex: "sedentary", "active") e validar no Pydantic
     activity_level: Mapped[str] = mapped_column(String, nullable=False)
     goal: Mapped[str] = mapped_column(String, nullable=False)
+    body_fat_goal: Mapped[bool] = mapped_column(Boolean, default=False) # Foco em redução de gordura
 
     bmr: Mapped[float] = mapped_column(Float, nullable=True) # Taxa Metabólica Basal
     daily_calories: Mapped[float] = mapped_column(Float, nullable=True) # Calorias Diárias Recomendadas
 
+    eats_fruit: Mapped[bool] = mapped_column(Boolean, default=True) # Preferências alimentares
     diet_type: Mapped[str] = mapped_column(String, nullable=True, default="omnivore") # vegan, vegetarian...
     allergies: Mapped[str] = mapped_column(String, nullable=True) # Texto livre: "Glúten, Lactose"
     food_likes: Mapped[str] = mapped_column(Text, nullable=True) # "Frango, Batata, Chocolate"
