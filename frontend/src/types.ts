@@ -8,10 +8,14 @@ export interface Profile {
   gender: 'male' | 'female';
   activity_level: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'super_active';
   goal: 'lose_weight' | 'maintain' | 'gain_muscle';
+  bmr?: number;
+  daily_calories?: number;
   diet_type?: string;
   allergies?: string;
   food_likes?: string;
   food_dislikes?: string;
+  eats_fruit?: boolean;
+  body_fat_goal?: boolean;
 }
 
 export const DIET_TYPES = {

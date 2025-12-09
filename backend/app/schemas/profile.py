@@ -18,6 +18,9 @@ class ProfileBase(BaseModel):
     food_likes: Optional[str] = ""
     food_dislikes: Optional[str] = ""
 
+    eats_fruit: Optional[bool] = True
+    body_fat_goal: Optional[bool] = False
+
 class ProfileCreate(ProfileBase):
     pass
 
@@ -27,5 +30,8 @@ class ProfileUpdate(ProfileBase):
 class ProfileResponse(ProfileBase):
     id: int
     user_id: int
+
+    bmr: Optional[float] = None
+    daily_calories: Optional[float] = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { useAuth } from '../lib/AuthContext';
 
 export function Login() {
   const navigate = useNavigate();
@@ -11,20 +12,22 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const { login } = useAuth();
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
-      const params = new URLSearchParams();
-      params.append('username', email);
-      params.append('password', password);
+      const form = new FormData();
+      form.append('username', email);
+      form.append('password', password);
 
-      const response = await api.post('/auth/login', params);
+      const response = await api.post('/auth/login', form);
 
-      const { access_token } = response.data;
-      localStorage.setItem('nutri_token', access_token);
+      // const { access_token } = response.data;
+      // localStorage.setItem('nutri_token', access_token);
+      login(response.data.access_token);
 
       navigate('/dashboard');
 
