@@ -24,3 +24,5 @@ class Recipe(Base):
 
     category: Mapped[str] = mapped_column(String, nullable=True, default="almoco") # doce, salgado, almoco...
     is_favorite: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    is_new: Mapped[bool] = mapped_column(Boolean, default=True)

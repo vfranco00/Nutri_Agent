@@ -29,6 +29,9 @@ def get_recipes(db: Session, user_id: int, skip: int = 0, limit: int = 100):
 def get_recipe(db: Session, recipe_id: int):
     return db.query(Recipe).filter(Recipe.id == recipe_id).first()
 
+def get_recipe_by_id(db: Session, recipe_id: int, user_id: int):
+    return db.query(Recipe).filter(Recipe.id == recipe_id, Recipe.user_id == user_id).first()
+
 def update_recipe(db: Session, db_recipe: Recipe, recipe_data: dict):
     # Atualiza apenas os campos que vieram
     for key, value in recipe_data.items():
