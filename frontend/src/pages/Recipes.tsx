@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { cleanMarkdown } from '../lib/utils';
-import type { Recipe, CATEGORIES } from '../types';
+import { type Recipe, CATEGORIES } from '../types';
 import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, AlertCircle, Carrot, Settings2, Volume2, Square, Star, Filter, Globe, Lock } from 'lucide-react';
 
 interface EditFormData {
