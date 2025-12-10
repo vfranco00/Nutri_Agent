@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Adicione useEffect
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
@@ -12,30 +12,37 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { login } = useAuth();
+  const { login, user } = useAuth(); // Pegue o user do contexto
+
+  // --- CORREÇÃO DO LOOP DE LOGIN ---
+  // Se o usuário já existe (está logado), manda pro Dashboard.
+  // Isso resolve o problema de clicar em "Voltar" e cair no login.
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(''); // Limpa erros anteriores
 
     try {
       const form = new FormData();
-      form.append('username', email);
+      form.append('username', email); // O FastAPI OAuth2 espera 'username'
       form.append('password', password);
 
       const response = await api.post('/auth/login', form);
 
-      // const { access_token } = response.data;
-      // localStorage.setItem('nutri_token', access_token);
-      login(response.data.access_token);
-
-      navigate('/dashboard');
+      // A função login do contexto vai atualizar o estado 'user'
+      // O useEffect acima vai perceber a mudança e redirecionar
+      login(response.data.access_token); 
 
     } catch (err) {
       console.error(err);
-      setError('Email ou senha incorretos. Tente novamente.');
-    } finally {
-      setLoading(false);
+      setError('Email ou senha incorretos.');
+      setLoading(false); // Só para o loading se der erro
     }
   }
 
@@ -43,16 +50,12 @@ export function Login() {
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
         
-        {/* Cabeçalho */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-green-500 mb-2">NutriAgent</h1>
           <p className="text-zinc-400">Entre para gerenciar sua dieta</p>
         </div>
 
-        {/* Formulário */}
         <form onSubmit={handleLogin} className="space-y-6">
-          
-          {/* Input Email */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-zinc-300 ml-1">Email</label>
             <div className="relative">
@@ -68,7 +71,6 @@ export function Login() {
             </div>
           </div>
 
-          {/* Input Senha */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-zinc-300 ml-1">Senha</label>
             <div className="relative">
@@ -84,14 +86,12 @@ export function Login() {
             </div>
           </div>
 
-          {/* Mensagem de Erro */}
           {error && (
             <div className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-md border border-red-400/20">
               {error}
             </div>
           )}
 
-          {/* Botão de Login */}
           <button
             type="submit"
             disabled={loading}
@@ -108,7 +108,6 @@ export function Login() {
           </button>
         </form>
 
-        {/* Rodapé */}
         <div className="mt-8 text-center text-sm text-zinc-500">
           Não tem uma conta?{' '}
           <a href="/register" className="text-green-500 hover:text-green-400 hover:underline">

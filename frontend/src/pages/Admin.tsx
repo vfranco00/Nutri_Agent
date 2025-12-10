@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { User } from '../types';
-import { Shield, Users, Mail, CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
+import { Shield, Users, Mail, CheckCircle2, XCircle, ArrowLeft, Trash2, Power } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function Admin() {
@@ -10,37 +10,52 @@ export function Admin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadUsers() {
-      try {
-        // Chama a rota que só Admin pode acessar
-        const res = await api.get('/users/'); 
-        setUsers(res.data);
-      } catch (error) {
-        alert('Acesso negado: Você não é Admin ou o token expirou.');
-        navigate('/dashboard');
-      } finally {
-        setLoading(false);
-      }
-    }
     loadUsers();
   }, []);
 
-  if (loading) return <div className="p-20 text-center text-zinc-500">Carregando dados confidenciais...</div>;
+  async function loadUsers() {
+    try {
+      const res = await api.get('/users/'); 
+      setUsers(res.data);
+    } catch (error) {
+      alert('Acesso negado.');
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDelete(id: number) {
+    if(!confirm("Tem certeza que deseja BANIR este usuário? Essa ação deleta tudo dele.")) return;
+    try {
+      await api.delete(`/users/${id}`);
+      setUsers(users.filter(u => u.id !== id));
+    } catch (e) { alert("Erro ao deletar."); }
+  }
+
+  async function handleToggleStatus(user: User) {
+    try {
+      await api.put(`/users/${user.id}/toggle-status`);
+      setUsers(users.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u));
+    } catch (e) { alert("Erro ao alterar status."); }
+  }
+
+  if (loading) return <div className="p-20 text-center text-zinc-500">Carregando painel...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <button onClick={() => navigate('/dashboard')} className="mb-6 flex items-center gap-2 text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors">
         <ArrowLeft className="h-5 w-5" /> Voltar
       </button>
 
       <h1 className="text-3xl font-bold text-red-600 mb-8 flex items-center gap-3">
-        <Shield className="h-8 w-8" /> Painel do Superusuário
+        <Shield className="h-8 w-8" /> Gestão de Usuários
       </h1>
 
       <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden">
         <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 flex items-center gap-2">
           <Users className="h-5 w-5 text-zinc-500" />
-          <h2 className="font-semibold dark:text-white">Base de Usuários ({users.length})</h2>
+          <h2 className="font-semibold dark:text-white">Base Total ({users.length})</h2>
         </div>
         
         <div className="overflow-x-auto">
@@ -52,6 +67,7 @@ export function Admin() {
                 <th className="px-6 py-4">Email</th>
                 <th className="px-6 py-4 text-center">Privilégio</th>
                 <th className="px-6 py-4 text-center">Status</th>
+                <th className="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -69,10 +85,16 @@ export function Admin() {
                     }
                   </td>
                   <td className="px-6 py-4 text-center">
-                    {user.is_active ? 
-                      <span className="flex justify-center"><CheckCircle2 className="h-5 w-5 text-green-500"/></span> : 
-                      <span className="flex justify-center"><XCircle className="h-5 w-5 text-red-500"/></span>
-                    }
+                    <button onClick={() => handleToggleStatus(user)} className="hover:scale-110 transition-transform" title="Clique para ativar/desativar">
+                        {user.is_active ? <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto"/> : <XCircle className="h-5 w-5 text-zinc-400 mx-auto"/>}
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    {!user.is_superuser && (
+                        <button onClick={() => handleDelete(user.id)} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded transition-colors" title="Deletar Usuário">
+                            <Trash2 className="h-4 w-4" />
+                        </button>
+                    )}
                   </td>
                 </tr>
               ))}
