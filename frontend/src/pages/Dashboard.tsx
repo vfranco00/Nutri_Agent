@@ -21,6 +21,16 @@ export function Dashboard() {
     api.get('/profiles/weight/history').then(res => setHistory(res.data)).catch(() => setHistory([]));
   }, []);
 
+  function getLevel(score: number = 0) {
+    if (score < 50) return { title: 'Iniciante', icon: '🥚', next: 50, color: 'text-zinc-500' };
+    if (score < 200) return { title: 'Cozinheiro', icon: '🍳', next: 200, color: 'text-orange-500' };
+    if (score < 500) return { title: 'Chef', icon: '👨‍🍳', next: 500, color: 'text-blue-500' };
+    return { title: 'MasterChef', icon: '👑', next: 1000, color: 'text-purple-500' };
+  }
+
+  const level = getLevel(user?.score);
+  const progress = Math.min(100, ((user?.score || 0) / level.next) * 100);
+
   return (
     <div className="space-y-8">
       <div>
@@ -72,6 +82,31 @@ export function Dashboard() {
               Nenhum dado registrado. Vá em Perfil para começar.
             </div>
           )}
+        </div>
+      </div>
+
+      {/* CARD DE GAMIFICAÇÃO */}
+      <div className="bg-gradient-to-r from-zinc-800 to-zinc-900 rounded-xl p-6 text-white shadow-lg border border-zinc-700 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4 opacity-10 text-9xl">{level.icon}</div>
+        <div className="relative z-10">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <p className="text-zinc-400 text-sm font-medium uppercase tracking-wider">Seu Nível</p>
+              <h2 className="text-3xl font-bold flex items-center gap-2">
+                {level.icon} {level.title}
+              </h2>
+            </div>
+            <div className="text-right">
+              <span className="text-2xl font-bold text-green-400">{user?.score || 0}</span>
+              <span className="text-xs text-zinc-500 block">XP Total</span>
+            </div>
+          </div>
+          
+          {/* Barra de Progresso */}
+          <div className="w-full bg-zinc-700/50 rounded-full h-2 mb-2">
+            <div className="bg-green-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${progress}%` }}></div>
+          </div>
+          <p className="text-xs text-zinc-400 text-right">Próximo nível em {level.next - (user?.score || 0)} XP</p>
         </div>
       </div>
 

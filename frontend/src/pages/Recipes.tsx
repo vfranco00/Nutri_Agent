@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { cleanMarkdown } from '../lib/utils';
 import { type Recipe, CATEGORIES } from '../types';
-import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, AlertCircle, Carrot, Settings2, Volume2, Square, Star, Filter, Globe, Lock } from 'lucide-react';
+import { Plus, Clock, Flame, ChefHat, Trash2, Loader2, X, Edit2, Save, Carrot, Volume2, Square, Star, Target } from 'lucide-react';
 
 interface EditFormData {
   title: string;
@@ -22,6 +22,8 @@ export function Recipes() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'mine' | 'community'>('mine'); // NOVO: Controle de Abas
+  const [recommendations, setRecommendations] = useState<Recipe[]>([]);
+  const [leaderboard, setLeaderboard] = useState<User[]>([]);
   
   // Estados do Modal
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -47,12 +49,48 @@ export function Recipes() {
     }
   }
 
-  // Recarrega sempre que mudar a aba (viewMode)
-  useEffect(() => { loadRecipes(); }, [viewMode]);
+  // // Recarrega sempre que mudar a aba (viewMode)
+  // useEffect(() => { loadRecipes(); }, [viewMode]);
 
+  // useEffect(() => {
+  //   if (!selectedRecipe) { window.speechSynthesis.cancel(); setIsSpeaking(false); }
+  // }, [selectedRecipe]);
+
+  // useEffect(() => {
+  //   api.get('/recipes/recommendations').then(res => setRecommendations(res.data)).catch(console.error);
+  //   api.get('/users/leaderboard').then(res => setLeaderboard(res.data));
+  // }, []);
+  
+  // 1. Recarrega as receitas sempre que mudar a aba (viewMode)
   useEffect(() => {
-    if (!selectedRecipe) { window.speechSynthesis.cancel(); setIsSpeaking(false); }
+    loadRecipes();
+  }, [viewMode]);
+
+  // 2. Cancela a fala quando nenhuma receita está selecionada
+  useEffect(() => {
+    if (!selectedRecipe) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   }, [selectedRecipe]);
+
+  // 3. Busca dados iniciais (executa apenas uma vez)
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const recommendationsResponse = await api.get('/recipes/recommendations');
+        setRecommendations(recommendationsResponse.data);
+
+        const leaderboardResponse = await api.get('/users/leaderboard');
+        setLeaderboard(leaderboardResponse.data);
+      } catch (error) {
+        console.error('Erro ao buscar dados iniciais:', error);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
 
   // FAVORITAR
   async function toggleFavorite(e: React.MouseEvent, recipe: Recipe) {
@@ -188,6 +226,44 @@ export function Recipes() {
           ))}
         </div>
       </div>
+
+      {/* --- CARROSSEL DE RECOMENDAÇÕES (NOVO) --- */}
+      {recommendations.length > 0 && !loading && (
+        <div className="mb-10 animate-fadeIn">
+          <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500 mb-4 flex items-center gap-2">
+            <Target className="h-5 w-5 text-orange-500" /> Escolhidas para Você
+          </h2>
+          
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+            {recommendations.map((recipe) => (
+              <div 
+                key={recipe.id} 
+                onClick={() => handleOpenRecipe(recipe)}
+                className="min-w-[280px] bg-white dark:bg-zinc-900 border border-orange-100 dark:border-orange-900/30 rounded-xl p-4 cursor-pointer hover:scale-[1.02] transition-transform snap-center shadow-sm"
+              >
+                {/* Cabeçalho do Card Pequeno */}
+                <div className="flex justify-between items-start mb-2">
+                  <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-[10px] font-bold px-2 py-1 rounded uppercase truncate max-w-[120px]">
+                    {recipe.category || 'Geral'}
+                  </span>
+                  <span className="text-xs text-zinc-400 flex items-center gap-1 shrink-0">
+                    <Flame className="h-3 w-3" /> {Math.round(recipe.calories || 0)}
+                  </span>
+                </div>
+                
+                <h3 className="font-bold text-zinc-800 dark:text-white line-clamp-1 mb-1 text-sm">{recipe.title}</h3>
+                <p className="text-xs text-zinc-500 line-clamp-2 h-8 leading-relaxed">{cleanMarkdown(recipe.instructions)}</p>
+                
+                {/* Rodapé do Card Pequeno */}
+                <div className="mt-3 pt-3 border-t border-dashed border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
+                   <span className="flex items-center gap-1"><Clock className="h-3 w-3"/> {recipe.prep_time}m</span>
+                   <span className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-[10px]">Ver receita</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading && <div className="flex justify-center mt-20"><Loader2 className="animate-spin h-8 w-8 text-orange-500" /></div>}
 

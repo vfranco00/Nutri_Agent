@@ -84,3 +84,11 @@ def toggle_user_status(
     user.is_active = not user.is_active
     db.commit()
     return {"message": "Status alterado.", "is_active": user.is_active}
+
+@router.get("/leaderboard", response_model=List[UserResponse])
+def get_leaderboard(
+    limit: int = 5,
+    db: Session = Depends(get_db)
+):
+    """Retorna os top usuários ordenados por pontuação."""
+    return db.query(User).order_by(User.score.desc()).limit(limit).all()
