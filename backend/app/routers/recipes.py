@@ -85,10 +85,32 @@ def update_recipe(
     if not db_recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
     
+    if db_recipe.user_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
     update_data = recipe_update.model_dump(exclude_unset=True)
+    ingredients_update = update_data.pop('ingredients', None)
+
     for key, value in update_data.items():
-        if key != 'ingredients': # Ingredientes complexos ignorados no update simples por enquanto
-            setattr(db_recipe, key, value)
+        setattr(db_recipe, key, value)
+    
+    if ingredients_update is not None:
+        # Apaga os antigos
+        db.query(Ingredient).filter(Ingredient.recipe_id == recipe_id).delete()
+        
+        # Cria os novos
+        for ing in ingredients_update:
+            # ing é um dict ou objeto pydantic, dependendo de como veio. 
+            # O .model_dump() lá em cima já converteu tudo para dict se usou exclude_unset.
+            # Mas ingredientes é uma lista de objetos. Vamos garantir:
+            new_ing = Ingredient(
+                recipe_id=recipe_id,
+                name=ing['name'],
+                quantity=ing['quantity'],
+                unit=ing['unit'],
+                calories=ing.get('calories', 0)
+            )
+            db.add(new_ing)
 
     db.commit()
     db.refresh(db_recipe)
