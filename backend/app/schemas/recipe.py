@@ -13,6 +13,7 @@ class RecipeBase(BaseModel):
     category: Optional[str] = "almoco"
     is_favorite: bool = False
     is_new: bool = True
+    is_ai: bool = False
 
 class RecipeCreate(RecipeBase):
     ingredients: List[IngredientBase] = []
@@ -29,6 +30,8 @@ class RecipeUpdate(BaseModel):
     category: Optional[str] = None
     is_favorite: Optional[bool] = None
     is_new: Optional[bool] = None
+    is_ai: Optional[bool] = None 
+    ingredients: Optional[List[IngredientBase]] = None
 # ---------------------------------------------
 
 class RecipeResponse(RecipeBase):
