@@ -27,11 +27,23 @@ export function NewRecipe() {
   async function calculateIngredientCalories(index: number) {
     const ing = ingredients[index];
     if (!ing.name || !ing.quantity || !ing.unit) return;
+    if (ing.calories && ing.calories > 0) return;
+
     try {
       setCalculating(true);
       const response = await api.post('/ai/calculate-calories', { name: ing.name, quantity: Number(ing.quantity), unit: ing.unit });
+
+      const kcal = response.data.total_calories;
+
       const newList = [...ingredients];
       newList[index].calories = response.data.total_calories;
+
+      if (kcal > 0) {
+        newList[index].calories = kcal;
+      } else {
+        console.log("IA não encontrou calorias para " + ing.name);
+      }
+
       setIngredients(newList);
       const newTotal = newList.reduce((sum, item) => sum + (item.calories || 0), 0);
       setTotalCalories(String(Math.round(newTotal)));
@@ -78,34 +90,34 @@ export function NewRecipe() {
       <form onSubmit={handleSave} className="space-y-6">
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
           <div className="space-y-2">
-            <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Type className="h-4 w-4"/> Nome</label>
+            <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Type className="h-4 w-4" /> Nome</label>
             <input type="text" required value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white focus:ring-2 focus:ring-orange-500" placeholder="Ex: Omelete" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Clock className="h-4 w-4"/> Tempo (min)</label>
+              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Clock className="h-4 w-4" /> Tempo (min)</label>
               <input type="number" value={prepTime} onChange={e => setPrepTime(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" />
             </div>
             <div className="space-y-2">
               <label className="text-sm text-zinc-500 dark:text-zinc-400 flex justify-between">
-                <span className="flex gap-2"><Flame className="h-4 w-4"/> Calorias</span>
+                <span className="flex gap-2"><Flame className="h-4 w-4" /> Calorias</span>
                 {calculating && <span className="text-xs text-green-500 animate-pulse">Calculando...</span>}
               </label>
               <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" placeholder="Auto" />
             </div>
           </div>
           <div className="space-y-2">
-              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Settings2 className="h-4 w-4"/> Preparo</label>
-              <select value={method} onChange={e => setMethod(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white">
-                {PREP_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-              </select>
-            </div>
+            <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Settings2 className="h-4 w-4" /> Preparo</label>
+            <select value={method} onChange={e => setMethod(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white">
+              {PREP_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+          </div>
         </div>
 
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold flex gap-2 dark:text-zinc-100"><Carrot className="text-orange-500"/> Ingredientes</h2>
-            <button type="button" onClick={addIngredient} className="text-green-500 text-sm flex gap-1 hover:text-green-400"><Plus className="h-4 w-4"/> Adicionar</button>
+            <h2 className="text-lg font-semibold flex gap-2 dark:text-zinc-100"><Carrot className="text-orange-500" /> Ingredientes</h2>
+            <button type="button" onClick={addIngredient} className="text-green-500 text-sm flex gap-1 hover:text-green-400"><Plus className="h-4 w-4" /> Adicionar</button>
           </div>
           <div className="space-y-3">
             {ingredients.map((ing, i) => (
@@ -114,19 +126,19 @@ export function NewRecipe() {
                 <input type="number" placeholder="Qtd" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="w-20 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-none dark:text-white" />
                 <input placeholder="Un" value={ing.unit} onChange={e => updateIngredient(i, 'unit', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="w-20 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-none dark:text-white" />
                 <div className="w-16 text-right text-xs text-zinc-500">{ing.calories ? `${Math.round(ing.calories)} kcal` : '-'}</div>
-                <button type="button" onClick={() => removeIngredient(i)} className="p-2 text-zinc-400 hover:text-red-400"><Trash2 className="h-5 w-5"/></button>
+                <button type="button" onClick={() => removeIngredient(i)} className="p-2 text-zinc-400 hover:text-red-400"><Trash2 className="h-5 w-5" /></button>
               </div>
             ))}
           </div>
         </div>
 
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
-           <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><AlignLeft className="h-4 w-4"/> Modo de Preparo</label>
-           <textarea required rows={4} value={instructions} onChange={e => setInstructions(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" />
+          <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><AlignLeft className="h-4 w-4" /> Modo de Preparo</label>
+          <textarea required rows={4} value={instructions} onChange={e => setInstructions(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" />
         </div>
 
         <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg flex justify-center gap-2">
-          {loading ? <Loader2 className="animate-spin"/> : <Save/>} Criar Receita
+          {loading ? <Loader2 className="animate-spin" /> : <Save />} Criar Receita
         </button>
       </form>
     </div>
