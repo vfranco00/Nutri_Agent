@@ -38,6 +38,7 @@ def create_recipe(
     db_recipe = Recipe(**recipe_data, user_id=current_user.id)
     db_recipe.is_new = True
     db_recipe.is_public = True # <--- FORÇA SER PÚBLICA (Como você pediu para comunidade)
+    db_recipe.is_ai = getattr(recipe, 'is_ai', False)
 
     # --- GAMIFICAÇÃO: DAR PONTOS ---
     current_user.score += 10 # +10XP por contribuição
