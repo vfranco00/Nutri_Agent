@@ -1,63 +1,79 @@
-# 🍎 NutriAgent --- AI Nutrition Planner
+# 🍎 NutriAgent — AI Nutrition Planner
 
 > Plataforma inteligente para planejamento alimentar personalizado,
-> powered by LLMs.
+> powered by Google Gemini LLM.
 
-![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow)
+![Status](https://img.shields.io/badge/Status-Versão_0.6.0-green)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.110-green)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688)
+![React](https://img.shields.io/badge/React-Vite-61DAFB)
+![AI](https://img.shields.io/badge/AI-Gemini_Flash-8E75B2)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
 ## 📋 Sobre o Projeto
 
-O **NutriAgent** é uma aplicação que utiliza Inteligência Artificial
-para gerar cardápios semanais e listas de compras baseadas nas
-preferências, restrições e metas do usuário.
+O **NutriAgent** é uma aplicação Fullstack que utiliza Inteligência Artificial (Google Gemini) para revolucionar a gestão nutricional pessoal. O sistema não apenas armazena receitas, mas entende ingredientes, calcula calorias automaticamente e gamifica a experiência de cozinhar.
 
-Atualmente, o projeto encontra-se na **Fase 1 (Fundação)**, com toda a
-infraestrutura de backend, banco de dados e segurança implementada.
+O diferencial do projeto é seu **sistema híbrido de cálculo nutricional**, que utiliza IA para estimativas gerais e um sistema de *fallback* robusto para produtos brasileiros específicos (ex: Rap10, Requeijão, Tapioca), garantindo precisão onde LLMs costumam alucinar.
 
-------------------------------------------------------------------------
+---
 
-## 🛠️ Tech Stack (Backend)
+## 🌟 Funcionalidades Principais
 
--   **Linguagem:** Python 3.11+
--   **Framework:** FastAPI
--   **Banco de Dados:** PostgreSQL 16
--   **ORM:** SQLAlchemy 2.0 (async)
--   **Migrations:** Alembic
--   **Segurança:**
-    -   OAuth2 + JWT
-    -   Argon2 para hashing
-    -   Pydantic V2
--   **Infraestrutura:** Docker & Docker Compose
--   **Testes:** Pytest
+### 🧠 Inteligência Artificial (Gemini Powered)
+* **Cálculo Automático:** Ao adicionar um ingrediente, a IA estima as calorias em tempo real.
+* **Sistema "Blindado":** Cache inteligente e correções manuais (Hardcoded fixes) para alimentos comerciais brasileiros que a IA costuma errar.
+* **Geração de Cardápios:** Criação de planos alimentares semanais baseados no perfil do usuário.
+* **Lista de Compras:** Geração automática com base no plano alimentar.
 
-------------------------------------------------------------------------
+### 🍳 Gestão de Receitas Avançada
+* **Unidades Padronizadas:** Sistema de seleção (g, kg, ml, colher de sopa, etc.) para evitar erros de digitação e cálculo.
+* **Privacidade:** Controle granular — você escolhe se sua receita é **Privada** (só você vê) ou **Pública** (aparece na comunidade).
+* **Edição Inteligente:** Recálculo automático de calorias totais ao editar ingredientes ou quantidades.
+
+### 🏆 Gamificação & Comunidade
+* **Leaderboard Semanal:** Ranking dos "Top Chefs" que mais contribuem com a comunidade.
+* **Sistema de XP:** Usuários ganham pontos ao tornar receitas públicas.
+* **Explorar:** Aba de comunidade para descobrir receitas de outros usuários.
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend (API)
+* **Linguagem:** Python 3.11+
+* **Framework:** FastAPI
+* **Banco de Dados:** PostgreSQL 16
+* **ORM:** SQLAlchemy 2.0 (Async) + Alembic (Migrations)
+* **AI:** Google Generative AI (Gemini Flash Model)
+* **Segurança:** OAuth2 + JWT + Argon2
+
+### Frontend (Client)
+* **Framework:** React + Vite
+* **Linguagem:** TypeScript
+* **Estilização:** Tailwind CSS (Dark/Light Mode)
+* **Ícones:** Lucide React
+* **Integração:** Axios
+
+### Infraestrutura
+* **Containerização:** Docker & Docker Compose
+
+---
 
 ## 🚀 Como Rodar o Projeto
 
 ### ✔ Pré-requisitos
-
--   Docker
--   Docker Compose
-
-------------------------------------------------------------------------
+* Docker & Docker Compose
+* Chave de API do Google Gemini (`GEMINI_API_KEY`)
 
 ### 1️⃣ Clonar e Configurar
 
-``` bash
+```bash
 git clone <URL_DO_REPO>
 cd nutriagent
+
+# Copie o arquivo de exemplo
 cp .env.example .env
-```
-
-------------------------------------------------------------------------
-
-### 2️⃣ Subir a Aplicação
-
-``` bash
-docker compose up -d --build
 ```
 
 ------------------------------------------------------------------------
@@ -67,6 +83,14 @@ docker compose up -d --build
 ``` bash
 docker compose exec api alembic upgrade head
 ```
+
+------------------------------------------------------------------------
+
+### 4️⃣ Acessar
+
+Frontend (Aplicação): http://localhost:3000
+
+Backend (Swagger UI): http://localhost:8000/docs
 
 ------------------------------------------------------------------------
 
@@ -80,18 +104,18 @@ Após subir o container:
 
 ## 🔌 Endpoints Principais
 
-  ---------------------------------------------------------------------------------
-  Método   Rota            Descrição                                       Status
-  -------- --------------- ----------------------------------------------- --------
-  POST     `/users/`       Cadastro de novos usuários (senha com Argon2)   ✅
-                                                                           Pronto
-
-  POST     `/auth/login`   Autenticação OAuth2 (retorna JWT)               ✅
-                                                                           Pronto
-
-  GET      `/health`       Checagem da saúde da API                        ✅
-                                                                           Pronto
-  ---------------------------------------------------------------------------------
+ Método,Rota,Descrição,Status
+AUTH,,,
+POST,/auth/login,Autenticação e token JWT,✅
+RECIPES,,,
+GET,/recipes/,Lista receitas do usuário (Privadas + Públicas dele),✅
+GET,/recipes/public,Lista receitas da comunidade,✅
+POST,/recipes/,Cria nova receita (com suporte a IA e Privacy),✅
+AI,,,
+POST,/ai/calculate-calories,Calcula calorias de um ingrediente específico,✅
+POST,/ai/generate-plan,Gera cardápio semanal completo,✅
+USERS,,,
+GET,/users/leaderboard,Ranking de usuários por XP,✅
 
 ------------------------------------------------------------------------
 
@@ -105,78 +129,47 @@ docker compose exec api python -m pytest
 
 # 🗺️ Roadmap de Desenvolvimento - NutriAgent
 
-> **Status do Projeto:** Backend da Sprint 4 Finalizado (Core Domain).
-> **Versão Atual:** 0.4.0 (MVP Backend Complete)
+Versão Atual: 0.6.0 (AI & Gamification Integrated)
 
----
+✅ Sprint 1 — Infraestrutura (Foundation)
+[x] Docker & Docker Compose setup.
 
-## ✅ Sprint 1 — Infraestrutura & DevOps (Foundation)
-**Objetivo:** Estabelecer um ambiente de desenvolvimento isolado, replicável e containerizado.
+[x] Configuração inicial do FastAPI e PostgreSQL.
 
-- [x] **Docker:** Configuração do `Dockerfile` para a API.
-- [x] **Orquestração:** Criação do `docker-compose.yml` para gerenciar múltiplos serviços.
-- [x] **Database:** Instância do PostgreSQL 16 rodando em container.
-- [x] **Backend Setup:** Estrutura inicial do FastAPI (Hello World).
-- [x] **Config:** Gerenciamento de variáveis de ambiente sensíveis (`.env`).
+✅ Sprint 2 — Segurança (Auth)
+[x] Hashing de senhas com Argon2.
 
----
+[x] Login JWT e OAuth2.
 
-## ✅ Sprint 2 — Identidade & Segurança (Auth)
-**Objetivo:** Implementar gestão de usuários e segurança de ponta a ponta.
+✅ Sprint 3 — Frontend Foundation
+[x] Setup React, TypeScript e Tailwind.
 
-- [x] **ORM:** Configuração do SQLAlchemy e Alembic para Versionamento de Banco de Dados.
-- [x] **User Model:** Modelagem da tabela `users`.
-- [x] **Criptografia:** Implementação de Hashing de Senha com **Argon2** (Padrão ouro de segurança).
-- [x] **Autenticação:** Sistema de Login via **OAuth2** com geração de Token **JWT**.
-- [x] **Documentação:** Swagger UI configurado e protegido por autenticação.
+[x] Roteamento e Dark Mode.
 
----
+✅ Sprint 4 — Core Domain (Backend)
+[x] CRUD de Receitas e Ingredientes.
 
-## ✅ Sprint 3 — Frontend Foundation (Client-Side)
-**Objetivo:** Levantar a aplicação Web e integrar ao ecossistema Docker.
+[x] Modelagem de Perfil Nutricional.
 
-- [x] **Tech Stack:** Setup do projeto com React, Vite e TypeScript.
-- [x] **Styling:** Configuração do Design System com TailwindCSS.
-- [x] **Containerização:** Criação do `Dockerfile` otimizado para Node/React.
-- [x] **Integração:** Orquestração Fullstack (Frontend conectando na mesma rede do Backend/DB).
-- [x] **Smoke Test:** Validação de Hot-Reload e renderização inicial.
+✅ Sprint 5 — Interface do Usuário (UI)
+[x] Dashboard interativo.
 
----
+[x] Formulários dinâmicos de Receitas.
 
-## ✅ Sprint 4 — Regras de Negócio & Domínio (Backend API)
-**Objetivo:** Implementar a lógica central de Nutrição (Perfis, Receitas e Ingredientes).
+[x] Feature: Toggle de Receita Pública/Privada.
 
-### 👤 Perfil do Usuário
-- [x] **Modelagem:** Tabela `profiles` (Relacionamento 1:1 com User).
-- [x] **Validação:** Schemas Pydantic com regras de negócio (ex: peso > 0).
-- [x] **API:** Rotas para criar, editar e ler perfil logado (`/profiles/me`).
+[x] Feature: Select padronizado de unidades de medida.
 
-### 🍳 Receitas (Recipes)
-- [x] **Modelagem:** Tabela `recipes` (Relacionamento 1:N com User).
-- [x] **API:** CRUD completo de receitas.
-- [x] **Segurança:** Regra de negócio onde o usuário só edita suas próprias receitas.
+✅ Sprint 6 — AI & Gamification (Finalizado)
+[x] Integração com Google Gemini.
 
-### 🥕 Ingredientes (Ingredients)
-- [x] **Modelagem:** Tabela `ingredients` (Relacionamento 1:N com Recipe e Cascade Delete).
-- [x] **Lógica Aninhada:** Adição de ingredientes vinculados a uma receita pai.
-- [x] **API:** Rota para listar ingredientes de uma receita específica.
+[x] Cálculo automático de calorias por ingrediente.
 
----
+[x] Sistema de Cache de Alimentos (food_cache).
 
-## ⏳ Sprint 5 — Interface do Usuário (Em Breve)
-**Objetivo:** Construir as telas para consumir a API desenvolvida na Sprint 4.
+[x] Feature: Leaderboard e Sistema de XP.
 
-- [x] **Auth Pages:** Telas de Login e Cadastro.
-- [x] **Onboarding:** Formulário de criação de Perfil Nutricional.
-- [x] **Dashboard:** Visualização das receitas do usuário.
-- [x] **Forms:** Telas para adicionar receitas e ingredientes dinamicamente.
-
-## 🔮 Sprint 6 — Inteligência Artificial (Futuro)
-**Objetivo:** Integração com LLM para gerar valor ao usuário.
-
-- [x] **AI Integration:** Conexão com OpenAI API ou Gemini API.
-- [x] **Feature:** "Gerar Cardápio Semanal" baseado no Perfil e Receitas.
-- [x] **Chat:** Assistente nutricional interativo.
+[x] Correções específicas para produtos brasileiros (Fix do Rap10).
 
 ------------------------------------------------------------------------
 
@@ -210,21 +203,22 @@ git push origin feature/minha-feature
 Crie este arquivo na raiz do projeto:
 
 ``` ini
-# Configurações do Banco de Dados
+# Database
 POSTGRES_USER=nutri_user
 POSTGRES_PASSWORD=nutri_password
 POSTGRES_DB=nutri_db
 POSTGRES_PORT=5432
 POSTGRES_HOST=db
-
-# String de Conexão (SQLAlchemy)
 DATABASE_URL=postgresql+psycopg://nutri_user:nutri_password@db:5432/nutri_db
 
-# Segurança
-SECRET_KEY=change_this_secret_key_in_production
+# Security
+SECRET_KEY=sua_chave_secreta_aqui
 ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+ACCESS_TOKEN_EXPIRE_MINUTES=60
 
-# Ambiente
+# AI Configuration
+GEMINI_API_KEY=cole_sua_chave_do_google_aqui
+
+# Environment
 ENVIRONMENT=development
 ```
