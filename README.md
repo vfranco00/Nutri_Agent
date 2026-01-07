@@ -104,18 +104,15 @@ Após subir o container:
 
 ## 🔌 Endpoints Principais
 
- Método,Rota,Descrição,Status
-AUTH,,,
-POST,/auth/login,Autenticação e token JWT,✅
-RECIPES,,,
-GET,/recipes/,Lista receitas do usuário (Privadas + Públicas dele),✅
-GET,/recipes/public,Lista receitas da comunidade,✅
-POST,/recipes/,Cria nova receita (com suporte a IA e Privacy),✅
-AI,,,
-POST,/ai/calculate-calories,Calcula calorias de um ingrediente específico,✅
-POST,/ai/generate-plan,Gera cardápio semanal completo,✅
-USERS,,,
-GET,/users/leaderboard,Ranking de usuários por XP,✅
+ | Método | Rota | Descrição | Status |
+| :---: | :--- | :--- | :---: |
+| **POST** | `/auth/login` | Autenticação e token JWT | ✅ |
+| **GET** | `/recipes/` | Lista receitas do usuário (Privadas + Públicas dele) | ✅ |
+| **GET** | `/recipes/public` | Lista receitas da comunidade | ✅ |
+| **POST** | `/recipes/` | Cria nova receita (com suporte a IA e Privacy) | ✅ |
+| **POST** | `/ai/calculate-calories` | Calcula calorias de um ingrediente específico | ✅ |
+| **POST** | `/ai/generate-plan` | Gera cardápio semanal completo | ✅ |
+| **GET** | `/users/leaderboard` | Ranking de usuários por XP | ✅ |
 
 ------------------------------------------------------------------------
 
