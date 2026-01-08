@@ -93,10 +93,10 @@ def get_food_calories(db: Session, food_name: str, unit: str) -> float:
     manual_calories = 0
     
     # Ajuste para pegar variações
-    if "rap10" in name_lower or "rap 10" in name_lower: manual_calories = 120.0
-    elif "tapioca" in name_lower: manual_calories = 130.0
-    elif "pão francês" in name_lower or "pao frances" in name_lower: manual_calories = 135.0
-    elif "requeijão" in name_lower or "requeijao" in name_lower: manual_calories = 80.0
+    if "rap10" in name_lower or "rap 10" in name_lower and unit == "un" : return 120.0
+    # elif "tapioca" in name_lower: manual_calories = 130.0
+    # elif "pão francês" in name_lower or "pao frances" in name_lower: manual_calories = 135.0
+    # elif "requeijão" in name_lower or "requeijao" in name_lower: manual_calories = 80.0
     
     # Se achou no manual, salva no cache e retorna
     if manual_calories > 0:

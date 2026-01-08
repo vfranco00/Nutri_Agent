@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react'; // Adicione useEffect
-import { useNavigate } from 'react-router-dom';
-import { api } from '../lib/api';
-import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
+import { useState, useEffect } from "react"; // Adicione useEffect
+import { useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
+import { Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
+import { useAuth } from "../lib/AuthContext";
 
 export function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [error, setError] = useState("");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const { login, user } = useAuth(); // Pegue o user do contexto
 
@@ -19,29 +19,28 @@ export function Login() {
   // Isso resolve o problema de clicar em "Voltar" e cair no login.
   useEffect(() => {
     if (user) {
-      navigate('/dashboard', { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [user, navigate]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError(''); // Limpa erros anteriores
+    setError(""); // Limpa erros anteriores
 
     try {
       const form = new FormData();
-      form.append('username', email); // O FastAPI OAuth2 espera 'username'
-      form.append('password', password);
+      form.append("username", email); // O FastAPI OAuth2 espera 'username'
+      form.append("password", password);
 
-      const response = await api.post('/auth/login', form);
+      const response = await api.post("/auth/login", form);
 
       // A função login do contexto vai atualizar o estado 'user'
       // O useEffect acima vai perceber a mudança e redirecionar
-      login(response.data.access_token); 
-
+      login(response.data.access_token);
     } catch (err) {
       console.error(err);
-      setError('Email ou senha incorretos.');
+      setError("Email ou senha incorretos.");
       setLoading(false); // Só para o loading se der erro
     }
   }
@@ -49,7 +48,6 @@ export function Login() {
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
-        
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-green-500 mb-2">NutriAgent</h1>
           <p className="text-zinc-400">Entre para gerenciar sua dieta</p>
@@ -57,7 +55,9 @@ export function Login() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300 ml-1">Email</label>
+            <label className="text-sm font-medium text-zinc-300 ml-1">
+              Email
+            </label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
               <input
@@ -72,7 +72,9 @@ export function Login() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300 ml-1">Senha</label>
+            <label className="text-sm font-medium text-zinc-300 ml-1">
+              Senha
+            </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
               <input
@@ -109,8 +111,11 @@ export function Login() {
         </form>
 
         <div className="mt-8 text-center text-sm text-zinc-500">
-          Não tem uma conta?{' '}
-          <a href="/register" className="text-green-500 hover:text-green-400 hover:underline">
+          Não tem uma conta?{" "}
+          <a
+            href="/register"
+            className="text-green-500 hover:text-green-400 hover:underline"
+          >
             Crie agora
           </a>
         </div>
