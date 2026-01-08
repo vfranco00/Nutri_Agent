@@ -8,7 +8,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ toggleTheme, isDark }: SidebarProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,7 +23,7 @@ export function Sidebar({ toggleTheme, isDark }: SidebarProps) {
   ];
 
   function handleLogout() {
-    localStorage.removeItem('nutri_token');
+    logout();
     navigate('/login');
   }
 
