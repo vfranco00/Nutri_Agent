@@ -26,6 +26,3 @@ class Recipe(Base):
     creator = relationship("User", back_populates="recipes")
     
     ingredients = relationship("Ingredient", back_populates="recipe", cascade="all, delete-orphan")
-
-    # Marcação se a receita foi gerada por IA
-    is_ai: Mapped[bool] = mapped_column(Boolean, default=False)

@@ -67,7 +67,6 @@ export interface User {
   full_name: string;
   is_superuser: boolean;
   is_active: boolean;
-  score?: number;
 }
 
 export interface Meal {

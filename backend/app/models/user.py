@@ -25,6 +25,3 @@ class User(Base):
     
     # 4. Lista de Compras (Um para Muitos)
     shopping_lists = relationship("ShoppingList", back_populates="user", cascade="all, delete-orphan")
-
-    # 5. Pontuação de Usuário (User Score)
-    score: Mapped[int] = mapped_column(Integer, default=0)
