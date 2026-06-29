@@ -17,8 +17,29 @@ export function Dashboard() {
   const [history, setHistory] = useState<WeightData[]>([]);
 
   useEffect(() => {
-    api.get('/users/me').then(res => setUser(res.data)).catch(console.error);
-    api.get('/profiles/weight/history').then(res => setHistory(res.data)).catch(() => setHistory([]));
+    const carregarDados = async () => {
+      try {
+        const userRes = await api.get('/users/me');
+        if (userRes && userRes.data) {
+          setUser(userRes.data);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar usuário:", error);
+      }
+
+      try {
+        const historyRes = await api.get('/profiles/weight/history');
+        if (historyRes && historyRes.data) {
+          setHistory(historyRes.data);
+        }
+      } catch (error) {
+        console.warn("Nenhum histórico de peso encontrado ou erro na rota.");
+        setHistory([]);
+        console.error("Erro ao buscar histórico de peso:", error);
+      }
+    };
+
+    carregarDados();
   }, []);
 
   function getLevel(score: number = 0) {
