@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://nutriagentbackend-a6agp9y3.b4a.run/",
+  baseURL: import.meta.env.VITE_API_URL || "nutriagentbackend-txazatal.b4a.run/",
 });
 
 // Antes de cada requisição, verifica se tem token salvo e injeta no header
