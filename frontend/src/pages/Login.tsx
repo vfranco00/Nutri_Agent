@@ -33,7 +33,7 @@ export function Login() {
       form.append('username', email); // O FastAPI OAuth2 espera 'username'
       form.append('password', password);
 
-      const response = await api.post('/auth/login/', form);
+      const response = await api.post('/auth/login', form);
 
       // A função login do contexto vai atualizar o estado 'user'
       // O useEffect acima vai perceber a mudança e redirecionar
