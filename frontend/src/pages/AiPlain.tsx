@@ -48,9 +48,17 @@ export function AiPlan() {
     const savedPlan = localStorage.getItem("nutri_current_plan");
     if (savedPlan) {
       try {
-        setPlanData(JSON.parse(savedPlan));
+        const parsed = JSON.parse(savedPlan);
+        // Checagem de segurança: É um plano válido e tem a lista de dias?
+        if (parsed && Array.isArray(parsed.days)) {
+          setPlanData(parsed);
+        } else {
+          // Se for lixo no localStorage, limpa para não quebrar a tela
+          localStorage.removeItem("nutri_current_plan");
+        }
       } catch (e) {
-        console.error("Erro ao carregar");
+        console.error("Erro ao fazer parse do plano salvo");
+        localStorage.removeItem("nutri_current_plan");
         console.error(e);
       }
     }
@@ -60,19 +68,33 @@ export function AiPlan() {
   async function handleGenerate() {
     setLoading(true);
     setLoadingText("A IA está criando sua estratégia nutricional...");
-    setPlanData(null);
+    setPlanData(null); // Limpa resquícios por segurança
+
     try {
       const response = await api.post("/ai/generate-plan", {
         days: mode,
         variety: variety,
         meals_count: mealsCount,
       });
-      setPlanData(response.data);
-      localStorage.setItem("nutri_current_plan", JSON.stringify(response.data)); // Salva
-      setSelectedDayIndex(0);
+
+      if (response && response.data && Array.isArray(response.data.days)) {
+        setPlanData(response.data);
+        localStorage.setItem(
+          "nutri_current_plan",
+          JSON.stringify(response.data),
+        );
+        setSelectedDayIndex(0);
+      } else {
+        throw new Error("IA retornou um formato de plano inválido");
+      }
     } catch (error) {
-      alert("Erro ao gerar plano. Verifique seu perfil.");
-      console.error(error);
+      alert(
+        "Erro ao gerar plano. O servidor ou a IA podem estar indisponíveis.",
+      );
+      console.error("Erro no Generate Plan:", error);
+      // Se falhar, tenta restaurar o que tinha no localStorage
+      const savedPlan = localStorage.getItem("nutri_current_plan");
+      if (savedPlan) setPlanData(JSON.parse(savedPlan));
     } finally {
       setLoading(false);
     }
@@ -97,23 +119,29 @@ export function AiPlan() {
       const aiResponse = await api.post("/ai/recipe-by-ingredients", {
         ingredients: [suggestion],
       });
-      const fullRecipe = aiResponse.data;
 
-      // Tenta adivinhar a categoria
+      if (!aiResponse || !aiResponse.data) {
+        throw new Error("A IA falhou em estruturar a receita.");
+      }
+
+      const fullRecipe = aiResponse.data;
       let cat = "almoco";
       const n = mealName.toLowerCase();
       if (n.includes("café") || n.includes("lanche")) cat = "lanche";
       if (n.includes("jantar")) cat = "jantar";
 
-      await api.post("/recipes/", {
+      const saveRes = await api.post("/recipes/", {
         ...fullRecipe,
         title: `${mealName}: ${fullRecipe.title}`,
         category: cat,
-        is_new: true, // <--- Marca como nova
+        is_new: true,
       });
-      alert(`Receita salva em "${cat}"!`);
+
+      if (saveRes && saveRes.data) {
+        alert(`Receita salva em "${cat}"!`);
+      }
     } catch (error) {
-      alert("Erro ao salvar receita.");
+      alert("Erro ao salvar receita. A conexão falhou.");
       console.error(error);
     } finally {
       setSavingMealIndex(null);
@@ -126,16 +154,20 @@ export function AiPlan() {
     setLoading(true);
     setLoadingText("Lendo ingredientes do cardápio...");
     try {
-      // Chama a rota que só retorna JSON (sem salvar)
       const res = await api.post("/ai/plan-to-shopping-list", planData);
 
-      const items = res.data.items || [];
-      setShoppingItems(items);
-      setListTitle(res.data.title || "Compras da Semana");
-      setSelectedItems(new Set(items)); // Seleciona tudo
-      setShoppingModalOpen(true);
+      if (res && res.data) {
+        // Blindagem contra items indefinidos
+        const items = Array.isArray(res.data.items) ? res.data.items : [];
+        setShoppingItems(items);
+        setListTitle(res.data.title || "Compras da Semana");
+        setSelectedItems(new Set(items));
+        setShoppingModalOpen(true);
+      } else {
+        throw new Error("Resposta vazia da IA ao gerar lista");
+      }
     } catch (error) {
-      alert("Erro ao analisar ingredientes.");
+      alert("Erro ao analisar ingredientes com a IA.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -148,19 +180,29 @@ export function AiPlan() {
     setLoadingText("Salvando lista de compras...");
     try {
       const listRes = await api.post("/shopping/", { title: listTitle });
-      const listId = listRes.data.id;
-      const itemsToSave = Array.from(selectedItems);
 
-      await Promise.all(
-        itemsToSave.map((name) =>
-          api.post(`/shopping/${listId}/items`, { name }),
-        ),
-      );
+      if (listRes && listRes.data && listRes.data.id) {
+        const listId = listRes.data.id;
+        const itemsToSave = Array.from(selectedItems);
 
-      setShoppingModalOpen(false);
-      navigate("/shopping");
+        // Se um item der erro, não derruba os outros
+        await Promise.all(
+          itemsToSave.map((name) =>
+            api
+              .post(`/shopping/${listId}/items`, { name })
+              .catch((err) =>
+                console.error(`Erro ao salvar item ${name}`, err),
+              ),
+          ),
+        );
+
+        setShoppingModalOpen(false);
+        navigate("/shopping");
+      } else {
+        throw new Error("Falha ao criar identificador da lista no banco");
+      }
     } catch (error) {
-      alert("Erro ao salvar lista.");
+      alert("Erro ao salvar lista no banco de dados.");
       console.error(error);
     } finally {
       setLoading(false);

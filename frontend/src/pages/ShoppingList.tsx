@@ -23,10 +23,23 @@ export function ShoppingPage() {
 
   // Carregar listas
   async function loadLists() {
+    setLoading(true);
     try {
       const res = await api.get("/shopping/");
-      setLists(res.data);
+      
+      if (res && Array.isArray(res.data)) {
+        // Blindagem Nível 2: Garante que cada lista tenha o array "items" válido
+        const safeLists = res.data.map(list => ({
+          ...list,
+          items: Array.isArray(list.items) ? list.items : []
+        }));
+        setLists(safeLists);
+      } else {
+        setLists([]);
+      }
     } catch (error) {
+      console.warn("Sem listas de compras ou erro na rota.");
+      setLists([]); // Fallback seguro
       console.error(error);
     } finally {
       setLoading(false);
@@ -43,8 +56,16 @@ export function ShoppingPage() {
     if (!newListTitle) return;
     try {
       const res = await api.post("/shopping/", { title: newListTitle });
-      setLists([res.data, ...lists]);
-      setNewListTitle("");
+      
+      if (res && res.data) {
+        // Garante que a lista nova já nasça com array de itens vazio caso o back não mande
+        const newList = { 
+          ...res.data, 
+          items: Array.isArray(res.data.items) ? res.data.items : [] 
+        };
+        setLists([newList, ...lists]);
+        setNewListTitle("");
+      }
     } catch (error) {
       alert("Erro ao criar lista");
       console.error(error);
@@ -70,15 +91,18 @@ export function ShoppingPage() {
     try {
       const res = await api.post(`/shopping/${listId}/items`, { name });
 
-      // Atualiza estado local complexo (nested array)
-      const updatedLists = lists.map((list) => {
-        if (list.id === listId) {
-          return { ...list, items: [...list.items, res.data] };
-        }
-        return list;
-      });
-      setLists(updatedLists);
-      setNewItemNames({ ...newItemNames, [listId]: "" });
+      if (res && res.data) {
+        const updatedLists = lists.map((list) => {
+          if (list.id === listId) {
+            // Se previne contra list.items ser undefined
+            const currentItems = Array.isArray(list.items) ? list.items : [];
+            return { ...list, items: [...currentItems, res.data] };
+          }
+          return list;
+        });
+        setLists(updatedLists);
+        setNewItemNames({ ...newItemNames, [listId]: "" });
+      }
     } catch (error) {
       alert("Erro ao adicionar item");
       console.error(error);
@@ -92,7 +116,8 @@ export function ShoppingPage() {
 
       const updatedLists = lists.map((list) => {
         if (list.id === listId) {
-          const updatedItems = list.items.map((item) =>
+          const currentItems = Array.isArray(list.items) ? list.items : [];
+          const updatedItems = currentItems.map((item) =>
             item.id === itemId ? { ...item, checked: !item.checked } : item,
           );
           return { ...list, items: updatedItems };
@@ -101,7 +126,7 @@ export function ShoppingPage() {
       });
       setLists(updatedLists);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao alterar status do item:", error);
     }
   }
 
@@ -109,15 +134,17 @@ export function ShoppingPage() {
   async function handleDeleteItem(itemId: number, listId: number) {
     try {
       await api.delete(`/shopping/items/${itemId}`);
+      
       const updatedLists = lists.map((list) => {
         if (list.id === listId) {
-          return { ...list, items: list.items.filter((i) => i.id !== itemId) };
+          const currentItems = Array.isArray(list.items) ? list.items : [];
+          return { ...list, items: currentItems.filter((i) => i.id !== itemId) };
         }
         return list;
       });
       setLists(updatedLists);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao deletar item:", error);
     }
   }
 

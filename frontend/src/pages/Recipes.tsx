@@ -71,9 +71,16 @@ export function Recipes() {
     try {
       const endpoint = viewMode === "mine" ? "/recipes/" : "/recipes/public";
       const response = await api.get(endpoint);
-      setRecipes(response.data);
+      
+      // Checagem de segurança: Existe response? Existe data? É um array?
+      if (response && Array.isArray(response.data)) {
+        setRecipes(response.data);
+      } else {
+        setRecipes([]); // Fallback seguro
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar receitas:", error);
+      setRecipes([]); // Se der erro 404, 500, ou CORS, garante que não quebre o .map()
     } finally {
       setLoading(false);
     }
@@ -95,17 +102,35 @@ export function Recipes() {
   // 3. Busca dados iniciais
   useEffect(() => {
     const fetchInitialData = async () => {
+      // Recomendações
       try {
-        const [recRes, leadRes] = await Promise.all([
-          api.get("/recipes/recommendations").catch(() => ({ data: [] })),
-          api.get("/users/leaderboard").catch(() => ({ data: [] })),
-        ]);
-        setRecommendations(recRes.data);
-        setLeaderboard(leadRes.data);
+        const recRes = await api.get("/recipes/recommendations");
+        if (recRes && Array.isArray(recRes.data)) {
+          setRecommendations(recRes.data);
+        } else {
+          setRecommendations([]);
+        }
       } catch (error) {
-        console.error("Erro ao buscar dados iniciais:", error);
+        console.warn("Sem recomendações disponíveis no momento.");
+        setRecommendations([]);
+        console.error("Erro ao buscar recomendações:", error);
+      }
+
+      // Leaderboard
+      try {
+        const leadRes = await api.get("/users/leaderboard");
+        if (leadRes && Array.isArray(leadRes.data)) {
+          setLeaderboard(leadRes.data);
+        } else {
+          setLeaderboard([]);
+        }
+      } catch (error) {
+        console.warn("Sem leaderboard disponível no momento.");
+        setLeaderboard([]);
+        console.error("Erro ao buscar leaderboard:", error);
       }
     };
+    
     fetchInitialData();
   }, []);
 

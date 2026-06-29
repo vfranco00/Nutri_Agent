@@ -12,18 +12,31 @@ export function AiChef() {
   async function handleGenerate() {
     if (!ingredientsInput) return;
     setLoading(true);
+    setGeneratedRecipe(null); // Limpa o estado anterior por segurança
+
     try {
       const list = ingredientsInput
         .split(",")
         .map((i) => i.trim())
         .filter((i) => i);
-      const response = await api.post("/ai/recipe-by-ingredients", {
+
+      const res = await api.post("/ai/recipe-by-ingredients", {
         ingredients: list,
       });
-      setGeneratedRecipe(response.data);
+
+      // Checagem de segurança: A IA realmente respondeu?
+      if (res && res.data) {
+        setGeneratedRecipe(res.data);
+      } else {
+        // Força cair no catch se a resposta vier vazia
+        throw new Error("Resposta inválida ou vazia da IA");
+      }
     } catch (error) {
-      alert("Erro ao gerar receita. Tente novamente.");
-      console.error(error);
+      alert(
+        "Erro ao gerar receita. O Chef IA pode estar sobrecarregado, tente novamente.",
+      );
+      console.error("Erro no Chef IA:", error);
+      setGeneratedRecipe(null); // Fallback absoluto
     } finally {
       setLoading(false);
     }
@@ -31,13 +44,20 @@ export function AiChef() {
 
   async function handleSaveRecipe() {
     if (!generatedRecipe) return;
+
     try {
-      await api.post("/recipes/", generatedRecipe);
-      alert("Receita salva com sucesso!");
-      navigate("/recipes");
+      const res = await api.post("/recipes/", generatedRecipe);
+
+      // Só redireciona o usuário se o backend confirmar que salvou
+      if (res && res.data) {
+        alert("Receita salva com sucesso!");
+        navigate("/recipes");
+      } else {
+        throw new Error("Backend não retornou confirmação de salvamento");
+      }
     } catch (error) {
-      alert("Erro ao salvar.");
-      console.error(error);
+      alert("Erro ao salvar. Verifique se o servidor está online.");
+      console.error("Erro ao salvar receita:", error);
     }
   }
 
