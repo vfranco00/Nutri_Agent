@@ -9,7 +9,8 @@ app = FastAPI(
 )
 
 origins = [
-    "*",
+    "http://localhost:3000",
+    "http://localhost:5173",
     "https://nutri-agent-topaz.vercel.app",
     ]
 
