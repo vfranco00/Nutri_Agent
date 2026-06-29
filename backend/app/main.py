@@ -8,7 +8,10 @@ app = FastAPI(
     version="0.1.0"
 )
 
-origins = ["*"]
+origins = [
+    "*",
+    "https://nutri-agent-topaz.vercel.app/login",
+    ]
 
 app.add_middleware(
     CORSMiddleware,
