@@ -10,7 +10,7 @@ app = FastAPI(
 
 origins = [
     "*",
-    "https://nutri-agent-topaz.vercel.app/login",
+    "https://nutri-agent-topaz.vercel.app",
     ]
 
 app.add_middleware(
