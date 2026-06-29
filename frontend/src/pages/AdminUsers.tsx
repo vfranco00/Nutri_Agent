@@ -14,6 +14,7 @@ export function Admin() {
         setUsers(res.data);
       } catch (error) {
         alert('Acesso negado: Você não é Admin.');
+        console.error(error);
       } finally {
         setLoading(false);
       }

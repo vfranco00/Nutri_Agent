@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { User } from '../types';
-import { Shield, Users, Mail, CheckCircle2, XCircle, ArrowLeft, Trash2, Power } from 'lucide-react';
+import { Shield, Users, Mail, CheckCircle2, XCircle, ArrowLeft, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function Admin() {
@@ -20,6 +20,7 @@ export function Admin() {
     } catch (error) {
       alert('Acesso negado.');
       navigate('/dashboard');
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -30,14 +31,14 @@ export function Admin() {
     try {
       await api.delete(`/users/${id}`);
       setUsers(users.filter(u => u.id !== id));
-    } catch (e) { alert("Erro ao deletar."); }
+    } catch (e) { alert("Erro ao deletar."); console.error(e); }
   }
 
   async function handleToggleStatus(user: User) {
     try {
       await api.put(`/users/${user.id}/toggle-status`);
       setUsers(users.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u));
-    } catch (e) { alert("Erro ao alterar status."); }
+    } catch (e) { alert("Erro ao alterar status."); console.error(e); }
   }
 
   if (loading) return <div className="p-20 text-center text-zinc-500">Carregando painel...</div>;
