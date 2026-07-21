@@ -1,16 +1,15 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional
 
-# Base comum
+# Base comum — NÃO inclui is_active/is_superuser: esses campos são administrativos
+# e nunca podem vir do payload de um endpoint público (cadastro/self-update).
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
-    is_active: bool = True
-    is_superuser: bool = False
 
 # Usado para criar (tem senha)
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(min_length=8)
 
 # Usado para atualizar
 class UserUpdate(UserBase):
@@ -19,6 +18,13 @@ class UserUpdate(UserBase):
 # Usado para devolver na API (tem ID, sem senha)
 class UserResponse(UserBase):
     id: int
+    is_active: bool
+    is_superuser: bool
+    is_verified: bool
     score: int = 0
-    
+
     model_config = ConfigDict(from_attributes=True)
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr

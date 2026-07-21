@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from jose import jwt
+from jose import JWTError, jwt
 from app.core.config import settings
 
 # Configura o algoritmo Bcrypt
@@ -22,3 +22,19 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+
+
+def create_email_verification_token(email: str) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(hours=24)
+    payload = {"sub": email, "type": "email_verification", "exp": expire}
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def decode_email_verification_token(token: str) -> str | None:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    except JWTError:
+        return None
+    if payload.get("type") != "email_verification":
+        return None
+    return payload.get("sub")

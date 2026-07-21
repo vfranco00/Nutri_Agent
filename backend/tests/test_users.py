@@ -31,7 +31,7 @@ def test_create_user_duplicate_email():
     email = random_email()
     payload = {
         "email": email,
-        "password": "123",
+        "password": "strongpassword123",
         "full_name": "User One"
     }
     client.post("/users/", json=payload)

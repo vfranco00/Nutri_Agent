@@ -127,7 +127,10 @@ def delete_recipe(
     db_recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if not db_recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    
+
+    if db_recipe.user_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     db.delete(db_recipe)
     db.commit()
     return {"ok": True}

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { VerifyEmail } from './pages/VerifyEmail';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
@@ -39,6 +40,7 @@ function AppRoutes() {
           {/* Rotas Públicas (Sem Layout) */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Rotas Privadas (Com Layout e Sidebar) */}
           <Route path="/dashboard" element={<PrivateRoute><LayoutRoute color="text-zinc-500"><Dashboard /></LayoutRoute></PrivateRoute>} />

@@ -1,19 +1,24 @@
 from datetime import timedelta
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.core import security
+from app.core.limiter import limiter
 from app.crud import user as crud_user
 from app.schemas.token import Token
+from app.schemas.user import ResendVerificationRequest
 from app.core.config import settings
+from app.services.email import send_verification_email
 
 router = APIRouter()
 
 @router.post("/login", response_model=Token)
+@limiter.limit("5/minute")
 def login_for_access_token(
+    request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
 ):
@@ -27,7 +32,19 @@ def login_for_access_token(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "ACCOUNT_DISABLED", "message": "Sua conta foi desativada."},
+        )
+
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "EMAIL_NOT_VERIFIED", "message": "Confirme seu email antes de entrar."},
+        )
+
     # Gera o tempo de expiração
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
@@ -35,3 +52,31 @@ def login_for_access_token(
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/verify-email")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    email = security.decode_email_verification_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Link inválido ou expirado.")
+
+    user = crud_user.get_user_by_email(db, email=email)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+
+    if not user.is_verified:
+        user.is_verified = True
+        db.commit()
+
+    return {"message": "Email verificado com sucesso!"}
+
+
+@router.post("/resend-verification")
+@limiter.limit("3/hour")
+def resend_verification(request: Request, data: ResendVerificationRequest, db: Session = Depends(get_db)):
+    user = crud_user.get_user_by_email(db, email=data.email)
+    if user and not user.is_verified:
+        send_verification_email(user.email)
+
+    # Resposta sempre genérica — não revela se o email existe na base.
+    return {"message": "Se o email existir e ainda não estiver verificado, enviamos um novo link."}

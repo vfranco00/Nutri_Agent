@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react'; // Adicione useEffect
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { useAlert } from '../lib/AlertContext';
+import { Lock, Mail, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
 export function Login() {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
+  const [resending, setResending] = useState(false);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -27,6 +31,7 @@ export function Login() {
     e.preventDefault();
     setLoading(true);
     setError(''); // Limpa erros anteriores
+    setUnverifiedEmail('');
 
     try {
       const form = new FormData();
@@ -37,12 +42,33 @@ export function Login() {
 
       // A função login do contexto vai atualizar o estado 'user'
       // O useEffect acima vai perceber a mudança e redirecionar
-      login(response.data.access_token); 
+      login(response.data.access_token);
 
+    } catch (err: any) {
+      console.error(err);
+      const detail = err.response?.data?.detail;
+      if (detail?.code === 'EMAIL_NOT_VERIFIED') {
+        setError(detail.message || 'Confirme seu email antes de entrar.');
+        setUnverifiedEmail(email);
+      } else if (detail?.code === 'ACCOUNT_DISABLED') {
+        setError(detail.message || 'Sua conta foi desativada.');
+      } else {
+        setError('Email ou senha incorretos.');
+      }
+      setLoading(false); // Só para o loading se der erro
+    }
+  }
+
+  async function handleResendVerification() {
+    setResending(true);
+    try {
+      await api.post('/auth/resend-verification', { email: unverifiedEmail });
+      showAlert('Se o email existir e ainda não estiver confirmado, enviamos um novo link.', 'success');
     } catch (err) {
       console.error(err);
-      setError('Email ou senha incorretos.');
-      setLoading(false); // Só para o loading se der erro
+      showAlert('Erro ao reenviar o link. Tente novamente.', 'error');
+    } finally {
+      setResending(false);
     }
   }
 
@@ -87,8 +113,19 @@ export function Login() {
           </div>
 
           {error && (
-            <div className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-md border border-red-400/20">
-              {error}
+            <div className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-md border border-red-400/20 space-y-2">
+              <p>{error}</p>
+              {unverifiedEmail && (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                  className="inline-flex items-center gap-1.5 text-green-400 hover:text-green-300 font-medium disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${resending ? 'animate-spin' : ''}`} />
+                  Reenviar email de confirmação
+                </button>
+              )}
             </div>
           )}
 

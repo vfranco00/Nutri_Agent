@@ -34,6 +34,14 @@ def get_current_user(
     user = get_user_by_email(db, email=email)
     if user is None:
         raise credentials_exception
+
+    # Reforça a cada request: se o admin baniu o usuário depois que o token foi emitido,
+    # o token não pode continuar valendo até expirar sozinho.
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "ACCOUNT_DISABLED", "message": "Sua conta foi desativada."},
+        )
     return user
 
 def get_current_active_superuser(

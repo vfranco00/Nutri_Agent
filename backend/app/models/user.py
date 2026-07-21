@@ -11,6 +11,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # RELACIONAMENTOS (Isso corrige os erros de Mapper)
     

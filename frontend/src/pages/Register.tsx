@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
-import { useAlert } from "../lib/AlertContext";
 import {
   User,
   Mail,
@@ -9,13 +7,27 @@ import {
   ArrowRight,
   Loader2,
   CheckCircle2,
+  MailCheck,
 } from "lucide-react";
 
+// A API pode devolver `detail` como string (erro de negócio) ou como lista de
+// erros de validação do Pydantic (422) — trata os dois formatos com segurança
+// pra nunca tentar renderizar um objeto direto no JSX.
+function extractErrorMessage(err: any, fallback: string): string {
+  const detail = err?.response?.data?.detail;
+  if (!detail) return fallback;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const first = detail[0];
+    return first?.msg || fallback;
+  }
+  return fallback;
+}
+
 export function Register() {
-  const navigate = useNavigate();
-  const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [registered, setRegistered] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -41,15 +53,39 @@ export function Register() {
         password: password,
       });
 
-      showAlert("Conta criada com sucesso! Faça login.", "success");
-      navigate("/login");
+      setRegistered(true);
     } catch (err: any) {
       console.error(err);
-      const message = err.response?.data?.detail || "Erro ao criar conta.";
-      setError(message);
+      setError(extractErrorMessage(err, "Erro ao criar conta."));
     } finally {
       setLoading(false);
     }
+  }
+
+  if (registered) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-4 text-zinc-900 dark:text-zinc-100 transition-colors">
+        <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
+          <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-green-100 dark:bg-green-500/10 flex items-center justify-center">
+            <MailCheck className="h-7 w-7 text-green-600 dark:text-green-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-2">
+            Quase lá!
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+            Enviamos um link de confirmação para <strong>{email}</strong>.
+            Verifique sua caixa de entrada (e o spam) e confirme seu email
+            antes de entrar.
+          </p>
+          <a
+            href="/login"
+            className="inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors"
+          >
+            Ir para o Login
+          </a>
+        </div>
+      </div>
+    );
   }
 
   return (
