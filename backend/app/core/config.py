@@ -10,10 +10,15 @@ class Settings(BaseSettings):
 
     GEMINI_API_KEY: str
 
-    # Envio de email (confirmação de cadastro) via Resend. Se RESEND_API_KEY
-    # ficar vazia, o serviço de email cai num fallback que só loga o link
-    # de verificação no console — não quebra o cadastro nem exige configurar
-    # isso pra rodar o projeto localmente.
+    # Envio de email (confirmação de cadastro). Ordem de prioridade em
+    # services/email.py: SMTP (Gmail, grátis, manda pra qualquer destinatário)
+    # -> Resend (só manda pro próprio email da conta enquanto não tiver domínio
+    # verificado) -> fallback que só loga o link no console (dev local).
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+
     RESEND_API_KEY: str = ""
     RESEND_FROM_EMAIL: str = "NutriAgent <onboarding@resend.dev>"
     FRONTEND_URL: str = "http://localhost:5173"
