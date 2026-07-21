@@ -24,7 +24,10 @@ def _send_via_smtp(to_email: str, html: str) -> bool:
             server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_USER, [to_email], msg.as_string())
         return True
-    except smtplib.SMTPException as e:
+    except (smtplib.SMTPException, OSError) as e:
+        # OSError cobre falhas de conexão (timeout, DNS, porta bloqueada pelo host) —
+        # smtplib.SMTPException sozinho não pega isso, e sem esse catch o registro
+        # de usuário quebrava inteiro (500) quando o SMTP não conseguia nem conectar.
         print(f"[email] Falha ao enviar via SMTP pra {to_email}: {e}")
         return False
 
