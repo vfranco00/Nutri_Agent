@@ -5,6 +5,8 @@ __pycache__/
 .venv/
 .env
 backend/.env
+.coverage
+htmlcov/
 
 # Node / Frontend
 node_modules/
