@@ -9,6 +9,23 @@ def test_login_wrong_password(client, make_user):
     assert res.status_code == 401
 
 
+def test_refresh_returns_a_valid_new_token(make_user):
+    auth_client = make_user(email="refresh@example.com")
+    res = auth_client.post("/auth/refresh")
+    assert res.status_code == 200
+    new_token = res.json()["access_token"]
+
+    other_client_with_new_token = auth_client
+    other_client_with_new_token.headers.update({"Authorization": f"Bearer {new_token}"})
+    res_me = other_client_with_new_token.get("/users/me")
+    assert res_me.status_code == 200
+
+
+def test_refresh_requires_authentication(client):
+    res = client.post("/auth/refresh")
+    assert res.status_code == 401
+
+
 def test_protected_route_rejects_malformed_token(client):
     client.headers.update({"Authorization": "Bearer token-completamente-invalido"})
     res = client.get("/users/me")

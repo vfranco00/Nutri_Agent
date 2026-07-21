@@ -92,6 +92,7 @@ export function Register() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-4 text-zinc-900 dark:text-zinc-100 transition-colors">
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-8">
         <div className="text-center mb-8">
+          <img src="/nutri_agent_logo.png" alt="NutriAgent" className="h-16 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-green-600 dark:text-green-500 mb-2">
             Crie sua Conta
           </h1>

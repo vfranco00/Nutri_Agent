@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.core import security
 from app.core.limiter import limiter
+from app.core.deps import get_current_user
 from app.crud import user as crud_user
+from app.models.user import User
 from app.schemas.token import Token
 from app.schemas.user import ResendVerificationRequest
 from app.core.config import settings
@@ -51,6 +53,17 @@ def login_for_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/refresh", response_model=Token)
+def refresh_access_token(current_user: User = Depends(get_current_user)):
+    """Renova o token de quem já tem um token válido — usado pelo aviso de
+    sessão expirando no frontend pra "estender" sem pedir a senha de novo."""
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        data={"sub": current_user.email}, expires_delta=access_token_expires
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 

@@ -45,6 +45,17 @@ def create_user(request: Request, user: UserCreate, db: Session = Depends(get_db
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+@router.put("/me/onboarding-complete", response_model=UserResponse)
+def complete_onboarding(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Marca que o usuário já viu o tour de boas-vindas (não mostra de novo)."""
+    current_user.has_seen_onboarding = True
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
 # Rota de Admin
 @router.get("/", response_model=List[UserResponse])
 def read_users(

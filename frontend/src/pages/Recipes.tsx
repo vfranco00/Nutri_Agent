@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
-import { cleanMarkdown } from "../lib/utils";
+import { cleanMarkdown, formatInstructions } from "../lib/utils";
 import { type Recipe, CATEGORIES, type User } from "../types"; // Adicionei User aqui
 import {
   Plus,
@@ -22,6 +22,7 @@ import {
   Trophy,
   Bot,
   Crown,
+  User as UserIcon,
 } from "lucide-react";
 
 interface EditFormData {
@@ -266,7 +267,7 @@ export function Recipes() {
       return;
     }
     // @ts-ignore
-    const textToRead = `Receita: ${selectedRecipe.title}. Modo de preparo: ${cleanMarkdown(selectedRecipe.instructions)}`;
+    const textToRead = `Receita: ${selectedRecipe.title}. Modo de preparo: ${formatInstructions(cleanMarkdown(selectedRecipe.instructions))}`;
     const utterance = new SpeechSynthesisUtterance(textToRead);
     utterance.lang = "pt-BR";
     utterance.onend = () => setIsSpeaking(false);
@@ -386,7 +387,7 @@ export function Recipes() {
                   {recipe.title}
                 </h3>
                 <p className="text-xs text-zinc-500 line-clamp-2 h-8 leading-relaxed">
-                  {cleanMarkdown(recipe.instructions)}
+                  {formatInstructions(cleanMarkdown(recipe.instructions))}
                 </p>
                 <div className="mt-3 pt-3 border-t border-dashed border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
                   <span className="flex items-center gap-1">
@@ -461,7 +462,7 @@ export function Recipes() {
               </h3>
             </div>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm line-clamp-3 mb-4 h-12">
-              {cleanMarkdown(recipe.instructions)}
+              {formatInstructions(cleanMarkdown(recipe.instructions))}
             </p>
             <div className="flex items-center gap-4 text-xs text-zinc-400 border-t border-zinc-100 dark:border-zinc-800 pt-4">
               <div className="flex items-center gap-1">
@@ -521,6 +522,18 @@ export function Recipes() {
             </div>
 
             <div className="p-6 overflow-y-auto space-y-6">
+              {/* Status: Feito por IA ou pelo usuário */}
+              {/* @ts-ignore */}
+              {selectedRecipe.is_ai ? (
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-500/20">
+                  <Bot className="h-3.5 w-3.5" /> Gerado por IA
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">
+                  <UserIcon className="h-3.5 w-3.5" /> Criado por você
+                </div>
+              )}
+
               {/* Campos Tempo e Calorias */}
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
@@ -654,7 +667,7 @@ export function Recipes() {
                   />
                 ) : (
                   <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                    {cleanMarkdown(selectedRecipe.instructions)}
+                    {formatInstructions(cleanMarkdown(selectedRecipe.instructions))}
                   </p>
                 )}
               </div>

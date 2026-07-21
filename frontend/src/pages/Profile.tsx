@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
+import { useAuth } from "../lib/AuthContext";
 import { isFreeText } from "../lib/utils";
 import {
   type Profile as ProfileType,
@@ -21,6 +23,7 @@ import {
   Flame,
   Apple,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import {
   AreaChart,
@@ -47,6 +50,9 @@ const PREFERENCE_FIELDS: { key: "allergies" | "food_likes" | "food_dislikes"; la
 
 export function Profile() {
   const { showAlert } = useAlert();
+  const { refreshUser } = useAuth();
+  const [searchParams] = useSearchParams();
+  const isOnboarding = searchParams.get("onboarding") === "1";
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
@@ -133,6 +139,9 @@ export function Profile() {
       }
 
       showAlert("Perfil salvo e métricas calculadas!", "success");
+      // Atualiza o usuário do AuthContext pra `has_profile` virar true sem precisar de F5
+      // (é o que libera o usuário do redirecionamento forçado do onboarding).
+      await refreshUser();
     } catch (error) {
       console.error(error);
       showAlert("Erro ao salvar perfil.", "error");
@@ -167,6 +176,20 @@ export function Profile() {
 
   return (
     <div className="max-w-6xl mx-auto">
+      {isOnboarding && (
+        <div className="mb-6 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-4 flex items-start gap-3">
+          <Sparkles className="h-5 w-5 text-green-600 dark:text-green-500 shrink-0 mt-0.5" />
+          <div>
+            <h2 className="font-bold text-green-700 dark:text-green-400 text-sm">
+              Vamos começar!
+            </h2>
+            <p className="text-green-700/80 dark:text-green-300/80 text-sm">
+              Preencha seus dados pra gente calcular suas metas e personalizar tudo pra você.
+            </p>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6">
         Meu Perfil Nutricional
       </h1>

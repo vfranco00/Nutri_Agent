@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User as UserIcon, ChefHat,Scale, ShoppingCart, Book, CheckCheck, Shield } from 'lucide-react'; // Adicionei Shield
+import { User as UserIcon, ChefHat,Scale, ShoppingCart, Book, CheckCheck, Shield, CalendarRange } from 'lucide-react'; // Adicionei Shield
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { api } from '../lib/api';
@@ -176,6 +176,15 @@ export function Dashboard() {
           </div>
           <h3 className="text-lg font-semibold mb-2 dark:text-white">Lista de Compras</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Organize suas compras.</p>
+        </div>
+
+        {/* Card Planos Alimentares */}
+        <div onClick={() => navigate('/meal-plans')} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-teal-500 transition-all cursor-pointer group hover:-translate-y-1 shadow-sm">
+          <div className="h-12 w-12 bg-teal-100 dark:bg-teal-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-teal-200 dark:group-hover:bg-teal-500/20 transition-colors">
+            <CalendarRange className="h-6 w-6 text-teal-600 dark:text-teal-500" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2 dark:text-white">Planos Alimentares</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Salve e monte seus cardápios.</p>
         </div>
       </div>
 

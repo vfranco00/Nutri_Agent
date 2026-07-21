@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { LoadingOverlay } from "../components/LoadingOverlay";
+import { formatInstructions } from "../lib/utils";
 import { ArrowLeft, ChefHat, Sparkles, Loader2, Save } from "lucide-react";
 
 export function AiChef() {
@@ -50,7 +51,7 @@ export function AiChef() {
     if (!generatedRecipe) return;
 
     try {
-      const res = await api.post("/recipes/", generatedRecipe);
+      const res = await api.post("/recipes/", { ...generatedRecipe, is_ai: true });
 
       // Só redireciona o usuário se o backend confirmar que salvou
       if (res && res.data) {
@@ -140,7 +141,7 @@ export function AiChef() {
               Modo de Preparo
             </h3>
             <p className="text-zinc-600 dark:text-zinc-300 text-sm whitespace-pre-wrap leading-relaxed bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-lg border border-zinc-100 dark:border-zinc-800">
-              {generatedRecipe.instructions}
+              {formatInstructions(generatedRecipe.instructions)}
             </p>
           </div>
 

@@ -12,6 +12,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    has_seen_onboarding: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # RELACIONAMENTOS (Isso corrige os erros de Mapper)
     
@@ -29,3 +30,8 @@ class User(Base):
 
     # 5. Pontuação de Usuário (User Score)
     score: Mapped[int] = mapped_column(Integer, default=0)
+
+    @property
+    def has_profile(self) -> bool:
+        """Usado pelo onboarding no frontend pra saber se é a primeira vez do usuário."""
+        return self.profile is not None

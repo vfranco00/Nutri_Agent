@@ -33,8 +33,7 @@ export function Sidebar({ toggleTheme, isDark }: SidebarProps) {
       
       {/* Logo Area */}
       <div className="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-zinc-200 dark:border-zinc-800">
-        <span className="text-2xl mr-2">🍎</span>
-        <span className="font-bold text-xl dark:text-white hidden lg:block">NutriAgent</span>
+        <img src="/nutri_agent_logo.png" alt="NutriAgent" className="h-10 w-auto object-contain" />
       </div>
 
       {/* Navegação */}

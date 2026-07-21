@@ -125,6 +125,31 @@ def test_admin_can_toggle_status(make_user):
     assert res2.status_code == 403
 
 
+def test_new_user_has_no_profile_and_has_not_seen_onboarding(make_user):
+    auth_client = make_user(email="novato@example.com")
+    res = auth_client.get("/users/me")
+    data = res.json()
+    assert data["has_profile"] is False
+    assert data["has_seen_onboarding"] is False
+
+
+def test_has_profile_becomes_true_after_creating_profile(make_user):
+    auth_client = make_user(email="comperfil_onb@example.com")
+    auth_client.put(
+        "/profiles/me",
+        json={"age": 25, "weight": 70, "height": 175, "gender": "male", "activity_level": "sedentary", "goal": "maintain"},
+    )
+    res = auth_client.get("/users/me")
+    assert res.json()["has_profile"] is True
+
+
+def test_complete_onboarding_marks_flag(make_user):
+    auth_client = make_user(email="tour@example.com")
+    res = auth_client.put("/users/me/onboarding-complete")
+    assert res.status_code == 200
+    assert res.json()["has_seen_onboarding"] is True
+
+
 def test_leaderboard_is_public_and_ordered(make_user):
     make_user(email="board1@example.com")
     res = client.get("/users/leaderboard")

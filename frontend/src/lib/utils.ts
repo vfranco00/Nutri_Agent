@@ -25,3 +25,11 @@ export function cleanMarkdown(text: string): string {
     .replace(/_/g, '')      // Remove underline
     .trim();
 }
+
+// A IA às vezes devolve o modo de preparo todo numa linha só ("1. Bata os ovos 2. Frite...").
+// Insere quebra de linha antes de cada passo numerado (2, 3, 4...), sem duplicar quebras
+// que já existirem no texto.
+export function formatInstructions(text: string): string {
+  if (!text) return '';
+  return text.replace(/\s(\d+[.)]\s)/g, '\n$1').trim();
+}

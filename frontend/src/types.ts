@@ -67,6 +67,9 @@ export interface User {
   full_name: string;
   is_superuser: boolean;
   is_active: boolean;
+  is_verified?: boolean;
+  has_profile?: boolean;
+  has_seen_onboarding?: boolean;
   score?: number;
 }
 

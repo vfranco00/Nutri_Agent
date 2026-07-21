@@ -140,6 +140,7 @@ export function AiPlan() {
         title: `${mealName}: ${fullRecipe.title}`,
         category: cat,
         is_new: true,
+        is_ai: true,
       });
 
       if (saveRes && saveRes.data) {

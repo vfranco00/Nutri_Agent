@@ -1,5 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import { SessionWatcher } from '../components/SessionWatcher';
+import { OnboardingGate } from '../components/OnboardingGate';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,12 +32,13 @@ export function AppLayout({ children, accentColor = 'zinc' }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 flex transition-colors duration-300">
+      <SessionWatcher />
       <Sidebar toggleTheme={() => setIsDark(!isDark)} isDark={isDark} />
       
       {/* Área de Conteúdo */}
       <main className="flex-1 ml-20 lg:ml-64 p-4 lg:p-8 overflow-y-auto h-screen transition-all">
         <div className={`max-w-7xl mx-auto animate-fadeIn ${accentColor}`}>
-          {children}
+          <OnboardingGate>{children}</OnboardingGate>
         </div>
       </main>
     </div>
