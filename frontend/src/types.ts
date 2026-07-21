@@ -131,3 +131,44 @@ export const CATEGORIES = {
   doce: 'Doce',
   salgado: 'Salgado'
 };
+
+export const MEAL_SLOTS = ['Café da Manhã', 'Lanche da Manhã', 'Almoço', 'Lanche da Tarde', 'Jantar', 'Ceia'];
+
+export interface MealPlanRecipeSummary {
+  id: number;
+  title: string;
+  calories?: number;
+  category?: string;
+}
+
+export interface MealPlanMeal {
+  id: number;
+  meal_plan_day_id: number;
+  slot_name: string;
+  recipe_id?: number | null;
+  custom_title?: string | null;
+  custom_description?: string | null;
+  calories?: number | null;
+  recipe?: MealPlanRecipeSummary | null;
+}
+
+export interface MealPlanDay {
+  id: number;
+  meal_plan_id: number;
+  day_label: string;
+  day_index: number;
+  calories_target?: number | null;
+  macros_protein?: string | null;
+  macros_carbs?: string | null;
+  macros_fats?: string | null;
+  meals: MealPlanMeal[];
+}
+
+export interface MealPlan {
+  id: number;
+  user_id: number;
+  title: string;
+  source: 'ai' | 'manual';
+  created_at: string;
+  days: MealPlanDay[];
+}

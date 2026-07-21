@@ -42,6 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function logout() {
     localStorage.removeItem('nutri_token');
+    // Evita que dados de sessão (ex: plano alimentar gerado) vazem para o próximo usuário que logar neste navegador
+    localStorage.removeItem('nutri_current_plan');
     setUser(null);
   }
 

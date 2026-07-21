@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { useAlert } from '../lib/AlertContext';
 import type { User } from '../types';
 import { Shield, Users, Mail, CheckCircle2, XCircle, ArrowLeft, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function Admin() {
   const navigate = useNavigate();
+  const { showAlert, confirmDialog } = useAlert();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,10 +17,10 @@ export function Admin() {
 
   async function loadUsers() {
     try {
-      const res = await api.get('/users/'); 
+      const res = await api.get('/users/');
       setUsers(res.data);
     } catch (error) {
-      alert('Acesso negado.');
+      showAlert('Acesso negado.', 'error');
       navigate('/dashboard');
       console.error(error);
     } finally {
@@ -27,18 +29,18 @@ export function Admin() {
   }
 
   async function handleDelete(id: number) {
-    if(!confirm("Tem certeza que deseja BANIR este usuário? Essa ação deleta tudo dele.")) return;
+    if (!(await confirmDialog("Tem certeza que deseja BANIR este usuário? Essa ação deleta tudo dele.", { danger: true, confirmLabel: 'Banir' }))) return;
     try {
       await api.delete(`/users/${id}`);
       setUsers(users.filter(u => u.id !== id));
-    } catch (e) { alert("Erro ao deletar."); console.error(e); }
+    } catch (e) { showAlert("Erro ao deletar.", 'error'); console.error(e); }
   }
 
   async function handleToggleStatus(user: User) {
     try {
       await api.put(`/users/${user.id}/toggle-status`);
       setUsers(users.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u));
-    } catch (e) { alert("Erro ao alterar status."); console.error(e); }
+    } catch (e) { showAlert("Erro ao alterar status.", 'error'); console.error(e); }
   }
 
   if (loading) return <div className="p-20 text-center text-zinc-500">Carregando painel...</div>;

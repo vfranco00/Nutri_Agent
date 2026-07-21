@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { useAlert } from "../lib/AlertContext";
 import {
   User,
   Mail,
@@ -12,6 +13,7 @@ import {
 
 export function Register() {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,7 +41,7 @@ export function Register() {
         password: password,
       });
 
-      alert("Conta criada com sucesso! Faça login.");
+      showAlert("Conta criada com sucesso! Faça login.", "success");
       navigate("/login");
     } catch (err: any) {
       console.error(err);

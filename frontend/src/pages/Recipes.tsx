@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { useAlert } from "../lib/AlertContext";
 import { cleanMarkdown } from "../lib/utils";
 import { type Recipe, CATEGORIES, type User } from "../types"; // Adicionei User aqui
 import {
@@ -41,6 +42,7 @@ interface EditFormData {
 
 export function Recipes() {
   const navigate = useNavigate();
+  const { showAlert, confirmDialog } = useAlert();
 
   // ESTADOS
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -149,7 +151,7 @@ export function Recipes() {
         is_favorite: !recipe.is_favorite,
       });
     } catch (error) {
-      alert("Erro ao favoritar.");
+      showAlert("Erro ao favoritar.", "error");
       console.error(error);
       loadRecipes();
     }
@@ -236,21 +238,21 @@ export function Recipes() {
       );
       setSelectedRecipe(updatedRecipe);
       setIsEditing(false);
-      alert("Receita atualizada!");
+      showAlert("Receita atualizada!", "success");
     } catch (error) {
       console.error(error);
-      alert("Erro ao atualizar.");
+      showAlert("Erro ao atualizar.", "error");
     }
   }
 
   async function handleDelete(id: number) {
-    if (confirm("Tem certeza?")) {
+    if (await confirmDialog("Tem certeza que deseja excluir esta receita?", { danger: true })) {
       try {
         await api.delete(`/recipes/${id}`);
         setRecipes(recipes.filter((r) => r.id !== id));
         handleCloseModal();
       } catch (error) {
-        alert("Erro ao excluir.");
+        showAlert("Erro ao excluir.", "error");
         console.error(error);
       }
     }

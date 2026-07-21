@@ -10,8 +10,12 @@ import { AiPlan } from './pages/AiPlain';
 import { AiChef } from './pages/AiChef';
 import { AppLayout } from './layouts/AppLayout';
 import { ShoppingPage } from './pages/ShoppingList';
+import { MealPlans } from './pages/MealPlans';
+import { MealPlanBuilder } from './pages/MealPlanBuilder';
+import { MealPlanDetail } from './pages/MealPlanDetail';
 import { Loader2 } from 'lucide-react';
 import { AuthProvider, useAuth } from './lib/AuthContext';
+import { AlertProvider } from './lib/AlertContext';
 import type { JSX } from 'react';
 import { Admin } from './pages/Admin'
 
@@ -53,6 +57,11 @@ function AppRoutes() {
           {/* Lista de Compras = Rosa */}
           <Route path="/shopping" element={<PrivateRoute><LayoutRoute color="text-pink-500"><ShoppingPage /></LayoutRoute></PrivateRoute>} />
 
+          {/* Planos Alimentares = Teal */}
+          <Route path="/meal-plans" element={<PrivateRoute><LayoutRoute color="text-teal-500"><MealPlans /></LayoutRoute></PrivateRoute>} />
+          <Route path="/meal-plans/new" element={<PrivateRoute><LayoutRoute color="text-teal-500"><MealPlanBuilder /></LayoutRoute></PrivateRoute>} />
+          <Route path="/meal-plans/:id" element={<PrivateRoute><LayoutRoute color="text-teal-500"><MealPlanDetail /></LayoutRoute></PrivateRoute>} />
+
           {/* Admin = Vermelho */}
           <Route path="/admin" element={<PrivateRoute><LayoutRoute color="text-red-500"><Admin /></LayoutRoute></PrivateRoute>} />
 
@@ -63,11 +72,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
+    <AlertProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </AlertProvider>
   );
 }
 

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
+import { useAlert } from "../lib/AlertContext";
+import { isFreeText } from "../lib/utils";
 import {
   type Profile as ProfileType,
   ACTIVITY_LEVELS,
@@ -37,7 +39,14 @@ interface WeightData {
   date: string;
 }
 
+const PREFERENCE_FIELDS: { key: "allergies" | "food_likes" | "food_dislikes"; label: string }[] = [
+  { key: "allergies", label: "Alergias" },
+  { key: "food_likes", label: "O que você MAIS gosta" },
+  { key: "food_dislikes", label: "O que você DETESTA" },
+];
+
 export function Profile() {
+  const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
@@ -100,6 +109,18 @@ export function Profile() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+
+    for (const field of PREFERENCE_FIELDS) {
+      const value = formData[field.key] || "";
+      if (!isFreeText(value)) {
+        showAlert(
+          `"${field.label}" deve conter texto (ex: nomes de alimentos), não apenas números ou símbolos.`,
+          "warning",
+        );
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       await api.put("/profiles/me", formData);
@@ -111,10 +132,10 @@ export function Profile() {
         setFormData(res.data);
       }
 
-      alert("Perfil salvo e métricas calculadas!");
+      showAlert("Perfil salvo e métricas calculadas!", "success");
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar perfil.");
+      showAlert("Erro ao salvar perfil.", "error");
     } finally {
       setLoading(false);
     }
@@ -133,7 +154,7 @@ export function Profile() {
       }
     } catch (error) {
       console.error(error);
-      alert("Erro ao registrar peso.");
+      showAlert("Erro ao registrar peso.", "error");
     }
   }
 

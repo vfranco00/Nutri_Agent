@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping
+from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans
 
 app = FastAPI(
     title="NutriAgent API",
@@ -30,6 +30,7 @@ app.include_router(ingredients.router, prefix="/ingredients", tags=["ingredients
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(ai.router, prefix="/ai", tags=["ai"])
 app.include_router(shopping.router, prefix="/shopping", tags=["shopping"])
+app.include_router(meal_plans.router, prefix="/meal-plans", tags=["meal-plans"])
 
 @app.get("/")
 def read_root():

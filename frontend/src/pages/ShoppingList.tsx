@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
+import { useAlert } from "../lib/AlertContext";
 import type { ShoppingList } from "../types";
 import {
   Plus,
@@ -16,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 export function ShoppingPage() {
   const navigate = useNavigate();
+  const { showAlert, confirmDialog } = useAlert();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [loading, setLoading] = useState(true);
   const [newListTitle, setNewListTitle] = useState("");
@@ -67,19 +69,19 @@ export function ShoppingPage() {
         setNewListTitle("");
       }
     } catch (error) {
-      alert("Erro ao criar lista");
+      showAlert("Erro ao criar lista", "error");
       console.error(error);
     }
   }
 
   // Deletar Lista
   async function handleDeleteList(id: number) {
-    if (!confirm("Apagar lista?")) return;
+    if (!(await confirmDialog("Apagar lista?", { danger: true }))) return;
     try {
       await api.delete(`/shopping/${id}`);
       setLists(lists.filter((l) => l.id !== id));
     } catch (error) {
-      alert("Erro ao apagar");
+      showAlert("Erro ao apagar", "error");
       console.error(error);
     }
   }
@@ -104,7 +106,7 @@ export function ShoppingPage() {
         setNewItemNames({ ...newItemNames, [listId]: "" });
       }
     } catch (error) {
-      alert("Erro ao adicionar item");
+      showAlert("Erro ao adicionar item", "error");
       console.error(error);
     }
   }
@@ -158,7 +160,7 @@ export function ShoppingPage() {
           <ArrowLeft className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
         </button>
         <h1 className="text-2xl font-bold text-pink-500 mb-8 flex items-center gap-2">
-          <ShoppingCart className="h-8 w-8" /> Chef IA
+          <ShoppingCart className="h-8 w-8" /> Lista de Compras
         </h1>
       </div>
 

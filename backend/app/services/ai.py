@@ -1,9 +1,11 @@
 import httpx
 import json
+import unicodedata
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.schemas.profile import ProfileResponse
 from app.models.food_cache import FoodCache
+from app.data.taco_foods import TACO_PER_100G, TACO_PER_UNIT
 
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={settings.GEMINI_API_KEY}"
 
@@ -78,72 +80,136 @@ def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: st
     res = call_gemini(prompt)
     return json.loads(res) if res else None
 
+_WEIGHT_UNITS = {"g", "grama", "gramas"}
+_VOLUME_UNITS = {"ml", "mililitro", "mililitros"}
+
+
+def _normalize(text: str) -> str:
+    """minusculas, sem acento, sem espaços nas pontas — pra facilitar o match com o dataset TACO."""
+    text = text.strip().lower()
+    text = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in text if not unicodedata.combining(c))
+
+
+def _best_match(query: str, dataset: dict[str, float]) -> float | None:
+    """
+    Match por palavras: bate se todas as palavras da query estão na chave (ou vice-versa),
+    priorizando a maior quantidade de palavras em comum (ex: "frango grelhado" bate com
+    "frango peito grelhado" e não com "frango coxa assada"). Cai pra substring como fallback.
+    """
+    query_words = set(query.split())
+    best_key, best_score = None, -1
+    for key in dataset:
+        key_words = set(key.split())
+        if query_words <= key_words or key_words <= query_words:
+            score = len(query_words & key_words)
+            if score > best_score:
+                best_key, best_score = key, score
+    if best_key is not None:
+        return dataset[best_key]
+
+    candidates = [key for key in dataset if key in query or query in key]
+    if not candidates:
+        return None
+    return dataset[max(candidates, key=len)]
+
+
+def _lookup_taco(food_name: str, unit: str) -> float | None:
+    query = _normalize(food_name)
+    unit_norm = _normalize(unit)
+
+    if unit_norm in _WEIGHT_UNITS or unit_norm in _VOLUME_UNITS:
+        kcal_100g = _best_match(query, TACO_PER_100G)
+        if kcal_100g is not None:
+            return round(kcal_100g / 100, 2)
+        return None
+
+    return _best_match(query, TACO_PER_UNIT)
+
+
+def _lookup_open_food_facts(food_name: str, unit: str) -> float | None:
+    """Fallback pra produtos de marca (ex: Rap10, Danone) que não estão na TACO. API pública, sem chave."""
+    unit_norm = _normalize(unit)
+    if unit_norm not in _WEIGHT_UNITS and unit_norm not in _VOLUME_UNITS:
+        return None
+
+    try:
+        with httpx.Client() as client:
+            response = client.get(
+                "https://world.openfoodfacts.org/cgi/search.pl",
+                params={
+                    "search_terms": food_name,
+                    "search_simple": 1,
+                    "action": "process",
+                    "json": 1,
+                    "page_size": 5,
+                },
+                timeout=8.0,
+            )
+            if response.status_code != 200:
+                return None
+            products = response.json().get("products", [])
+            for product in products:
+                kcal_100g = product.get("nutriments", {}).get("energy-kcal_100g")
+                if kcal_100g:
+                    return round(float(kcal_100g) / 100, 2)
+    except (httpx.HTTPError, ValueError, KeyError):
+        return None
+    return None
+
+
 def get_food_calories(db: Session, food_name: str, unit: str) -> float:
-    # 1. Tenta cache (NOMES CORRIGIDOS: unit_type e calories_per_unit)
+    # 1. Cache do banco (hits anteriores de qualquer uma das fontes abaixo)
     cache = db.query(FoodCache).filter(
-        FoodCache.name == food_name, 
+        FoodCache.name == food_name,
         FoodCache.unit_type == unit
     ).first()
-    
-    if cache: return cache.calories_per_unit
 
-    # --- CHEAT CODE: CORREÇÕES MANUAIS BRASIL ---
-    # CORREÇÃO AQUI: Usar 'food_name' em vez de 'name'
-    name_lower = food_name.lower() 
-    manual_calories = 0
-    
-    # Ajuste para pegar variações
-    if "rap10" in name_lower or "rap 10" in name_lower: manual_calories = 120.0
-    elif "tapioca" in name_lower: manual_calories = 130.0
-    elif "pão francês" in name_lower or "pao frances" in name_lower: manual_calories = 135.0
-    elif "requeijão" in name_lower or "requeijao" in name_lower: manual_calories = 80.0
-    
-    # Se achou no manual, salva no cache e retorna
-    if manual_calories > 0:
+    if cache:
+        return cache.calories_per_unit
+
+    def _save_and_return(kcal: float) -> float:
         try:
-            # Verifica se já não existe antes de adicionar para evitar erro de unique
             exists = db.query(FoodCache).filter(FoodCache.name == food_name, FoodCache.unit_type == unit).first()
             if not exists:
-                db.add(FoodCache(
-                    name=food_name, 
-                    unit_type=unit, 
-                    calories_per_unit=manual_calories
-                ))
+                db.add(FoodCache(name=food_name, unit_type=unit, calories_per_unit=kcal))
                 db.commit()
-        except:
+        except Exception:
             db.rollback()
-        return manual_calories
-    # --------------------------------------------
-    
-    # 2. PROMPT BLINDADO
+        return kcal
+
+    # 2. Tabela TACO local (alimentos brasileiros comuns, sem chamada externa)
+    taco_kcal = _lookup_taco(food_name, unit)
+    if taco_kcal is not None:
+        return _save_and_return(taco_kcal)
+
+    # 3. Open Food Facts (produtos de marca que não estão na TACO)
+    off_kcal = _lookup_open_food_facts(food_name, unit)
+    if off_kcal is not None:
+        return _save_and_return(off_kcal)
+
+    # 4. Último recurso: pergunta pra IA
     prompt = f"""
     Atue como um banco de dados nutricional.
     Preciso das calorias de: 1 {unit} de "{food_name}".
-    
+
     Se for um produto comercial (ex: Rap10, Danone), use a média do mercado.
     Se não souber a unidade exata, estime para uma porção média.
-    
+
     Responda APENAS o número (float). Exemplo: 105.5
     Se for impossível determinar, responda: 0
     """
-    
+
     try:
         res = call_gemini(prompt)
         import re
         numbers = re.findall(r"[-+]?\d*\.\d+|\d+", res)
         kcal = float(numbers[0]) if numbers else 0.0
-        
+
         if kcal > 0:
-            # CORREÇÃO AQUI TAMBÉM NO INSERT
-            db.add(FoodCache(
-                name=food_name, 
-                unit_type=unit, 
-                calories_per_unit=kcal
-            ))
-            db.commit()
-            
+            return _save_and_return(kcal)
         return kcal
-    except: 
+    except Exception:
         return 0.0
     
 def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: str = "varied", meals_count: int = 4):

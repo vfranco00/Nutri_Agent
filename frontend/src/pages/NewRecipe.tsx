@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
+import { useAlert } from '../lib/AlertContext';
 import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2 } from 'lucide-react';
 
 interface IngredientInput { name: string; quantity: string; unit: string; calories?: number; }
@@ -15,6 +16,7 @@ const PREP_METHODS = [
 
 export function NewRecipe() {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [title, setTitle] = useState('');
@@ -75,7 +77,7 @@ export function NewRecipe() {
         title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, ingredients: validIngredients
       });
       navigate('/recipes');
-    } catch (error) { alert('Erro ao criar.'); } finally { setLoading(false); }
+    } catch (error) { showAlert('Erro ao criar.', 'error'); } finally { setLoading(false); }
   }
 
   return (

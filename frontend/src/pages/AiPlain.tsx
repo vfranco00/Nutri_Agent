@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { useAlert } from "../lib/AlertContext";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 import type { AiPlanResponse, DailyPlan } from "../types";
 import {
   ArrowLeft,
@@ -23,6 +25,7 @@ import {
 
 export function AiPlan() {
   const navigate = useNavigate();
+  const { showAlert, confirmDialog } = useAlert();
 
   // --- ESTADOS ---
   const [loading, setLoading] = useState(false);
@@ -36,6 +39,7 @@ export function AiPlan() {
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [savingMealIndex, setSavingMealIndex] = useState<number | null>(null);
+  const [savingPlan, setSavingPlan] = useState(false);
 
   // --- NOVOS ESTADOS DO MODAL ---
   const [shoppingModalOpen, setShoppingModalOpen] = useState(false);
@@ -88,8 +92,9 @@ export function AiPlan() {
         throw new Error("IA retornou um formato de plano inválido");
       }
     } catch (error) {
-      alert(
+      showAlert(
         "Erro ao gerar plano. O servidor ou a IA podem estar indisponíveis.",
+        "error",
       );
       console.error("Erro no Generate Plan:", error);
       // Se falhar, tenta restaurar o que tinha no localStorage
@@ -101,8 +106,8 @@ export function AiPlan() {
   }
 
   // Função para limpar o plano (Botão Novo Plano)
-  function handleClearPlan() {
-    if (confirm("Deseja criar um novo plano? O atual será perdido.")) {
+  async function handleClearPlan() {
+    if (await confirmDialog("Deseja criar um novo plano? O atual será perdido.")) {
       setPlanData(null);
       localStorage.removeItem("nutri_current_plan");
     }
@@ -138,10 +143,10 @@ export function AiPlan() {
       });
 
       if (saveRes && saveRes.data) {
-        alert(`Receita salva em "${cat}"!`);
+        showAlert(`Receita salva em "${cat}"!`, "success");
       }
     } catch (error) {
-      alert("Erro ao salvar receita. A conexão falhou.");
+      showAlert("Erro ao salvar receita. A conexão falhou.", "error");
       console.error(error);
     } finally {
       setSavingMealIndex(null);
@@ -167,10 +172,42 @@ export function AiPlan() {
         throw new Error("Resposta vazia da IA ao gerar lista");
       }
     } catch (error) {
-      alert("Erro ao analisar ingredientes com a IA.");
+      showAlert("Erro ao analisar ingredientes com a IA.", "error");
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  // 4.5 SALVAR O CARDÁPIO GERADO COMO UM PLANO ALIMENTAR
+  async function handleSavePlan() {
+    if (!planData) return;
+    setSavingPlan(true);
+    try {
+      const payload = {
+        title: mode === 7 ? "Cardápio Semanal (IA)" : "Cardápio do Dia (IA)",
+        source: "ai",
+        days: planData.days.map((d, i) => ({
+          day_label: d.day,
+          day_index: i,
+          calories_target: d.calories_target,
+          macros_protein: d.macros.protein,
+          macros_carbs: d.macros.carbs,
+          macros_fats: d.macros.fats,
+          meals: d.meals.map((m) => ({
+            slot_name: m.name,
+            custom_title: m.name,
+            custom_description: m.suggestion,
+          })),
+        })),
+      };
+      await api.post("/meal-plans/", payload);
+      showAlert("Plano salvo em 'Planos Alimentares'!", "success");
+    } catch (error) {
+      showAlert("Erro ao salvar o plano.", "error");
+      console.error(error);
+    } finally {
+      setSavingPlan(false);
     }
   }
 
@@ -202,7 +239,7 @@ export function AiPlan() {
         throw new Error("Falha ao criar identificador da lista no banco");
       }
     } catch (error) {
-      alert("Erro ao salvar lista no banco de dados.");
+      showAlert("Erro ao salvar lista no banco de dados.", "error");
       console.error(error);
     } finally {
       setLoading(false);
@@ -220,14 +257,8 @@ export function AiPlan() {
 
   return (
     <div className="max-w-5xl mx-auto relative">
-      {/* OVERLAY DE LOADING (Novo) */}
-      {loading && (
-        <div className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center animate-fadeIn">
-          <Loader2 className="h-16 w-16 text-purple-500 animate-spin mb-6" />
-          <h3 className="text-xl font-bold text-white mb-2">Um momento...</h3>
-          <p className="text-zinc-400 animate-pulse">{loadingText}</p>
-        </div>
-      )}
+      {/* OVERLAY DE LOADING (com dicas rotativas) */}
+      {loading && <LoadingOverlay text={loadingText} />}
 
       {/* Header (Layout original) */}
       <div className="flex items-center gap-4 mb-8">
@@ -448,7 +479,19 @@ export function AiPlan() {
           </div>
 
           {/* BOTÕES DE AÇÃO (Com o novo handlePrepareShoppingList) */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={handleSavePlan}
+              disabled={savingPlan}
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+            >
+              {savingPlan ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Save className="h-5 w-5" />
+              )}
+              Salvar Plano
+            </button>
             <button
               onClick={handlePrepareShoppingList}
               className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"

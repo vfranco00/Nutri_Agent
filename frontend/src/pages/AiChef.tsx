@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { useAlert } from "../lib/AlertContext";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 import { ArrowLeft, ChefHat, Sparkles, Loader2, Save } from "lucide-react";
 
 export function AiChef() {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
   const [ingredientsInput, setIngredientsInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<any>(null);
@@ -32,8 +35,9 @@ export function AiChef() {
         throw new Error("Resposta inválida ou vazia da IA");
       }
     } catch (error) {
-      alert(
+      showAlert(
         "Erro ao gerar receita. O Chef IA pode estar sobrecarregado, tente novamente.",
+        "error",
       );
       console.error("Erro no Chef IA:", error);
       setGeneratedRecipe(null); // Fallback absoluto
@@ -50,19 +54,23 @@ export function AiChef() {
 
       // Só redireciona o usuário se o backend confirmar que salvou
       if (res && res.data) {
-        alert("Receita salva com sucesso!");
+        showAlert("Receita salva com sucesso!", "success");
         navigate("/recipes");
       } else {
         throw new Error("Backend não retornou confirmação de salvamento");
       }
     } catch (error) {
-      alert("Erro ao salvar. Verifique se o servidor está online.");
+      showAlert("Erro ao salvar. Verifique se o servidor está online.", "error");
       console.error("Erro ao salvar receita:", error);
     }
   }
 
   return (
     <div className="max-w-3xl mx-auto">
+      {loading && (
+        <LoadingOverlay text="O Chef IA está criando sua receita..." />
+      )}
+
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate("/dashboard")}
