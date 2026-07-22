@@ -59,7 +59,7 @@ const PAYMENT_STATUS_LABELS: Record<string, { label: string; className: string }
   pending: { label: "Pendente", className: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
 };
 
-const PLAN_COLORS = { starter: "#71717a", plus: "#22c55e", pro: "#a855f7" };
+const PLAN_COLORS = { starter: "#71717a", plus: "#52cc02", pro: "#a855f7" };
 const EVENT_LABELS: Record<string, string> = {
   chef_ai: "Chef IA",
   generate_plan_daily: "Cardápio diário",
@@ -165,7 +165,7 @@ export function AdminDashboard() {
                 <XAxis dataKey="date" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }} />
-                <Line type="monotone" dataKey="count" name="Novos usuários" stroke="#22c55e" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="count" name="Novos usuários" stroke="#52cc02" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

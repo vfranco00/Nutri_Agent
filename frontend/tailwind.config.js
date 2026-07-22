@@ -7,6 +7,23 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      colors: {
+        // Sobrescreve a paleta padrão do Tailwind pra todo `green-*` do app
+        // cair na cor oficial da marca (#52CC02) em vez do verde genérico.
+        green: {
+          50: "#f0fde7",
+          100: "#e1fccf",
+          200: "#c3fa9e",
+          300: "#9ef962",
+          400: "#76f91f",
+          500: "#52cc02",
+          600: "#44a702",
+          700: "#378801",
+          800: "#2b6a01",
+          900: "#215002",
+          950: "#153003",
+        },
+      },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
