@@ -102,6 +102,25 @@ def toggle_user_status(
     db.commit()
     return {"message": "Status alterado.", "is_active": user.is_active}
 
+@router.put("/{user_id}/toggle-admin")
+def toggle_user_admin(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_superuser)
+):
+    """Promove/remove privilégio de admin. Bloqueia auto-demoção — sem isso, um admin
+    sozinho poderia se trancar fora do painel sem querer."""
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Você não pode alterar seu próprio privilégio de admin.")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+
+    user.is_superuser = not user.is_superuser
+    db.commit()
+    return {"message": "Privilégio de admin alterado.", "is_superuser": user.is_superuser}
+
 @router.put("/{user_id}/subscription", response_model=SubscriptionResponse)
 def admin_set_subscription(
     user_id: int,

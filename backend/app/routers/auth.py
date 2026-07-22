@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -46,6 +46,9 @@ def login_for_access_token(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"code": "EMAIL_NOT_VERIFIED", "message": "Confirme seu email antes de entrar."},
         )
+
+    user.last_login_at = datetime.utcnow()
+    db.commit()
 
     # Gera o tempo de expiração
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional
+from datetime import datetime
 
 # Base comum — NÃO inclui is_active/is_superuser: esses campos são administrativos
 # e nunca podem vir do payload de um endpoint público (cadastro/self-update).
@@ -25,6 +26,7 @@ class UserResponse(UserBase):
     has_seen_onboarding: bool
     plan: str = "starter"
     score: int = 0
+    last_login_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -19,12 +19,15 @@ from app.schemas.admin import (
     PaymentEntry,
     AdminTopUsers,
     TopUserEntry,
+    AdminFeedback,
+    FeedbackTicketEntry,
 )
 from app.models.user import User
 from app.models.subscription import Subscription, UsageEvent
 from app.models.recipe import Recipe
 from app.models.meal_plan import MealPlan
 from app.models.payment import Payment
+from app.models.feedback import FeedbackTicket
 from app.core.deps import get_current_active_superuser
 from app.core.plan_limits import PLAN_PRICES_BRL
 
@@ -196,3 +199,34 @@ def read_admin_top_users(
     )
     entries = [TopUserEntry(user_email=email, actions_count=count) for email, count in rows]
     return AdminTopUsers(entries=entries)
+
+
+@router.get("/feedback", response_model=AdminFeedback)
+def read_admin_feedback(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_superuser),
+    user_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 50,
+):
+    """Chamados de ajuda/feedback (persistidos independente do envio de email dar
+    certo). Com user_id, filtra só os chamados de um usuário específico."""
+    query = db.query(FeedbackTicket)
+    if user_id is not None:
+        query = query.filter(FeedbackTicket.user_id == user_id)
+    total = query.count()
+    rows = query.order_by(FeedbackTicket.created_at.desc()).offset(skip).limit(limit).all()
+
+    entries = [
+        FeedbackTicketEntry(
+            id=ticket.id,
+            user_id=ticket.user_id,
+            name=ticket.name,
+            email=ticket.email,
+            category=ticket.category,
+            message=ticket.message,
+            created_at=ticket.created_at.isoformat(),
+        )
+        for ticket in rows
+    ]
+    return AdminFeedback(entries=entries, total=total)

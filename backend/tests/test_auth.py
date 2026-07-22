@@ -49,6 +49,20 @@ def test_login_success(client, make_user):
     assert "access_token" in res.json()
 
 
+def test_login_records_last_login_at(client, make_user, db_session):
+    # make_user já loga uma vez internamente pra devolver o client autenticado —
+    # por isso comparamos "ficou mais recente" em vez de "começou nulo".
+    make_user(email="ultimologin@example.com", password="strongpassword123")
+    user = db_session.query(User).filter(User.email == "ultimologin@example.com").first()
+    first_login = user.last_login_at
+    assert first_login is not None
+
+    client.post("/auth/login", data={"username": "ultimologin@example.com", "password": "strongpassword123"})
+
+    db_session.refresh(user)
+    assert user.last_login_at >= first_login
+
+
 def test_login_blocked_when_account_disabled(client, make_user, db_session):
     make_user(email="banned@example.com", password="strongpassword123")
     user = db_session.query(User).filter(User.email == "banned@example.com").first()

@@ -158,3 +158,45 @@ def test_metrics_includes_confirmed_revenue(make_user, db_session):
     # Só soma pagamentos aprovados na receita confirmada.
     assert data["revenue_confirmed_brl"] == 29.9
     assert data["payments_last_30_days"] == 2
+
+
+def test_admin_feedback_requires_superuser(make_user):
+    regular_client = make_user(email="naoadmin_feedback@example.com")
+    res = regular_client.get("/admin/feedback")
+    assert res.status_code == 403
+
+
+def test_admin_feedback_lists_tickets(make_user, db_session):
+    from app.models.feedback import FeedbackTicket
+    from app.models.user import User
+
+    admin_client = make_user(email="admin_feedbacklist@example.com", superuser=True)
+    user = db_session.query(User).filter(User.email == "admin_feedbacklist@example.com").first()
+    db_session.add(FeedbackTicket(user_id=user.id, email=user.email, category="bug", message="Algo quebrou."))
+    db_session.commit()
+
+    res = admin_client.get("/admin/feedback")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] == 1
+    assert data["entries"][0]["category"] == "bug"
+
+
+def test_admin_feedback_filters_by_user_id(make_user, db_session):
+    from app.models.feedback import FeedbackTicket
+    from app.models.user import User
+
+    admin_client = make_user(email="admin_feedbackfiltro@example.com", superuser=True)
+    other_client = make_user(email="outro_feedbackfiltro@example.com")
+    admin = db_session.query(User).filter(User.email == "admin_feedbackfiltro@example.com").first()
+    other = db_session.query(User).filter(User.email == "outro_feedbackfiltro@example.com").first()
+
+    db_session.add(FeedbackTicket(user_id=admin.id, email=admin.email, category="duvida", message="Chamado do admin."))
+    db_session.add(FeedbackTicket(user_id=other.id, email=other.email, category="bug", message="Chamado do outro."))
+    db_session.commit()
+
+    res = admin_client.get("/admin/feedback", params={"user_id": other.id})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] == 1
+    assert data["entries"][0]["message"] == "Chamado do outro."

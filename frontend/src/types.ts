@@ -72,6 +72,7 @@ export interface User {
   has_seen_onboarding?: boolean;
   plan?: "starter" | "plus" | "pro";
   score?: number;
+  last_login_at?: string | null;
 }
 
 export interface Meal {

@@ -16,6 +16,7 @@ class User(Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     has_seen_onboarding: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=True)
+    last_login_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     # RELACIONAMENTOS (Isso corrige os erros de Mapper)
     

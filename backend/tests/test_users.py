@@ -125,6 +125,46 @@ def test_admin_can_toggle_status(make_user):
     assert res2.status_code == 403
 
 
+def test_admin_can_promote_user_to_admin(make_user):
+    admin_client = make_user(email="admin_promove@example.com", superuser=True)
+    other_client = make_user(email="alvo_promocao@example.com")
+    target_id = other_client.get("/users/me").json()["id"]
+
+    res = admin_client.put(f"/users/{target_id}/toggle-admin")
+    assert res.status_code == 200
+    assert res.json()["is_superuser"] is True
+
+    confirm = other_client.get("/users/me")
+    assert confirm.json()["is_superuser"] is True
+
+
+def test_admin_can_demote_another_admin(make_user):
+    admin_client = make_user(email="admin_demove@example.com", superuser=True)
+    other_admin_client = make_user(email="outro_admin@example.com", superuser=True)
+    target_id = other_admin_client.get("/users/me").json()["id"]
+
+    res = admin_client.put(f"/users/{target_id}/toggle-admin")
+    assert res.status_code == 200
+    assert res.json()["is_superuser"] is False
+
+
+def test_admin_cannot_toggle_own_admin_privilege(make_user):
+    admin_client = make_user(email="admin_self@example.com", superuser=True)
+    self_id = admin_client.get("/users/me").json()["id"]
+
+    res = admin_client.put(f"/users/{self_id}/toggle-admin")
+    assert res.status_code == 400
+
+
+def test_non_admin_cannot_toggle_admin_privilege(make_user):
+    regular_client = make_user(email="naoadmin_toggle@example.com")
+    other_client = make_user(email="alvo_naoadmin@example.com")
+    target_id = other_client.get("/users/me").json()["id"]
+
+    res = regular_client.put(f"/users/{target_id}/toggle-admin")
+    assert res.status_code == 403
+
+
 def test_new_user_has_no_profile_and_has_not_seen_onboarding(make_user):
     auth_client = make_user(email="novato@example.com")
     res = auth_client.get("/users/me")

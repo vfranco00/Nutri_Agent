@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class PlanBreakdown(BaseModel):
@@ -69,3 +69,18 @@ class TopUserEntry(BaseModel):
 
 class AdminTopUsers(BaseModel):
     entries: List[TopUserEntry]
+
+
+class FeedbackTicketEntry(BaseModel):
+    id: int
+    user_id: Optional[int]
+    name: Optional[str]
+    email: str
+    category: str
+    message: str
+    created_at: str
+
+
+class AdminFeedback(BaseModel):
+    entries: List[FeedbackTicketEntry]
+    total: int
