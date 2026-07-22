@@ -269,3 +269,119 @@ def test_admin_can_override_current_period_end(make_user):
     )
     assert res.status_code == 200
     assert res.json()["current_period_end"].startswith("2020-01-01")
+
+
+def test_webhook_authorized_payment_creates_payment_record(make_user, db_session, monkeypatch):
+    from app.models.payment import Payment
+
+    auth_client = make_user(email="cobranca@example.com", plan="plus")
+    user_id = auth_client.get("/users/me").json()["id"]
+
+    monkeypatch.setattr(
+        "app.routers.subscriptions.fetch_authorized_payment",
+        lambda payment_id: {
+            "external_reference": f"user:{user_id}:plan:plus",
+            "transaction_amount": 29.9,
+            "preapproval_id": "pre-1",
+            "payment": {"status": "approved"},
+        },
+    )
+
+    res = auth_client.post(
+        "/subscriptions/webhook/mercadopago",
+        json={"type": "subscription_authorized_payment", "data": {"id": "pay-123"}},
+    )
+    assert res.status_code == 200
+
+    payment = db_session.query(Payment).filter(Payment.mp_payment_id == "pay-123").first()
+    assert payment is not None
+    assert payment.user_id == user_id
+    assert payment.plan == "plus"
+    assert payment.amount_brl == 29.9
+    assert payment.status == "approved"
+
+
+def test_webhook_authorized_payment_is_idempotent_on_retry(make_user, db_session, monkeypatch):
+    from app.models.payment import Payment
+
+    auth_client = make_user(email="cobranca_retry@example.com", plan="plus")
+    user_id = auth_client.get("/users/me").json()["id"]
+
+    monkeypatch.setattr(
+        "app.routers.subscriptions.fetch_authorized_payment",
+        lambda payment_id: {
+            "external_reference": f"user:{user_id}:plan:plus",
+            "transaction_amount": 29.9,
+            "payment": {"status": "approved"},
+        },
+    )
+
+    payload = {"type": "subscription_authorized_payment", "data": {"id": "pay-retry-1"}}
+    auth_client.post("/subscriptions/webhook/mercadopago", json=payload)
+    auth_client.post("/subscriptions/webhook/mercadopago", json=payload)
+
+    count = db_session.query(Payment).filter(Payment.mp_payment_id == "pay-retry-1").count()
+    assert count == 1
+
+
+def test_webhook_authorized_payment_falls_back_to_preapproval_id(make_user, db_session, monkeypatch):
+    from app.models.payment import Payment
+    from app.models.subscription import Subscription
+
+    auth_client = make_user(email="cobranca_fallback@example.com", plan="pro")
+    user_id = auth_client.get("/users/me").json()["id"]
+    sub = db_session.query(Subscription).filter(Subscription.user_id == user_id).first()
+    sub.mp_subscription_id = "pre-fallback-1"
+    db_session.commit()
+
+    monkeypatch.setattr(
+        "app.routers.subscriptions.fetch_authorized_payment",
+        lambda payment_id: {
+            # sem external_reference — precisa resolver pelo preapproval_id
+            "transaction_amount": 59.9,
+            "preapproval_id": "pre-fallback-1",
+            "status": "approved",
+        },
+    )
+
+    res = auth_client.post(
+        "/subscriptions/webhook/mercadopago",
+        json={"type": "subscription_authorized_payment", "data": {"id": "pay-fallback-1"}},
+    )
+    assert res.status_code == 200
+
+    payment = db_session.query(Payment).filter(Payment.mp_payment_id == "pay-fallback-1").first()
+    assert payment is not None
+    assert payment.user_id == user_id
+    assert payment.plan == "pro"
+
+
+def test_webhook_authorized_payment_ignored_when_resource_not_found(client, db_session, monkeypatch):
+    from app.models.payment import Payment
+
+    monkeypatch.setattr("app.routers.subscriptions.fetch_authorized_payment", lambda payment_id: None)
+
+    res = client.post(
+        "/subscriptions/webhook/mercadopago",
+        json={"type": "subscription_authorized_payment", "data": {"id": "pay-missing"}},
+    )
+    assert res.status_code == 200
+    assert db_session.query(Payment).filter(Payment.mp_payment_id == "pay-missing").count() == 0
+
+
+def test_webhook_authorized_payment_ignored_when_no_reference_resolves(client, db_session, monkeypatch):
+    from app.models.payment import Payment
+
+    # Nem external_reference nem preapproval_id batem com nada — não dá pra saber de
+    # quem é essa cobrança, não pode gravar sem isso.
+    monkeypatch.setattr(
+        "app.routers.subscriptions.fetch_authorized_payment",
+        lambda payment_id: {"transaction_amount": 29.9, "preapproval_id": "pre-inexistente", "status": "approved"},
+    )
+
+    res = client.post(
+        "/subscriptions/webhook/mercadopago",
+        json={"type": "subscription_authorized_payment", "data": {"id": "pay-sem-referencia"}},
+    )
+    assert res.status_code == 200
+    assert db_session.query(Payment).filter(Payment.mp_payment_id == "pay-sem-referencia").count() == 0
