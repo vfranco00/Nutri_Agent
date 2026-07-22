@@ -1,7 +1,7 @@
 """
 Templates de email em HTML. Usa a mesma identidade visual do frontend
 (fundo escuro zinc-950/zinc-900, verde NutriAgent #16a34a/#22c55e, logo
-🍎 + "NutriAgent" igual aparece na Sidebar e nas telas de Login/Registro).
+igual à que aparece na Sidebar e nas telas de Login/Registro).
 
 Escrito com <table> e estilos inline de propósito — é o jeito que garante
 renderização consistente em clientes de email como Outlook/Gmail, que não
@@ -20,6 +20,17 @@ FEEDBACK_CATEGORY_LABELS = {
 }
 
 
+def _logo_header_html() -> str:
+    # Precisa de URL absoluta — cliente de email não tem base URL pra resolver
+    # caminho relativo. Mesmo arquivo servido pelo frontend em /nutri-agent-logo-horizontal.png
+    # (usado também na Sidebar e no Login).
+    logo_url = f"{settings.FRONTEND_URL}/nutri-agent-logo-horizontal.png"
+    return (
+        f'<img src="{logo_url}" alt="NutriAgent" width="180" '
+        f'style="display:block;margin:0 auto 28px;width:180px;max-width:180px;height:auto;" />'
+    )
+
+
 def verification_email_html(to_email: str, verify_url: str) -> str:
     return f"""
     <body style="margin:0;padding:0;background-color:#09090b;">
@@ -29,8 +40,7 @@ def verification_email_html(to_email: str, verify_url: str) -> str:
             <table role="presentation" width="480" cellpadding="0" cellspacing="0" bgcolor="#18181b" style="max-width:480px;width:100%;background-color:#18181b;border:1px solid #27272a;border-radius:12px;">
               <tr>
                 <td style="padding:40px 32px 32px;text-align:center;">
-                  <div style="font-size:32px;line-height:1;margin-bottom:8px;">🍎</div>
-                  <div style="font-size:20px;font-weight:bold;color:#22c55e;margin-bottom:28px;">NutriAgent</div>
+                  {_logo_header_html()}
 
                   <h1 style="font-size:20px;font-weight:bold;color:#fafafa;margin:0 0 12px;">Confirme seu email</h1>
                   <p style="font-size:14px;line-height:1.6;color:#a1a1aa;margin:0 0 28px;">
@@ -83,8 +93,7 @@ def feedback_email_html(name: str | None, email: str, category: str, message: st
               <tr>
                 <td style="padding:40px 32px 32px;">
                   <div style="text-align:center;">
-                    <div style="font-size:32px;line-height:1;margin-bottom:8px;">🍎</div>
-                    <div style="font-size:20px;font-weight:bold;color:#22c55e;margin-bottom:28px;">NutriAgent</div>
+                    {_logo_header_html()}
                   </div>
 
                   <h1 style="font-size:20px;font-weight:bold;color:#fafafa;margin:0 0 16px;">Novo chamado de {category_label}</h1>
@@ -121,8 +130,7 @@ def subscription_expiring_email_html(plan_label: str, expires_at: datetime) -> s
             <table role="presentation" width="480" cellpadding="0" cellspacing="0" bgcolor="#18181b" style="max-width:480px;width:100%;background-color:#18181b;border:1px solid #27272a;border-radius:12px;">
               <tr>
                 <td style="padding:40px 32px 32px;text-align:center;">
-                  <div style="font-size:32px;line-height:1;margin-bottom:8px;">🍎</div>
-                  <div style="font-size:20px;font-weight:bold;color:#22c55e;margin-bottom:28px;">NutriAgent</div>
+                  {_logo_header_html()}
 
                   <h1 style="font-size:20px;font-weight:bold;color:#fafafa;margin:0 0 12px;">Sua assinatura vence em breve</h1>
                   <p style="font-size:14px;line-height:1.6;color:#a1a1aa;margin:0 0 28px;">
