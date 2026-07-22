@@ -83,7 +83,7 @@ export function SessionWatcher() {
         </h2>
         <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">
           Você será desconectado em{" "}
-          <strong className="text-orange-500">
+          <strong className="text-orange-600 dark:text-orange-500">
             {minutes}:{String(seconds).padStart(2, "0")}
           </strong>
           .

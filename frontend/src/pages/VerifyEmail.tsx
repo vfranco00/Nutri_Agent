@@ -97,7 +97,7 @@ export function VerifyEmail() {
             ) : (
               <form onSubmit={handleResend} className="space-y-3">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-zinc-400" />
+                  <Mail className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
                   <input
                     type="email"
                     required

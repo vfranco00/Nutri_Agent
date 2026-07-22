@@ -225,7 +225,7 @@ export function Profile() {
                       <strong>{maxWeight}kg</strong>
                     </p>
                   ) : (
-                    <p className="text-xs text-blue-400">Preencha sua altura</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">Preencha sua altura</p>
                   )}
                 </div>
               </div>

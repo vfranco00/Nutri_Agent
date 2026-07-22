@@ -243,13 +243,13 @@ export function MealPlanBuilder() {
                     </div>
                     <div className="flex items-center gap-3">
                       {meal.recipe_calories && (
-                        <span className="text-xs text-zinc-400">
+                        <span className="text-xs text-zinc-500">
                           {meal.recipe_calories} kcal
                         </span>
                       )}
                       <button
                         onClick={() => removeMeal(dayIndex, mealIndex)}
-                        className="text-zinc-400 hover:text-red-500 transition-colors"
+                        className="text-zinc-500 hover:text-red-500 transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -327,7 +327,7 @@ export function MealPlanBuilder() {
               </div>
 
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
                 <input
                   type="text"
                   placeholder="Buscar receita..."
@@ -344,7 +344,7 @@ export function MealPlanBuilder() {
                   <Loader2 className="animate-spin h-6 w-6 text-teal-500" />
                 </div>
               ) : filteredPickerRecipes.length === 0 ? (
-                <p className="text-center text-sm text-zinc-400 py-8">
+                <p className="text-center text-sm text-zinc-500 py-8">
                   Nenhuma receita encontrada.
                 </p>
               ) : (
@@ -358,7 +358,7 @@ export function MealPlanBuilder() {
                       {recipe.title}
                     </span>
                     {recipe.calories && (
-                      <span className="text-xs text-zinc-400 shrink-0">
+                      <span className="text-xs text-zinc-500 shrink-0">
                         {recipe.calories} kcal
                       </span>
                     )}

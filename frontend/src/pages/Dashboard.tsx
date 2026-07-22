@@ -63,11 +63,11 @@ export function Dashboard() {
       <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold dark:text-white flex items-center gap-2">
-            <Scale className="h-5 w-5 text-blue-500" /> Evolução de Peso
+            <Scale className="h-5 w-5 text-blue-600 dark:text-blue-500" /> Evolução de Peso
           </h3>
-          <button 
+          <button
             onClick={() => navigate('/profile')}
-            className="text-sm text-blue-500 hover:text-blue-400 font-medium"
+            className="text-sm text-blue-600 dark:text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 font-medium"
           >
             + Registrar Peso
           </button>

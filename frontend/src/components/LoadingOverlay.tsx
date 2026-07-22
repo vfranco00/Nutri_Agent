@@ -9,23 +9,23 @@ const COLOR_VARIANTS = {
   purple: {
     icon: "text-purple-500",
     box: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20",
-    lightbulb: "text-purple-400",
-    label: "text-purple-300",
-    quote: "text-purple-200/80",
+    lightbulb: "text-purple-600 dark:text-purple-400",
+    label: "text-purple-700 dark:text-purple-300",
+    quote: "text-purple-900/80 dark:text-purple-200/80",
   },
   blue: {
     icon: "text-blue-500",
     box: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20",
-    lightbulb: "text-blue-400",
-    label: "text-blue-300",
-    quote: "text-blue-200/80",
+    lightbulb: "text-blue-600 dark:text-blue-400",
+    label: "text-blue-700 dark:text-blue-300",
+    quote: "text-blue-900/80 dark:text-blue-200/80",
   },
   teal: {
     icon: "text-teal-500",
     box: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20",
-    lightbulb: "text-teal-400",
-    label: "text-teal-300",
-    quote: "text-teal-200/80",
+    lightbulb: "text-teal-600 dark:text-teal-400",
+    label: "text-teal-700 dark:text-teal-300",
+    quote: "text-teal-900/80 dark:text-teal-200/80",
   },
 } as const;
 

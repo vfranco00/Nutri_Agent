@@ -111,7 +111,7 @@ export function MealPlanDetail() {
               </button>
               <button
                 onClick={() => setEditingTitle(false)}
-                className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -126,7 +126,7 @@ export function MealPlanDetail() {
               {plan.title}
               <button
                 onClick={startEditingTitle}
-                className="text-zinc-300 hover:text-teal-500 dark:text-zinc-600 dark:hover:text-teal-400 transition-colors"
+                className="text-zinc-400 hover:text-teal-500 dark:text-zinc-600 dark:hover:text-teal-400 transition-colors"
               >
                 <Edit3 className="h-4 w-4" />
               </button>
@@ -179,7 +179,7 @@ export function MealPlanDetail() {
               )}
               {day.macros_carbs && (
                 <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center text-center">
-                  <span className="text-lg font-bold text-yellow-500">
+                  <span className="text-lg font-bold text-amber-600 dark:text-yellow-500">
                     {day.macros_carbs}
                   </span>
                   <span className="text-xs text-zinc-500 uppercase">Carbo</span>

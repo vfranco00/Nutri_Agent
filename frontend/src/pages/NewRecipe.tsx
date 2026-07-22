@@ -147,7 +147,7 @@ export function NewRecipe() {
                     ing.calories ? `${Math.round(ing.calories)} kcal` : '-'
                   )}
                 </div>
-                <button type="button" onClick={() => removeIngredient(i)} className="p-2 text-zinc-400 hover:text-red-400"><Trash2 className="h-5 w-5" /></button>
+                <button type="button" onClick={() => removeIngredient(i)} className="p-2 text-zinc-500 hover:text-red-400"><Trash2 className="h-5 w-5" /></button>
               </div>
             ))}
           </div>

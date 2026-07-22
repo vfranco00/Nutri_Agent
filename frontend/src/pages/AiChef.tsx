@@ -146,7 +146,7 @@ export function AiChef() {
           Criar Receita Criativa
         </button>
         {chefAiUsage && chefAiUsage.limit !== null && (
-          <p className="text-xs text-zinc-400 text-center mt-2">
+          <p className="text-xs text-zinc-500 text-center mt-2">
             {chefAiUsage.used}/{chefAiUsage.limit} usados nos últimos {chefAiUsage.window_days} dias
             {chefAiUsage.used >= chefAiUsage.limit && (
               <>
@@ -193,7 +193,7 @@ export function AiChef() {
                 >
                   <span>{ing.name}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-400">
+                    <span className="text-xs text-zinc-500">
                       {ing.calories ? `~${Math.round(ing.calories)}kcal` : ""}
                     </span>
                     <span className="font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-800 px-2 rounded">

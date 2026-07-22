@@ -429,7 +429,7 @@ export function AiPlan() {
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-zinc-400 mt-2">
+              <p className="text-xs text-zinc-500 mt-2">
                 {mealsCount === 3 && "Café, Almoço, Jantar"}
                 {mealsCount === 4 && "Café, Almoço, Lanche, Jantar"}
                 {mealsCount === 5 && "Café, Lanche, Almoço, Lanche, Jantar"}
@@ -478,7 +478,7 @@ export function AiPlan() {
               <Zap className="h-5 w-5 fill-current" /> Gerar Agora
             </button>
             {planUsage && planUsage.limit !== null && (
-              <p className="text-xs text-zinc-400 text-center mt-2">
+              <p className="text-xs text-zinc-500 text-center mt-2">
                 {planUsage.used}/{planUsage.limit} cardápios usados nos últimos {planUsage.window_days} dias
                 {planLimitReached && (
                   <>
@@ -557,7 +557,7 @@ export function AiPlan() {
                 Sugerido
               </h3>
               {subscription?.plan === "plus" && swapInfo && swapInfo.limit !== null && (
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-zinc-500">
                   {swapInfo.used}/{swapInfo.limit} trocas usadas
                 </span>
               )}
@@ -717,13 +717,13 @@ export function AiPlan() {
                     {selectedItems.has(item) ? (
                       <CheckSquare className="h-5 w-5 text-pink-500 shrink-0" />
                     ) : (
-                      <Square className="h-5 w-5 text-zinc-400 shrink-0" />
+                      <Square className="h-5 w-5 text-zinc-500 shrink-0" />
                     )}
                     <span
                       className={
                         selectedItems.has(item)
                           ? "text-zinc-900 dark:text-zinc-100 font-medium"
-                          : "text-zinc-400 line-through"
+                          : "text-zinc-500 line-through"
                       }
                     >
                       {item}

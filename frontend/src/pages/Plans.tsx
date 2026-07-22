@@ -124,7 +124,7 @@ export function Plans() {
                   Seu plano atual
                 </span>
               ) : plan.id === "starter" ? (
-                <span className="text-center text-sm text-zinc-400 py-2.5">Plano gratuito</span>
+                <span className="text-center text-sm text-zinc-500 py-2.5">Plano gratuito</span>
               ) : (
                 <button
                   onClick={() => handleSubscribe(plan.id)}

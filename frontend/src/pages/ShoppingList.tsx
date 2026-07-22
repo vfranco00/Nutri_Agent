@@ -262,7 +262,7 @@ export function ShoppingPage() {
                 <button
                   onClick={() => handleDeleteList(list.id)}
                   disabled={deletingListId === list.id}
-                  className="p-2 text-zinc-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                  className="p-2 text-zinc-500 hover:text-red-500 transition-colors disabled:opacity-50"
                 >
                   {deletingListId === list.id ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -286,7 +286,7 @@ export function ShoppingPage() {
                       {item.checked ? (
                         <CheckCircle className="h-5 w-5 text-green-500" />
                       ) : (
-                        <Circle className="h-5 w-5 text-zinc-300 dark:text-zinc-600" />
+                        <Circle className="h-5 w-5 text-zinc-400 dark:text-zinc-600" />
                       )}
                       <span
                         className={`${item.checked ? "text-zinc-400 line-through" : "text-zinc-700 dark:text-zinc-200"} transition-all`}
@@ -296,7 +296,7 @@ export function ShoppingPage() {
                     </div>
                     <button
                       onClick={() => handleDeleteItem(item.id, list.id)}
-                      className="text-zinc-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="text-zinc-400 dark:text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

@@ -101,7 +101,7 @@ export function MealPlans() {
 
       {plans.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 border-dashed text-center px-4">
-          <CalendarRange className="h-10 w-10 text-zinc-300 dark:text-zinc-700 mb-3" />
+          <CalendarRange className="h-10 w-10 text-zinc-400 dark:text-zinc-700 mb-3" />
           <p className="text-zinc-500 dark:text-zinc-400 mb-1">
             Você ainda não tem planos alimentares salvos.
           </p>
@@ -149,7 +149,7 @@ export function MealPlans() {
                 <span>
                   {plan.days.reduce((sum, d) => sum + d.meals.length, 0)} refeições
                 </span>
-                <ChevronRight className="h-4 w-4 text-zinc-300 group-hover:text-teal-500 transition-colors" />
+                <ChevronRight className="h-4 w-4 text-zinc-400 dark:text-zinc-600 group-hover:text-teal-500 dark:group-hover:text-teal-400 transition-colors" />
               </div>
             </div>
           ))}

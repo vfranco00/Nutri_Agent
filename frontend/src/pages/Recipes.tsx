@@ -308,7 +308,7 @@ export function Recipes() {
               {viewMode === "mine" ? "Minhas Receitas" : "Comunidade"}
             </h1>
             {viewMode === "mine" && subscription?.max_saved_recipes != null && (
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-zinc-500 mt-1">
                 {subscription.saved_recipes_used}/{subscription.max_saved_recipes} receitas salvas
                 {atRecipeLimit && (
                   <>
@@ -415,7 +415,7 @@ export function Recipes() {
                   <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-[10px] font-bold px-2 py-1 rounded uppercase truncate max-w-[120px]">
                     {recipe.category || "Geral"}
                   </span>
-                  <span className="text-xs text-zinc-400 flex items-center gap-1 shrink-0">
+                  <span className="text-xs text-zinc-500 flex items-center gap-1 shrink-0">
                     <Flame className="h-3 w-3" />{" "}
                     {Math.round(recipe.calories || 0)}
                   </span>
@@ -426,7 +426,7 @@ export function Recipes() {
                 <p className="text-xs text-zinc-500 line-clamp-2 h-8 leading-relaxed">
                   {formatInstructions(cleanMarkdown(recipe.instructions))}
                 </p>
-                <div className="mt-3 pt-3 border-t border-dashed border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
+                <div className="mt-3 pt-3 border-t border-dashed border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" /> {recipe.prep_time}m
                   </span>
@@ -448,7 +448,7 @@ export function Recipes() {
 
       {!loading && sortedRecipes.length === 0 && (
         <div className="text-center py-20 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 border-dashed">
-          <ChefHat className="h-16 w-16 text-zinc-400 mx-auto mb-4" />
+          <ChefHat className="h-16 w-16 text-zinc-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold dark:text-zinc-300">
             Nada encontrado
           </h3>
@@ -476,7 +476,7 @@ export function Recipes() {
 
             {/* Tag IA */}
             {recipe.is_ai && (
-              <div className="absolute top-4 left-4 bg-blue-500/10 text-blue-500 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/20 flex items-center gap-1">
+              <div className="absolute top-4 left-4 bg-blue-500/10 text-blue-700 dark:text-blue-500 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/20 flex items-center gap-1">
                 <Bot className="h-3 w-3" /> IA
               </div>
             )}
@@ -487,7 +487,7 @@ export function Recipes() {
                 className="absolute top-4 right-4 p-1.5 rounded-full bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors z-10"
               >
                 <Star
-                  className={`h-5 w-5 ${recipe.is_favorite ? "fill-yellow-400 text-yellow-400" : "text-zinc-400"}`}
+                  className={`h-5 w-5 ${recipe.is_favorite ? "fill-yellow-400 text-yellow-400" : "text-zinc-500 dark:text-zinc-600"}`}
                 />
               </button>
             )}
@@ -500,7 +500,7 @@ export function Recipes() {
             <p className="text-zinc-500 dark:text-zinc-400 text-sm line-clamp-3 mb-4 h-12">
               {formatInstructions(cleanMarkdown(recipe.instructions))}
             </p>
-            <div className="flex items-center gap-4 text-xs text-zinc-400 border-t border-zinc-100 dark:border-zinc-800 pt-4">
+            <div className="flex items-center gap-4 text-xs text-zinc-500 border-t border-zinc-100 dark:border-zinc-800 pt-4">
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {recipe.prep_time}m
@@ -674,7 +674,7 @@ export function Recipes() {
                         >
                           <span>{ing.name}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-zinc-400">
+                            <span className="text-xs text-zinc-500">
                               {ing.calories
                                 ? `~${Math.round(ing.calories)}kcal`
                                 : ""}
@@ -742,7 +742,7 @@ export function Recipes() {
                         </button>
                       ) : (
                         <span
-                          className="text-zinc-400 text-xs flex items-center gap-1 cursor-not-allowed select-none"
+                          className="text-zinc-500 text-xs flex items-center gap-1 cursor-not-allowed select-none"
                           title="Gerado por IA (Protegido)"
                         >
                           <Bot className="h-4 w-4" /> Gerada por IA
