@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, Literal, List
+from datetime import datetime
 
 PlanName = Literal["starter", "plus", "pro"]
 
@@ -25,6 +26,9 @@ class SubscriptionResponse(BaseModel):
 
 class AdminSetPlanRequest(BaseModel):
     plan: PlanName
+    # Opcional — só pra facilitar teste manual do fluxo de vencimento (aviso de 7 dias,
+    # downgrade automático) sem precisar mexer direto no banco. Se omitido, usa +30 dias.
+    current_period_end: Optional[datetime] = None
 
 
 class CheckoutRequest(BaseModel):

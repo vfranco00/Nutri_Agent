@@ -12,7 +12,7 @@ def test_smtp_send_success(monkeypatch):
     fake_server = MagicMock()
     with patch("smtplib.SMTP") as mock_smtp:
         mock_smtp.return_value.__enter__.return_value = fake_server
-        ok = email_service._send_via_smtp("destino@example.com", "<p>oi</p>")
+        ok = email_service._send_via_smtp("destino@example.com", "Assunto", "<p>oi</p>")
 
     assert ok is True
     fake_server.starttls.assert_called_once()
@@ -24,7 +24,7 @@ def test_smtp_send_handles_connection_failure_without_raising():
     # Regressão do bug real em produção: falha de conexão (OSError) derrubava
     # o cadastro inteiro com 500 porque só smtplib.SMTPException era capturado.
     with patch("smtplib.SMTP", side_effect=OSError("conexão recusada")):
-        ok = email_service._send_via_smtp("destino@example.com", "<p>oi</p>")
+        ok = email_service._send_via_smtp("destino@example.com", "Assunto", "<p>oi</p>")
     assert ok is False
 
 
@@ -33,7 +33,7 @@ def test_smtp_send_handles_auth_failure():
     fake_server.login.side_effect = smtplib.SMTPAuthenticationError(535, b"bad credentials")
     with patch("smtplib.SMTP") as mock_smtp:
         mock_smtp.return_value.__enter__.return_value = fake_server
-        ok = email_service._send_via_smtp("destino@example.com", "<p>oi</p>")
+        ok = email_service._send_via_smtp("destino@example.com", "Assunto", "<p>oi</p>")
     assert ok is False
 
 
@@ -44,11 +44,11 @@ def test_send_verification_email_prefers_smtp_over_resend(monkeypatch):
 
     called = {}
 
-    def fake_smtp(to_email, html):
+    def fake_smtp(to_email, subject, html):
         called["smtp"] = True
         return True
 
-    def fake_resend(to_email, html):
+    def fake_resend(to_email, subject, html):
         called["resend"] = True
         return True
 
@@ -67,7 +67,10 @@ def test_send_verification_email_falls_back_to_resend_without_smtp(monkeypatch):
     monkeypatch.setattr(settings, "RESEND_API_KEY", "re_algumachave")
 
     called = {}
-    monkeypatch.setattr(email_service, "_send_via_resend", lambda to_email, html: called.setdefault("resend", True) or True)
+    monkeypatch.setattr(
+        email_service, "_send_via_resend",
+        lambda to_email, subject, html: called.setdefault("resend", True) or True,
+    )
 
     ok = email_service.send_verification_email("destino@example.com")
 
@@ -102,5 +105,25 @@ def test_resend_send_handles_non_success_status(monkeypatch):
             return FakeResponse()
 
     with patch("httpx.Client", return_value=FakeClient()):
-        ok = email_service._send_via_resend("destino@example.com", "<p>oi</p>")
+        ok = email_service._send_via_resend("destino@example.com", "Assunto", "<p>oi</p>")
     assert ok is False
+
+
+def test_send_subscription_expiring_email_uses_same_fallback_chain(monkeypatch):
+    from datetime import datetime
+
+    monkeypatch.setattr(settings, "SMTP_USER", "bot@example.com")
+    monkeypatch.setattr(settings, "SMTP_PASSWORD", "senha")
+
+    called = {}
+
+    def fake_smtp(to_email, subject, html):
+        called["subject"] = subject
+        return True
+
+    monkeypatch.setattr(email_service, "_send_via_smtp", fake_smtp)
+
+    ok = email_service.send_subscription_expiring_email("destino@example.com", "Plus", datetime(2026, 8, 1))
+
+    assert ok is True
+    assert "Plus" in called["subject"]

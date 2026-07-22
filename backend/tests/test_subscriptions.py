@@ -238,3 +238,34 @@ def test_webhook_ignores_malformed_payload_without_crashing(client):
     res = client.post("/subscriptions/webhook/mercadopago", json={"foo": "bar"})
     assert res.status_code == 200
     assert res.json() == {"received": True}
+
+
+def test_webhook_sets_current_period_end_on_authorized(make_user, monkeypatch):
+    auth_client = make_user(email="webhookperiodo@example.com", plan="starter")
+    user_id = auth_client.get("/users/me").json()["id"]
+
+    monkeypatch.setattr(
+        "app.routers.subscriptions.fetch_preapproval",
+        lambda preapproval_id: {
+            "external_reference": f"user:{user_id}:plan:plus",
+            "status": "authorized",
+        },
+    )
+
+    auth_client.post("/subscriptions/webhook/mercadopago", json={"data": {"id": "fake-preapproval-id"}})
+
+    confirm = auth_client.get("/subscriptions/me")
+    assert confirm.json()["current_period_end"] is not None
+
+
+def test_admin_can_override_current_period_end(make_user):
+    admin_client = make_user(email="adminperiodo@example.com", superuser=True)
+    other_client = make_user(email="alvoperiodo@example.com", plan="starter")
+    other_id = other_client.get("/users/me").json()["id"]
+
+    res = admin_client.put(
+        f"/users/{other_id}/subscription",
+        json={"plan": "plus", "current_period_end": "2020-01-01T00:00:00"},
+    )
+    assert res.status_code == 200
+    assert res.json()["current_period_end"].startswith("2020-01-01")

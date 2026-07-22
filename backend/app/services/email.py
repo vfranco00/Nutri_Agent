@@ -1,20 +1,21 @@
 import smtplib
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 import httpx
 from app.core.config import settings
 from app.core.security import create_email_verification_token
-from app.services.email_templates import verification_email_html
+from app.services.email_templates import verification_email_html, subscription_expiring_email_html
 
 RESEND_URL = "https://api.resend.com/emails"
-SUBJECT = "Confirme seu email — NutriAgent"
+VERIFICATION_SUBJECT = "Confirme seu email — NutriAgent"
 
 
-def _send_via_smtp(to_email: str, html: str) -> bool:
+def _send_via_smtp(to_email: str, subject: str, html: str) -> bool:
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = SUBJECT
+        msg["Subject"] = subject
         msg["From"] = settings.SMTP_USER
         msg["To"] = to_email
         msg.attach(MIMEText(html, "html"))
@@ -32,7 +33,7 @@ def _send_via_smtp(to_email: str, html: str) -> bool:
         return False
 
 
-def _send_via_resend(to_email: str, html: str) -> bool:
+def _send_via_resend(to_email: str, subject: str, html: str) -> bool:
     try:
         with httpx.Client() as client:
             response = client.post(
@@ -41,7 +42,7 @@ def _send_via_resend(to_email: str, html: str) -> bool:
                 json={
                     "from": settings.RESEND_FROM_EMAIL,
                     "to": [to_email],
-                    "subject": SUBJECT,
+                    "subject": subject,
                     "html": html,
                 },
                 timeout=10.0,
@@ -55,23 +56,38 @@ def _send_via_resend(to_email: str, html: str) -> bool:
         return False
 
 
-def send_verification_email(to_email: str) -> bool:
-    """Gera o token de verificação e envia o email de confirmação.
+def _send_email(to_email: str, subject: str, html: str, *, fallback_log: str) -> bool:
+    """Mesma ordem de prioridade usada em todos os emails transacionais do app:
+    SMTP (Gmail, grátis, manda pra qualquer destinatário) -> Resend (só manda pro
+    próprio email da conta enquanto não tiver domínio verificado) -> fallback que só
+    loga no console (útil em dev local sem nenhuma das duas credenciais configuradas)."""
+    if settings.SMTP_USER and settings.SMTP_PASSWORD:
+        return _send_via_smtp(to_email, subject, html)
 
-    Ordem de prioridade: SMTP (Gmail, grátis, manda pra qualquer destinatário)
-    -> Resend (só manda pro próprio email da conta enquanto não tiver domínio
-    verificado) -> fallback que só loga o link no console (útil em dev local
-    sem nenhuma das duas credenciais configuradas).
-    """
+    if settings.RESEND_API_KEY:
+        return _send_via_resend(to_email, subject, html)
+
+    print(f"[email] Nenhum provedor de email configurado. {fallback_log}")
+    return False
+
+
+def send_verification_email(to_email: str) -> bool:
+    """Gera o token de verificação e envia o email de confirmação."""
     token = create_email_verification_token(to_email)
     verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
     html = verification_email_html(to_email, verify_url)
+    return _send_email(
+        to_email, VERIFICATION_SUBJECT, html,
+        fallback_log=f"Link de verificação para {to_email}: {verify_url}",
+    )
 
-    if settings.SMTP_USER and settings.SMTP_PASSWORD:
-        return _send_via_smtp(to_email, html)
 
-    if settings.RESEND_API_KEY:
-        return _send_via_resend(to_email, html)
-
-    print(f"[email] Nenhum provedor de email configurado. Link de verificação para {to_email}: {verify_url}")
-    return False
+def send_subscription_expiring_email(to_email: str, plan_label: str, expires_at: datetime) -> bool:
+    """Aviso de que a assinatura vence em até 7 dias — mandado uma vez por ciclo
+    (ver app/services/subscription_lifecycle.py)."""
+    subject = f"Sua assinatura {plan_label} vence em breve — NutriAgent"
+    html = subscription_expiring_email_html(plan_label, expires_at)
+    return _send_email(
+        to_email, subject, html,
+        fallback_log=f"Assinatura {plan_label} de {to_email} vence em {expires_at}.",
+    )

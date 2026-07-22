@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import List
@@ -112,13 +114,21 @@ def admin_set_subscription(
     if not target:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
+    # Starter não vence (é o plano gratuito) — plus/pro ganham um período de 30 dias por
+    # padrão, ou a data explícita passada (útil pra testar o aviso/downgrade automático).
+    period_end = None
+    if data.plan != "starter":
+        period_end = data.current_period_end or (datetime.utcnow() + timedelta(days=30))
+
     sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
     if not sub:
-        sub = Subscription(user_id=user_id, plan=data.plan, status="active")
+        sub = Subscription(user_id=user_id, plan=data.plan, status="active", current_period_end=period_end)
         db.add(sub)
     else:
         sub.plan = data.plan
         sub.status = "active"
+        sub.current_period_end = period_end
+        sub.expiry_warned_at = None
     db.commit()
 
     return get_subscription_status(db, target)

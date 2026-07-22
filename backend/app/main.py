@@ -1,15 +1,27 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from app.core.limiter import limiter
+from app.core.scheduler import start_scheduler, stop_scheduler
 from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+    yield
+    stop_scheduler()
+
 
 app = FastAPI(
     title="NutriAgent API",
     description="Backend com agente de IA para planejamento alimentar.",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan,
 )
 
 origins = [

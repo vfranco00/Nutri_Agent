@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { SessionWatcher } from '../components/SessionWatcher';
 import { OnboardingGate } from '../components/OnboardingGate';
+import { SubscriptionExpiryBanner } from '../components/SubscriptionExpiryBanner';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -38,6 +39,7 @@ export function AppLayout({ children, accentColor = 'zinc' }: AppLayoutProps) {
       {/* Área de Conteúdo */}
       <main className="flex-1 ml-20 lg:ml-64 p-4 lg:p-8 overflow-y-auto h-screen transition-all">
         <div className={`max-w-7xl mx-auto animate-fadeIn ${accentColor}`}>
+          <SubscriptionExpiryBanner />
           <OnboardingGate>{children}</OnboardingGate>
         </div>
       </main>

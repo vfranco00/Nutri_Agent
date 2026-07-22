@@ -17,6 +17,9 @@ class Subscription(Base):
 
     mp_subscription_id: Mapped[str] = mapped_column(String, nullable=True)
     current_period_end: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    # Marca quando o email de "assinatura vencendo" foi mandado — evita reenviar
+    # todo dia dentro da janela de aviso. Resetado a cada renovação de current_period_end.
+    expiry_warned_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="subscription")

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
@@ -67,9 +69,15 @@ def mercadopago_webhook(payload: dict, db: Session = Depends(get_db)):
     if mp_status == "authorized":
         sub.plan = plan
         sub.status = "active"
+        # A API de preapproval não devolve de forma confiável a data do próximo débito
+        # aqui — melhor esforço: ciclo de 30 dias a partir de agora, igual cobrado.
+        sub.current_period_end = datetime.utcnow() + timedelta(days=30)
+        sub.expiry_warned_at = None  # reseta o aviso pro próximo ciclo poder avisar de novo
     elif mp_status in ("cancelled", "paused"):
         sub.status = "canceled"
         sub.plan = "starter"
+        sub.current_period_end = None
+        sub.expiry_warned_at = None
 
     sub.mp_subscription_id = str(preapproval_id)
     db.commit()
