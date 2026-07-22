@@ -18,6 +18,8 @@ export interface Subscription {
   shopping_list_access: boolean;
   max_saved_meal_plans: number | null;
   saved_meal_plans_used: number;
+  max_saved_recipes: number | null;
+  saved_recipes_used: number;
 }
 
 interface SubscriptionContextType {
