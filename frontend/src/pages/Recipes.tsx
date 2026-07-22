@@ -477,7 +477,6 @@ export function Recipes() {
             )}
 
             {/* Tag IA */}
-            {/* @ts-ignore */}
             {recipe.is_ai && (
               <div className="absolute top-4 left-4 bg-blue-500/10 text-blue-500 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/20 flex items-center gap-1">
                 <Bot className="h-3 w-3" /> IA
@@ -495,7 +494,7 @@ export function Recipes() {
               </button>
             )}
 
-            <div className="flex justify-between items-start mb-3 pr-8">
+            <div className={`flex justify-between items-start mb-3 pr-8 ${recipe.is_ai ? "pt-7" : ""}`}>
               <h3 className="text-lg font-bold dark:text-zinc-100 group-hover:text-orange-500 transition-colors line-clamp-1">
                 {recipe.title}
               </h3>

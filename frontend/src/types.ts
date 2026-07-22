@@ -59,6 +59,7 @@ export interface Recipe {
   is_favorite?: boolean;
   ingredients?: Ingredient[];
   is_new?: boolean;
+  is_ai?: boolean;
 }
 
 export interface User {
