@@ -7,7 +7,6 @@ import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
 import { NewRecipe } from './pages/NewRecipe';
-// import { Admin } from './pages/AdminUsers';
 import { AiPlan } from './pages/AiPlain';
 import { AiChef } from './pages/AiChef';
 import { AppLayout } from './layouts/AppLayout';
@@ -22,8 +21,11 @@ import { AlertProvider } from './lib/AlertContext';
 import { SubscriptionProvider } from './lib/SubscriptionContext';
 import { FeedbackProvider } from './lib/FeedbackContext';
 import { FeedbackWidget } from './components/FeedbackWidget';
+import { AdminLayout } from './layouts/AdminLayout';
+import { AdminRoute } from './components/AdminRoute';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { AdminUsers } from './pages/AdminUsers';
 import type { JSX } from 'react';
-import { Admin } from './pages/Admin'
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -73,8 +75,9 @@ function AppRoutes() {
           {/* Planos = Âmbar */}
           <Route path="/planos" element={<PrivateRoute><LayoutRoute color="text-amber-500"><Plans /></LayoutRoute></PrivateRoute>} />
 
-          {/* Admin = Vermelho */}
-          <Route path="/admin" element={<PrivateRoute><LayoutRoute color="text-red-500"><Admin /></LayoutRoute></PrivateRoute>} />
+          {/* Admin — layout totalmente separado do resto do app */}
+          <Route path="/admin" element={<PrivateRoute><AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute></PrivateRoute>} />
+          <Route path="/admin/users" element={<PrivateRoute><AdminRoute><AdminLayout><AdminUsers /></AdminLayout></AdminRoute></PrivateRoute>} />
 
         </Routes>
   )

@@ -1,4 +1,6 @@
-from sqlalchemy import Integer, String, Boolean
+from datetime import datetime
+
+from sqlalchemy import Integer, String, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
@@ -13,6 +15,7 @@ class User(Base):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     has_seen_onboarding: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=True)
 
     # RELACIONAMENTOS (Isso corrige os erros de Mapper)
     
