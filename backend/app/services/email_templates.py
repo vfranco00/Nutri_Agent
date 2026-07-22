@@ -77,6 +77,52 @@ def verification_email_html(to_email: str, verify_url: str) -> str:
     """
 
 
+def password_reset_email_html(to_email: str, reset_url: str) -> str:
+    return f"""
+    <body style="margin:0;padding:0;background-color:#09090b;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#09090b" style="background-color:#09090b;padding:40px 16px;font-family:Arial,Helvetica,sans-serif;">
+        <tr>
+          <td align="center">
+            <table role="presentation" width="480" cellpadding="0" cellspacing="0" bgcolor="#18181b" style="max-width:480px;width:100%;background-color:#18181b;border:1px solid #27272a;border-radius:12px;">
+              <tr>
+                <td style="padding:40px 32px 32px;text-align:center;">
+                  {_logo_header_html()}
+
+                  <h1 style="font-size:20px;font-weight:bold;color:#fafafa;margin:0 0 12px;">Redefinir sua senha</h1>
+                  <p style="font-size:14px;line-height:1.6;color:#a1a1aa;margin:0 0 28px;">
+                    Alguém (esperamos que você) pediu pra redefinir a senha de
+                    <strong style="color:#e4e4e7;">{to_email}</strong>. Clique no botão abaixo pra escolher uma nova senha.
+                  </p>
+
+                  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+                    <tr>
+                      <td bgcolor="#16a34a" style="border-radius:8px;">
+                        <a href="{reset_url}" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:8px;font-family:Arial,Helvetica,sans-serif;">
+                          Redefinir senha
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <p style="font-size:12px;color:#71717a;margin:0 0 6px;">Ou copie e cole este link no navegador:</p>
+                  <p style="font-size:12px;color:#4ade80;word-break:break-all;margin:0;">{reset_url}</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 32px;border-top:1px solid #27272a;text-align:center;">
+                  <p style="font-size:12px;color:#52525b;margin:0;">
+                    Se você não pediu isso, pode ignorar este email — sua senha continua a mesma. Este link expira em 1 hora.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    """
+
+
 def feedback_email_html(name: str | None, email: str, category: str, message: str) -> str:
     # Conteúdo vem direto do usuário (nome/mensagem) — escapado pra não virar HTML/markup
     # dentro do próprio email (o cliente de email não deveria renderizar tags do usuário).

@@ -218,3 +218,23 @@ def test_send_feedback_email_uses_reporter_email_as_reply_to(monkeypatch):
     assert captured["to_email"] == email_service.FEEDBACK_TO_EMAIL
     assert captured["reply_to"] == "fulano@example.com"
     assert "bug" in captured["subject"]
+
+
+def test_send_password_reset_email_builds_link_with_token(monkeypatch):
+    monkeypatch.setattr(settings, "SMTP_USER", "bot@example.com")
+    monkeypatch.setattr(settings, "SMTP_PASSWORD", "senha")
+
+    captured = {}
+
+    def fake_smtp(to_email, subject, html, reply_to=None):
+        captured["to_email"] = to_email
+        captured["html"] = html
+        return True
+
+    monkeypatch.setattr(email_service, "_send_via_smtp", fake_smtp)
+
+    ok = email_service.send_password_reset_email("destino@example.com")
+
+    assert ok is True
+    assert captured["to_email"] == "destino@example.com"
+    assert "/reset-password?token=" in captured["html"]

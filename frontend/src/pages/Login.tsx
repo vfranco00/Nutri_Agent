@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
 import { Lock, Mail, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
+import { PasswordInput } from '../components/PasswordInput';
 
 export function Login() {
   const navigate = useNavigate();
@@ -98,18 +99,20 @@ export function Login() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300 ml-1">Senha</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
-                placeholder="••••••••"
-              />
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-sm font-medium text-zinc-300">Senha</label>
+              <a href="/forgot-password" className="text-xs text-green-500 hover:text-green-400 hover:underline">
+                Esqueceu a senha?
+              </a>
             </div>
+            <PasswordInput
+              icon={<Lock className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
+              placeholder="••••••••"
+            />
           </div>
 
           {error && (

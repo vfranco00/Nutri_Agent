@@ -5,6 +5,7 @@ from app.services.email_templates import (
     verification_email_html,
     feedback_email_html,
     subscription_expiring_email_html,
+    password_reset_email_html,
 )
 
 
@@ -46,5 +47,17 @@ def test_feedback_email_uses_real_logo():
 
 def test_subscription_expiring_email_uses_real_logo():
     html = subscription_expiring_email_html("Plus", datetime(2026, 8, 1))
+    assert "🍎" not in html
+    assert "nutri-agent-logo-horizontal.png" in html
+
+
+def test_password_reset_email_includes_reset_url():
+    html = password_reset_email_html("user@example.com", "https://example.com/reset-password?token=abc")
+    assert "https://example.com/reset-password?token=abc" in html
+    assert "user@example.com" in html
+
+
+def test_password_reset_email_uses_real_logo():
+    html = password_reset_email_html("user@example.com", "https://example.com/reset-password?token=abc")
     assert "🍎" not in html
     assert "nutri-agent-logo-horizontal.png" in html

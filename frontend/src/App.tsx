@@ -3,6 +3,8 @@ import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { VerifyEmail } from './pages/VerifyEmail';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
@@ -49,6 +51,8 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Rotas Privadas (Com Layout e Sidebar) */}
           <Route path="/dashboard" element={<PrivateRoute><LayoutRoute color="text-zinc-500"><Dashboard /></LayoutRoute></PrivateRoute>} />

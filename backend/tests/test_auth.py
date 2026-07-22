@@ -1,5 +1,5 @@
 from app.core.limiter import limiter
-from app.core.security import create_email_verification_token
+from app.core.security import create_email_verification_token, create_password_reset_token
 from app.models.user import User
 
 
@@ -97,6 +97,96 @@ def test_resend_verification_is_always_generic(client):
     assert res_existing.status_code == 200
     assert res_missing.status_code == 200
     assert res_existing.json() == res_missing.json()
+
+
+def test_forgot_password_is_always_generic(client, make_user):
+    make_user(email="tempsenha@example.com", password="strongpassword123")
+
+    res_existing = client.post("/auth/forgot-password", json={"email": "tempsenha@example.com"})
+    res_missing = client.post("/auth/forgot-password", json={"email": "naoexiste888@example.com"})
+    assert res_existing.status_code == 200
+    assert res_missing.status_code == 200
+    assert res_existing.json() == res_missing.json()
+
+
+def test_forgot_password_sends_email_for_existing_user(client, make_user, monkeypatch):
+    make_user(email="mandaemail@example.com", password="strongpassword123")
+
+    called = {}
+    monkeypatch.setattr(
+        "app.routers.auth.send_password_reset_email",
+        lambda email: called.setdefault("email", email) or True,
+    )
+
+    client.post("/auth/forgot-password", json={"email": "mandaemail@example.com"})
+    assert called.get("email") == "mandaemail@example.com"
+
+
+def test_forgot_password_does_not_send_email_for_unknown_user(client, monkeypatch):
+    called = {}
+    monkeypatch.setattr(
+        "app.routers.auth.send_password_reset_email",
+        lambda email: called.setdefault("email", email) or True,
+    )
+
+    client.post("/auth/forgot-password", json={"email": "naoexiste777@example.com"})
+    assert "email" not in called
+
+
+def test_reset_password_with_valid_token(client, make_user):
+    make_user(email="resetsenha@example.com", password="senhaoriginal123")
+    token = create_password_reset_token("resetsenha@example.com")
+
+    res = client.post("/auth/reset-password", json={"token": token, "new_password": "senhanova456"})
+    assert res.status_code == 200
+
+    # Login com a senha antiga deixa de funcionar, com a nova funciona.
+    old_login = client.post("/auth/login", data={"username": "resetsenha@example.com", "password": "senhaoriginal123"})
+    assert old_login.status_code == 401
+
+    new_login = client.post("/auth/login", data={"username": "resetsenha@example.com", "password": "senhanova456"})
+    assert new_login.status_code == 200
+
+
+def test_reset_password_with_invalid_token(client):
+    res = client.post("/auth/reset-password", json={"token": "token-lixo", "new_password": "senhanova456"})
+    assert res.status_code == 400
+
+
+def test_reset_password_with_unknown_user(client):
+    token = create_password_reset_token("naoexiste666@example.com")
+    res = client.post("/auth/reset-password", json={"token": token, "new_password": "senhanova456"})
+    assert res.status_code == 400
+
+
+def test_reset_password_rejects_short_password(client, make_user):
+    make_user(email="senhacurta@example.com", password="strongpassword123")
+    token = create_password_reset_token("senhacurta@example.com")
+
+    res = client.post("/auth/reset-password", json={"token": token, "new_password": "curta"})
+    assert res.status_code == 422
+
+
+def test_reset_password_token_cannot_be_reused_as_verification_token(client, make_user, db_session):
+    # Um token de reset de senha nunca pode ser aceito como token de verificação de
+    # email (nem vice-versa) — o campo "type" no JWT existe exatamente pra isso.
+    from app.core.security import decode_email_verification_token
+
+    make_user(email="tipotoken@example.com", password="strongpassword123")
+    reset_token = create_password_reset_token("tipotoken@example.com")
+
+    assert decode_email_verification_token(reset_token) is None
+
+
+def test_verification_token_cannot_be_reused_as_reset_password_token(client, make_user):
+    # E o inverso também não pode: um token de verificação de email não serve
+    # pra resetar senha.
+    from app.core.security import decode_password_reset_token
+
+    make_user(email="tipotoken2@example.com", password="strongpassword123")
+    verification_token = create_email_verification_token("tipotoken2@example.com")
+
+    assert decode_password_reset_token(verification_token) is None
 
 
 def test_login_rate_limited_after_five_attempts(client, make_user):

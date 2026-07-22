@@ -5,15 +5,17 @@ from email.mime.text import MIMEText
 
 import httpx
 from app.core.config import settings
-from app.core.security import create_email_verification_token
+from app.core.security import create_email_verification_token, create_password_reset_token
 from app.services.email_templates import (
     verification_email_html,
     subscription_expiring_email_html,
     feedback_email_html,
+    password_reset_email_html,
 )
 
 RESEND_URL = "https://api.resend.com/emails"
 VERIFICATION_SUBJECT = "Confirme seu email — NutriAgent"
+PASSWORD_RESET_SUBJECT = "Redefinir sua senha — NutriAgent"
 FEEDBACK_TO_EMAIL = "victorfranco02@outlook.com"
 
 
@@ -97,6 +99,17 @@ def send_verification_email(to_email: str) -> bool:
     return _send_email(
         to_email, VERIFICATION_SUBJECT, html,
         fallback_log=f"Link de verificação para {to_email}: {verify_url}",
+    )
+
+
+def send_password_reset_email(to_email: str) -> bool:
+    """Gera o token de reset e envia o link — mesmo padrão de send_verification_email."""
+    token = create_password_reset_token(to_email)
+    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    html = password_reset_email_html(to_email, reset_url)
+    return _send_email(
+        to_email, PASSWORD_RESET_SUBJECT, html,
+        fallback_log=f"Link de redefinição de senha para {to_email}: {reset_url}",
     )
 
 

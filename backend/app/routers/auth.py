@@ -11,9 +11,9 @@ from app.core.deps import get_current_user
 from app.crud import user as crud_user
 from app.models.user import User
 from app.schemas.token import Token
-from app.schemas.user import ResendVerificationRequest
+from app.schemas.user import ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest
 from app.core.config import settings
-from app.services.email import send_verification_email
+from app.services.email import send_verification_email, send_password_reset_email
 
 router = APIRouter()
 
@@ -93,3 +93,32 @@ def resend_verification(request: Request, data: ResendVerificationRequest, db: S
 
     # Resposta sempre genérica — não revela se o email existe na base.
     return {"message": "Se o email existir e ainda não estiver verificado, enviamos um novo link."}
+
+
+@router.post("/forgot-password")
+@limiter.limit("3/hour")
+def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = crud_user.get_user_by_email(db, email=data.email)
+    if user:
+        send_password_reset_email(user.email)
+
+    # Resposta sempre genérica — não revela se o email existe na base (mesma
+    # regra de segurança do resend-verification, evita enumeração de usuários).
+    return {"message": "Se o email existir na nossa base, enviamos um link pra redefinir a senha."}
+
+
+@router.post("/reset-password")
+@limiter.limit("5/hour")
+def reset_password(request: Request, data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    email = security.decode_password_reset_token(data.token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Link inválido ou expirado. Peça um novo.")
+
+    user = crud_user.get_user_by_email(db, email=email)
+    if not user:
+        raise HTTPException(status_code=400, detail="Link inválido ou expirado. Peça um novo.")
+
+    user.hashed_password = security.get_password_hash(data.new_password)
+    db.commit()
+
+    return {"message": "Senha redefinida com sucesso! Já pode entrar com a nova senha."}
