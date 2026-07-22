@@ -2,12 +2,29 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
 import type { User } from '../types';
-import { Users, Mail, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
+import { Users, Mail, CheckCircle2, XCircle, Trash2, History, X, Loader2 } from 'lucide-react';
+
+interface ActivityEntry {
+  user_email: string;
+  event_type: string;
+  created_at: string;
+}
+
+const EVENT_LABELS: Record<string, string> = {
+  chef_ai: "Chef IA",
+  generate_plan_daily: "Cardápio diário",
+  generate_plan_weekly: "Cardápio semanal",
+  generate_plan_starter: "Cardápio (Starter)",
+  meal_swap: "Troca de refeição",
+};
 
 export function AdminUsers() {
   const { showAlert, confirmDialog } = useAlert();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activityUser, setActivityUser] = useState<User | null>(null);
+  const [activityEntries, setActivityEntries] = useState<ActivityEntry[]>([]);
+  const [loadingActivity, setLoadingActivity] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -46,6 +63,20 @@ export function AdminUsers() {
       setUsers(users.map(u => u.id === user.id ? { ...u, plan: plan as User['plan'] } : u));
       showAlert(`Plano de ${user.full_name || user.email} alterado para ${plan}.`, 'success');
     } catch (e) { showAlert("Erro ao alterar plano.", 'error'); console.error(e); }
+  }
+
+  async function handleViewActivity(user: User) {
+    setActivityUser(user);
+    setLoadingActivity(true);
+    try {
+      const res = await api.get('/admin/activity', { params: { user_id: user.id, limit: 50 } });
+      setActivityEntries(res.data.entries);
+    } catch (e) {
+      showAlert("Erro ao carregar atividade do usuário.", 'error');
+      console.error(e);
+    } finally {
+      setLoadingActivity(false);
+    }
   }
 
   if (loading) return <div className="p-20 text-center text-zinc-500">Carregando usuários...</div>;
@@ -106,11 +137,16 @@ export function AdminUsers() {
                     </select>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {!user.is_superuser && (
-                        <button onClick={() => handleDelete(user.id)} className="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors" title="Deletar Usuário">
-                            <Trash2 className="h-4 w-4" />
-                        </button>
-                    )}
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => handleViewActivity(user)} className="text-zinc-400 hover:text-white hover:bg-zinc-800 p-2 rounded transition-colors" title="Ver atividade">
+                          <History className="h-4 w-4" />
+                      </button>
+                      {!user.is_superuser && (
+                          <button onClick={() => handleDelete(user.id)} className="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors" title="Deletar Usuário">
+                              <Trash2 className="h-4 w-4" />
+                          </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -118,6 +154,44 @@ export function AdminUsers() {
           </table>
         </div>
       </div>
+
+      {activityUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-800 flex flex-col max-h-[80vh]">
+            <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <History className="h-5 w-5 text-red-500" /> Atividade
+                </h3>
+                <p className="text-xs text-zinc-500 mt-1">{activityUser.full_name || activityUser.email}</p>
+              </div>
+              <button onClick={() => setActivityUser(null)} className="text-zinc-500 hover:text-white">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-6">
+              {loadingActivity ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-red-500" />
+                </div>
+              ) : activityEntries.length === 0 ? (
+                <p className="text-sm text-zinc-500 text-center py-4">Nenhuma atividade registrada.</p>
+              ) : (
+                <div className="space-y-2">
+                  {activityEntries.map((entry, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm border-b border-zinc-800 pb-2 last:border-0">
+                      <span className="text-zinc-300">{EVENT_LABELS[entry.event_type] || entry.event_type}</span>
+                      <span className="text-xs text-zinc-500">
+                        {new Date(entry.created_at).toLocaleString('pt-BR')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -68,3 +68,93 @@ def test_activity_lists_recent_events(make_user, db_session):
     assert data["total"] == 1
     assert data["entries"][0]["user_email"] == "admin_activity@example.com"
     assert data["entries"][0]["event_type"] == "chef_ai"
+
+
+def test_activity_filters_by_user_id(make_user, db_session):
+    from app.models.subscription import UsageEvent
+    from app.models.user import User
+
+    admin_client = make_user(email="admin_activity_filter@example.com", superuser=True)
+    other_client = make_user(email="outro_activity_filter@example.com")
+    admin = db_session.query(User).filter(User.email == "admin_activity_filter@example.com").first()
+    other = db_session.query(User).filter(User.email == "outro_activity_filter@example.com").first()
+
+    db_session.add(UsageEvent(user_id=admin.id, event_type="chef_ai"))
+    db_session.add(UsageEvent(user_id=other.id, event_type="meal_swap:tok"))
+    db_session.add(UsageEvent(user_id=other.id, event_type="meal_swap:tok"))
+    db_session.commit()
+
+    res = admin_client.get("/admin/activity", params={"user_id": other.id})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] == 2
+    assert all(e["user_email"] == "outro_activity_filter@example.com" for e in data["entries"])
+
+
+def test_payments_requires_superuser(make_user):
+    regular_client = make_user(email="naoadmin_payments@example.com")
+    res = regular_client.get("/admin/payments")
+    assert res.status_code == 403
+
+
+def test_payments_lists_confirmed_sales(make_user, db_session):
+    from app.models.payment import Payment
+    from app.models.user import User
+
+    admin_client = make_user(email="admin_payments@example.com", superuser=True)
+    user = db_session.query(User).filter(User.email == "admin_payments@example.com").first()
+    db_session.add(Payment(user_id=user.id, mp_payment_id="pay-a", plan="plus", amount_brl=29.9, status="approved"))
+    db_session.add(Payment(user_id=user.id, mp_payment_id="pay-b", plan="pro", amount_brl=59.9, status="rejected"))
+    db_session.commit()
+
+    res = admin_client.get("/admin/payments")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] == 2
+    statuses = {e["status"] for e in data["entries"]}
+    assert statuses == {"approved", "rejected"}
+
+
+def test_top_users_requires_superuser(make_user):
+    regular_client = make_user(email="naoadmin_topusers@example.com")
+    res = regular_client.get("/admin/top-users")
+    assert res.status_code == 403
+
+
+def test_top_users_ranks_by_activity_count(make_user, db_session):
+    from app.models.subscription import UsageEvent
+    from app.models.user import User
+
+    admin_client = make_user(email="admin_topusers@example.com", superuser=True)
+    heavy_client = make_user(email="heavy_topusers@example.com")
+    light_client = make_user(email="light_topusers@example.com")
+    heavy = db_session.query(User).filter(User.email == "heavy_topusers@example.com").first()
+    light = db_session.query(User).filter(User.email == "light_topusers@example.com").first()
+
+    for _ in range(3):
+        db_session.add(UsageEvent(user_id=heavy.id, event_type="chef_ai"))
+    db_session.add(UsageEvent(user_id=light.id, event_type="chef_ai"))
+    db_session.commit()
+
+    res = admin_client.get("/admin/top-users")
+    assert res.status_code == 200
+    entries = res.json()["entries"]
+    assert entries[0]["user_email"] == "heavy_topusers@example.com"
+    assert entries[0]["actions_count"] == 3
+
+
+def test_metrics_includes_confirmed_revenue(make_user, db_session):
+    from app.models.payment import Payment
+    from app.models.user import User
+
+    admin_client = make_user(email="admin_revenue@example.com", superuser=True)
+    user = db_session.query(User).filter(User.email == "admin_revenue@example.com").first()
+    db_session.add(Payment(user_id=user.id, mp_payment_id="pay-rev-1", plan="plus", amount_brl=29.9, status="approved"))
+    db_session.add(Payment(user_id=user.id, mp_payment_id="pay-rev-2", plan="pro", amount_brl=59.9, status="rejected"))
+    db_session.commit()
+
+    res = admin_client.get("/admin/metrics")
+    data = res.json()
+    # Só soma pagamentos aprovados na receita confirmada.
+    assert data["revenue_confirmed_brl"] == 29.9
+    assert data["payments_last_30_days"] == 2
