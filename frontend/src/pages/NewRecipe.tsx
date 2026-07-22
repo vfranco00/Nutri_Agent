@@ -4,7 +4,7 @@ import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
 import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2, Tag } from 'lucide-react';
 import { CATEGORIES } from '../types';
-import { LoadingOverlay } from '../components/LoadingOverlay';
+import { BouncingDots } from '../components/BouncingDots';
 
 interface IngredientInput { name: string; quantity: string; unit: string; calories?: number; }
 
@@ -22,7 +22,7 @@ export function NewRecipe() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
-  const [calculating, setCalculating] = useState(false);
+  const [calculatingIndex, setCalculatingIndex] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [instructions, setInstructions] = useState('');
   const [prepTime, setPrepTime] = useState('');
@@ -37,7 +37,7 @@ export function NewRecipe() {
     if (ing.calories && ing.calories > 0) return;
 
     try {
-      setCalculating(true);
+      setCalculatingIndex(index);
       const response = await api.post('/ai/calculate-calories', { name: ing.name, quantity: Number(ing.quantity), unit: ing.unit });
 
       const kcal = response.data.total_calories;
@@ -54,7 +54,7 @@ export function NewRecipe() {
       setIngredients(newList);
       const newTotal = newList.reduce((sum, item) => sum + (item.calories || 0), 0);
       setTotalCalories(String(Math.round(newTotal)));
-    } catch (error) { console.error(error); } finally { setCalculating(false); }
+    } catch (error) { console.error(error); } finally { setCalculatingIndex(null); }
   }
 
   function addIngredient() { setIngredients([...ingredients, { name: '', quantity: '', unit: '', calories: 0 }]); }
@@ -90,7 +90,6 @@ export function NewRecipe() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      {loading && <LoadingOverlay text="Criando sua receita..." />}
       <div className="flex items-center gap-4 mb-8">
         <button onClick={() => navigate('/recipes')} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg">
           <ArrowLeft className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
@@ -110,10 +109,7 @@ export function NewRecipe() {
               <input type="number" value={prepTime} onChange={e => setPrepTime(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex justify-between">
-                <span className="flex gap-2"><Flame className="h-4 w-4" /> Calorias</span>
-                {calculating && <span className="text-xs text-green-500 animate-pulse">Calculando...</span>}
-              </label>
+              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Flame className="h-4 w-4" /> Calorias</label>
               <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" placeholder="Auto" />
             </div>
           </div>
@@ -144,7 +140,13 @@ export function NewRecipe() {
                 <input placeholder="Nome" value={ing.name} onChange={e => updateIngredient(i, 'name', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-none dark:text-white" />
                 <input type="number" placeholder="Qtd" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="w-20 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-none dark:text-white" />
                 <input placeholder="Un" value={ing.unit} onChange={e => updateIngredient(i, 'unit', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="w-20 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-none dark:text-white" />
-                <div className="w-16 text-right text-xs text-zinc-500">{ing.calories ? `${Math.round(ing.calories)} kcal` : '-'}</div>
+                <div className="w-16 flex justify-end text-xs text-zinc-500">
+                  {calculatingIndex === i ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
+                  ) : (
+                    ing.calories ? `${Math.round(ing.calories)} kcal` : '-'
+                  )}
+                </div>
                 <button type="button" onClick={() => removeIngredient(i)} className="p-2 text-zinc-400 hover:text-red-400"><Trash2 className="h-5 w-5" /></button>
               </div>
             ))}
@@ -157,7 +159,7 @@ export function NewRecipe() {
         </div>
 
         <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg flex justify-center gap-2">
-          {loading ? <Loader2 className="animate-spin" /> : <Save />} Criar Receita
+          {loading ? <BouncingDots /> : <><Save /> Criar Receita</>}
         </button>
       </form>
     </div>
