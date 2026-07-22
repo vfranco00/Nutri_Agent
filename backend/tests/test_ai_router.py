@@ -201,3 +201,36 @@ def test_swap_meal_unlimited_for_pro(make_user, monkeypatch):
     for _ in range(5):
         res = auth_client.post("/ai/swap-meal", json=payload)
         assert res.status_code == 200
+
+
+def test_swap_meal_requires_profile(make_user):
+    auth_client = make_user(email="troca_semperfil@example.com", plan="pro")
+    res = auth_client.post(
+        "/ai/swap-meal",
+        json={
+            "plan_token": "tok-semperfil",
+            "slot_name": "Almoço",
+            "calories_target": 500,
+            "current_suggestion": "Frango com arroz",
+            "avoid_suggestions": [],
+        },
+    )
+    assert res.status_code == 400
+
+
+def test_swap_meal_fails_gracefully_when_gemini_unavailable(make_user, monkeypatch):
+    auth_client = make_user(email="troca_iaoffline@example.com", plan="pro")
+    auth_client.put("/profiles/me", json=_profile_payload())
+    monkeypatch.setattr("app.services.ai.call_gemini", lambda prompt: None)
+
+    res = auth_client.post(
+        "/ai/swap-meal",
+        json={
+            "plan_token": "tok-iaoffline",
+            "slot_name": "Almoço",
+            "calories_target": 500,
+            "current_suggestion": "Frango com arroz",
+            "avoid_suggestions": [],
+        },
+    )
+    assert res.status_code == 500

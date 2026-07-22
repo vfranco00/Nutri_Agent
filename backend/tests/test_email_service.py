@@ -1,6 +1,8 @@
 import smtplib
 from unittest.mock import MagicMock, patch
 
+import httpx
+
 from app.core.config import settings
 from app.services import email as email_service
 
@@ -186,3 +188,33 @@ def test_send_subscription_expiring_email_uses_same_fallback_chain(monkeypatch):
 
     assert ok is True
     assert "Plus" in called["subject"]
+
+
+def test_resend_send_handles_network_failure_without_raising(monkeypatch):
+    monkeypatch.setattr(settings, "RESEND_API_KEY", "re_algumachave")
+
+    with patch("httpx.Client", side_effect=httpx.ConnectError("falha de rede")):
+        ok = email_service._send_via_resend("destino@example.com", "Assunto", "<p>oi</p>")
+    assert ok is False
+
+
+def test_send_feedback_email_uses_reporter_email_as_reply_to(monkeypatch):
+    monkeypatch.setattr(settings, "SMTP_USER", "bot@example.com")
+    monkeypatch.setattr(settings, "SMTP_PASSWORD", "senha")
+
+    captured = {}
+
+    def fake_smtp(to_email, subject, html, reply_to=None):
+        captured["to_email"] = to_email
+        captured["subject"] = subject
+        captured["reply_to"] = reply_to
+        return True
+
+    monkeypatch.setattr(email_service, "_send_via_smtp", fake_smtp)
+
+    ok = email_service.send_feedback_email("Fulano", "fulano@example.com", "bug", "Não consigo salvar receita.")
+
+    assert ok is True
+    assert captured["to_email"] == email_service.FEEDBACK_TO_EMAIL
+    assert captured["reply_to"] == "fulano@example.com"
+    assert "bug" in captured["subject"]
