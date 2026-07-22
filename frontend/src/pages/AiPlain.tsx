@@ -27,7 +27,7 @@ import {
 export function AiPlan() {
   const navigate = useNavigate();
   const { showAlert, confirmDialog } = useAlert();
-  const { refreshSubscription } = useSubscription();
+  const { subscription, getUsage, refreshSubscription } = useSubscription();
 
   // --- ESTADOS ---
   const [loading, setLoading] = useState(false);
@@ -42,6 +42,16 @@ export function AiPlan() {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [savingMealIndex, setSavingMealIndex] = useState<number | null>(null);
   const [savingPlan, setSavingPlan] = useState(false);
+
+  // Cota de geração de cardápio depende do plano e do modo (1 ou 7 dias) escolhido
+  const planEventType =
+    subscription?.plan === "starter"
+      ? "generate_plan_starter"
+      : mode === 7
+        ? "generate_plan_weekly"
+        : "generate_plan_daily";
+  const planUsage = getUsage(planEventType);
+  const planLimitReached = planUsage ? planUsage.used >= (planUsage.limit ?? Infinity) : false;
 
   // --- NOVOS ESTADOS DO MODAL ---
   const [shoppingModalOpen, setShoppingModalOpen] = useState(false);
@@ -371,10 +381,24 @@ export function AiPlan() {
 
             <button
               onClick={handleGenerate}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 mt-4"
+              disabled={planLimitReached}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Zap className="h-5 w-5 fill-current" /> Gerar Agora
             </button>
+            {planUsage && planUsage.limit !== null && (
+              <p className="text-xs text-zinc-400 text-center mt-2">
+                {planUsage.used}/{planUsage.limit} cardápios usados nos últimos {planUsage.window_days} dias
+                {planLimitReached && (
+                  <>
+                    {" "}—{" "}
+                    <button onClick={() => navigate("/planos")} className="text-purple-500 hover:underline font-medium">
+                      fazer upgrade
+                    </button>
+                  </>
+                )}
+              </p>
+            )}
           </div>
         </div>
       )}
