@@ -77,7 +77,7 @@ export function Login() {
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
         
         <div className="text-center mb-8">
-          <img src="/nutri_agent_logo.png" alt="NutriAgent" className="h-20 w-auto object-contain mx-auto mb-2" />
+          <img src="/Nutri Agent - Logo + Nome (Horizontal).png" alt="NutriAgent" className="h-20 w-auto object-contain mx-auto mb-2" />
           <p className="text-zinc-400">Entre para gerenciar sua dieta</p>
         </div>
 
