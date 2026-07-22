@@ -237,6 +237,7 @@ def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: st
     5. Gere EXATAMENTE {meals_count} refeições por dia.
     6. O array "days" precisa ter EXATAMENTE {days} objeto(s), um por dia, numerados sequencialmente ("Dia 1", "Dia 2", ..., "Dia {days}"). Nunca gere menos dias do que os {days} pedidos.
     7. Responda em português do Brasil.
+    8. Cada refeição precisa de um campo "category" com EXATAMENTE um destes valores, escolhido pelo horário/tipo real da refeição (nunca invente outro valor): "cafe_da_manha", "lanche", "almoco", "jantar", "ceia".
 
     Responda APENAS JSON válido, sem markdown, sem comentários, sem texto fora do JSON:
     {{
@@ -246,7 +247,7 @@ def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: st
           "calories_target": {target_calories:.0f},
           "macros": {{ "protein": "...", "carbs": "...", "fats": "..." }},
           "meals": [
-             {{ "name": "...", "suggestion": "...", "category": "almoco" }}
+             {{ "name": "...", "suggestion": "...", "category": "cafe_da_manha" }}
           ],
           "tip": "..."
         }}
@@ -296,6 +297,7 @@ def generate_recipe_from_ingredients(ingredients: list[str], servings: int = 1):
     1. RENDIMENTO: Exatamente {servings} PESSOA(S). Ajuste as quantidades de cada ingrediente pra render {servings} porção(ões).
     2. CALORIAS: Calcule as calorias somando cada ingrediente individualmente, já na quantidade total pra {servings} pessoa(s). SEJA REALISTA.
     3. INGREDIENTES: Liste cada item com quantidade exata (gramas/unidades) e calorias individuais, já escalados pra {servings} pessoa(s).
+    4. CATEGORIA: classifique o prato com EXATAMENTE um destes valores, o que fizer mais sentido pro tipo de prato (nunca invente outro valor): "cafe_da_manha", "lanche", "almoco", "jantar", "ceia", "doce", "salgado".
 
     Responda APENAS JSON estrito:
     {{
@@ -303,6 +305,7 @@ def generate_recipe_from_ingredients(ingredients: list[str], servings: int = 1):
       "instructions": "Passo a passo detalhado...",
       "prep_time": 20,
       "calories": 650,
+      "category": "almoco",
       "ingredients": [
         {{ "name": "Nome (ex: Arroz Cru)", "quantity": 100, "unit": "g", "calories": 360 }},
         {{ "name": "Nome (ex: Azeite)", "quantity": 1, "unit": "colher sopa", "calories": 119 }}

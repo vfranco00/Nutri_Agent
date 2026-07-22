@@ -77,6 +77,7 @@ export interface User {
 export interface Meal {
   name: string;
   suggestion: string;
+  category?: string;
 }
 
 export interface AiPlan {
@@ -130,9 +131,11 @@ export interface Ingredient {
 
 export const CATEGORIES = {
   all: 'Todas',
+  cafe_da_manha: 'Café da Manhã',
   almoco: 'Almoço',
-  jantar: 'Jantar',
   lanche: 'Lanche',
+  jantar: 'Jantar',
+  ceia: 'Ceia',
   doce: 'Doce',
   salgado: 'Salgado'
 };

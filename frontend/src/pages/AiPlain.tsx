@@ -144,6 +144,7 @@ export function AiPlan() {
     mealName: string,
     suggestion: string,
     index: number,
+    mealCategory?: string,
   ) {
     setSavingMealIndex(index);
     try {
@@ -156,10 +157,17 @@ export function AiPlan() {
       }
 
       const fullRecipe = aiResponse.data;
-      let cat = "almoco";
-      const n = mealName.toLowerCase();
-      if (n.includes("café") || n.includes("lanche")) cat = "lanche";
-      if (n.includes("jantar")) cat = "jantar";
+      // Prioriza a categoria já vinda do cardápio gerado (mais precisa, sabe o
+      // horário real da refeição); cai pro heurístico de nome só como proteção
+      // contra um plano antigo salvo no localStorage sem o campo "category".
+      let cat = mealCategory || fullRecipe.category || "almoco";
+      if (!mealCategory && !fullRecipe.category) {
+        const n = mealName.toLowerCase();
+        if (n.includes("café") || n.includes("cafe")) cat = "cafe_da_manha";
+        else if (n.includes("lanche")) cat = "lanche";
+        else if (n.includes("jantar")) cat = "jantar";
+        else if (n.includes("ceia")) cat = "ceia";
+      }
 
       const saveRes = await api.post("/recipes/", {
         ...fullRecipe,
@@ -571,7 +579,7 @@ export function AiPlan() {
                     </button>
                     <button
                       onClick={() =>
-                        handleSaveMeal(meal.name, meal.suggestion, idx)
+                        handleSaveMeal(meal.name, meal.suggestion, idx, meal.category)
                       }
                       disabled={savingMealIndex === idx}
                       className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-green-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"

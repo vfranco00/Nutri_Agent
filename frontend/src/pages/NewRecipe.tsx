@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
-import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2 } from 'lucide-react';
+import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2, Tag } from 'lucide-react';
+import { CATEGORIES } from '../types';
 
 interface IngredientInput { name: string; quantity: string; unit: string; calories?: number; }
 
@@ -14,6 +15,8 @@ const PREP_METHODS = [
   { value: 'cru', label: 'Não vai ao fogo (Cru)' },
 ];
 
+const RECIPE_CATEGORIES = Object.entries(CATEGORIES).filter(([key]) => key !== 'all');
+
 export function NewRecipe() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
@@ -24,6 +27,7 @@ export function NewRecipe() {
   const [prepTime, setPrepTime] = useState('');
   const [totalCalories, setTotalCalories] = useState('');
   const [method, setMethod] = useState('fogao');
+  const [category, setCategory] = useState('almoco');
   const [ingredients, setIngredients] = useState<IngredientInput[]>([{ name: '', quantity: '', unit: '', calories: 0 }]);
 
   async function calculateIngredientCalories(index: number) {
@@ -74,7 +78,7 @@ export function NewRecipe() {
         name: ing.name, quantity: Number(ing.quantity), unit: ing.unit || 'un'
       }));
       await api.post('/recipes/', {
-        title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, ingredients: validIngredients
+        title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, category, ingredients: validIngredients
       });
       navigate('/recipes');
     } catch (error: any) {
@@ -111,11 +115,19 @@ export function NewRecipe() {
               <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" placeholder="Auto" />
             </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Settings2 className="h-4 w-4" /> Preparo</label>
-            <select value={method} onChange={e => setMethod(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white">
-              {PREP_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Settings2 className="h-4 w-4" /> Preparo</label>
+              <select value={method} onChange={e => setMethod(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white">
+                {PREP_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Tag className="h-4 w-4" /> Categoria</label>
+              <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white">
+                {RECIPE_CATEGORIES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+              </select>
+            </div>
           </div>
         </div>
 
