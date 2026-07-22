@@ -5,13 +5,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from app.core.config import settings
 from app.core.limiter import limiter
 from app.core.scheduler import start_scheduler, stop_scheduler
-from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions
+from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions, feedback
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if settings.FRONTEND_URL == "http://localhost:5173":
+        # Aviso alto no log — se isso aparecer em produção, os links de email
+        # (verificação, vencimento de assinatura) estão indo pra localhost.
+        print("[startup] AVISO: FRONTEND_URL não configurado — usando o padrão de localhost.")
     start_scheduler()
     yield
     stop_scheduler()
@@ -52,6 +57,7 @@ app.include_router(ai.router, prefix="/ai", tags=["ai"])
 app.include_router(shopping.router, prefix="/shopping", tags=["shopping"])
 app.include_router(meal_plans.router, prefix="/meal-plans", tags=["meal-plans"])
 app.include_router(subscriptions.router, prefix="/subscriptions", tags=["subscriptions"])
+app.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
 
 @app.get("/")
 def read_root():

@@ -15,7 +15,9 @@ import {
   Target,
   Scale,
   Bot,
+  LifeBuoy,
 } from "lucide-react";
+import { useFeedback } from "../lib/FeedbackContext";
 
 const FEATURES = [
   {
@@ -160,6 +162,7 @@ function DashboardMockup() {
 
 export function Landing() {
   const navigate = useNavigate();
+  const { openFeedbackModal } = useFeedback();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
@@ -365,6 +368,24 @@ export function Landing() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* AJUDA & FEEDBACK */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-900 text-center">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500/10 mb-4">
+          <LifeBuoy className="h-7 w-7 text-green-500" />
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-3">Precisa de ajuda?</h2>
+        <p className="text-zinc-400 mb-6 max-w-md mx-auto">
+          Achou um bug, tem uma dúvida ou uma ideia pro NutriAgent? Manda pra gente — a
+          bolinha verde no canto da tela abre esse mesmo formulário em qualquer página.
+        </p>
+        <button
+          onClick={openFeedbackModal}
+          className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-green-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+        >
+          <LifeBuoy className="h-5 w-5 text-green-500" /> Falar com a gente
+        </button>
       </section>
 
       {/* CTA FINAL */}

@@ -7,9 +7,17 @@ Escrito com <table> e estilos inline de propósito — é o jeito que garante
 renderização consistente em clientes de email como Outlook/Gmail, que não
 suportam flexbox/grid e costumam ignorar <style> no <head>.
 """
+import html as _html
 from datetime import datetime
 
 from app.core.config import settings
+
+FEEDBACK_CATEGORY_LABELS = {
+    "duvida": "Dúvida",
+    "bug": "Bug",
+    "sugestao": "Sugestão",
+    "outro": "Outro",
+}
 
 
 def verification_email_html(to_email: str, verify_url: str) -> str:
@@ -48,6 +56,50 @@ def verification_email_html(to_email: str, verify_url: str) -> str:
                 <td style="padding:20px 32px;border-top:1px solid #27272a;text-align:center;">
                   <p style="font-size:12px;color:#52525b;margin:0;">
                     Se você não criou essa conta, pode ignorar este email. Este link expira em 24 horas.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    """
+
+
+def feedback_email_html(name: str | None, email: str, category: str, message: str) -> str:
+    # Conteúdo vem direto do usuário (nome/mensagem) — escapado pra não virar HTML/markup
+    # dentro do próprio email (o cliente de email não deveria renderizar tags do usuário).
+    safe_name = _html.escape(name) if name else "Não informado"
+    safe_email = _html.escape(email)
+    safe_message = _html.escape(message).replace("\n", "<br>")
+    category_label = FEEDBACK_CATEGORY_LABELS.get(category, category)
+    return f"""
+    <body style="margin:0;padding:0;background-color:#09090b;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#09090b" style="background-color:#09090b;padding:40px 16px;font-family:Arial,Helvetica,sans-serif;">
+        <tr>
+          <td align="center">
+            <table role="presentation" width="480" cellpadding="0" cellspacing="0" bgcolor="#18181b" style="max-width:480px;width:100%;background-color:#18181b;border:1px solid #27272a;border-radius:12px;">
+              <tr>
+                <td style="padding:40px 32px 32px;">
+                  <div style="text-align:center;">
+                    <div style="font-size:32px;line-height:1;margin-bottom:8px;">🍎</div>
+                    <div style="font-size:20px;font-weight:bold;color:#22c55e;margin-bottom:28px;">NutriAgent</div>
+                  </div>
+
+                  <h1 style="font-size:20px;font-weight:bold;color:#fafafa;margin:0 0 16px;">Novo chamado de {category_label}</h1>
+
+                  <p style="font-size:13px;color:#a1a1aa;margin:0 0 4px;">De</p>
+                  <p style="font-size:14px;color:#e4e4e7;margin:0 0 16px;">{safe_name} &lt;{safe_email}&gt;</p>
+
+                  <p style="font-size:13px;color:#a1a1aa;margin:0 0 4px;">Mensagem</p>
+                  <p style="font-size:14px;line-height:1.6;color:#e4e4e7;background-color:#09090b;border:1px solid #27272a;border-radius:8px;padding:16px;margin:0;">{safe_message}</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 32px;border-top:1px solid #27272a;text-align:center;">
+                  <p style="font-size:12px;color:#52525b;margin:0;">
+                    Responda este email pra falar direto com {safe_name}.
                   </p>
                 </td>
               </tr>

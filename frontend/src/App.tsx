@@ -20,16 +20,18 @@ import { Loader2 } from 'lucide-react';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import { AlertProvider } from './lib/AlertContext';
 import { SubscriptionProvider } from './lib/SubscriptionContext';
+import { FeedbackProvider } from './lib/FeedbackContext';
+import { FeedbackWidget } from './components/FeedbackWidget';
 import type { JSX } from 'react';
 import { Admin } from './pages/Admin'
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return <div className="h-screen flex items-center justify-center bg-zinc-950"><Loader2 className="animate-spin text-green-500 h-8 w-8"/></div>;
   }
-  
+
   return user ? children : <Navigate to="/login" />;
 }
 
@@ -83,9 +85,12 @@ function App() {
     <AlertProvider>
       <AuthProvider>
         <SubscriptionProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <FeedbackProvider>
+            <BrowserRouter>
+              <AppRoutes />
+              <FeedbackWidget />
+            </BrowserRouter>
+          </FeedbackProvider>
         </SubscriptionProvider>
       </AuthProvider>
     </AlertProvider>
