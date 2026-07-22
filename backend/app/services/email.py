@@ -13,6 +13,7 @@ from app.services.email_templates import (
     password_reset_email_html,
 )
 
+BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 RESEND_URL = "https://api.resend.com/emails"
 VERIFICATION_SUBJECT = "Confirme seu email — NutriAgent"
 PASSWORD_RESET_SUBJECT = "Redefinir sua senha — NutriAgent"
@@ -69,18 +70,49 @@ def _send_via_resend(to_email: str, subject: str, html: str, reply_to: str | Non
         return False
 
 
+def _send_via_brevo(to_email: str, subject: str, html: str, reply_to: str | None = None) -> bool:
+    try:
+        payload = {
+            "sender": {"name": "NutriAgent", "email": settings.BREVO_FROM_EMAIL},
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": html,
+        }
+        if reply_to:
+            payload["replyTo"] = {"email": reply_to}
+
+        with httpx.Client() as client:
+            response = client.post(
+                BREVO_URL,
+                headers={"api-key": settings.BREVO_API_KEY, "Accept": "application/json"},
+                json=payload,
+                timeout=10.0,
+            )
+            if response.status_code >= 300:
+                print(f"[email] Brevo retornou {response.status_code} ao enviar pra {to_email}: {response.text}")
+                return False
+            return True
+    except httpx.HTTPError as e:
+        print(f"[email] Falha ao enviar via Brevo pra {to_email}: {e}")
+        return False
+
+
 def _send_email(
     to_email: str, subject: str, html: str, *, fallback_log: str, reply_to: str | None = None,
 ) -> bool:
     """Mesma ordem de prioridade usada em todos os emails transacionais do app — e uma
-    cascata de verdade: se o SMTP (Gmail, grátis, manda pra qualquer destinatário) está
-    configurado mas falha (porta bloqueada, credencial revogada, etc.), tenta o Resend
-    antes de desistir, em vez de parar no primeiro provedor configurado independente do
-    resultado. Resend sozinho só manda pro próprio email da conta enquanto não tiver
-    domínio verificado — por isso é o segundo da fila, não o primeiro. Sem nenhum dos
-    dois configurado, só loga no console (dev local)."""
+    cascata de verdade: cada provedor configurado é tentado até um funcionar, em vez de
+    parar no primeiro independente do resultado. SMTP (Gmail) vem primeiro mas na prática
+    nunca funciona em produção (Render bloqueia porta 587 de saída). Brevo com sender único
+    verificado (sem precisar de domínio) manda pra qualquer destinatário de graça — é o que
+    sobra funcionando de verdade. Resend fica por último porque sem domínio verificado só
+    manda pro próprio email da conta. Sem nenhum configurado, só loga no console (dev local)."""
     if settings.SMTP_USER and settings.SMTP_PASSWORD:
         if _send_via_smtp(to_email, subject, html, reply_to):
+            return True
+
+    if settings.BREVO_API_KEY and settings.BREVO_FROM_EMAIL:
+        if _send_via_brevo(to_email, subject, html, reply_to):
             return True
 
     if settings.RESEND_API_KEY:

@@ -79,6 +79,8 @@ def test_send_verification_email_prefers_smtp_over_resend(monkeypatch):
 def test_send_verification_email_falls_back_to_resend_without_smtp(monkeypatch):
     monkeypatch.setattr(settings, "SMTP_USER", "")
     monkeypatch.setattr(settings, "SMTP_PASSWORD", "")
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "")
     monkeypatch.setattr(settings, "RESEND_API_KEY", "re_algumachave")
 
     called = {}
@@ -99,6 +101,8 @@ def test_send_verification_email_falls_back_to_resend_when_smtp_fails(monkeypatc
     # só caía pro Resend se SMTP não tivesse credencial nenhuma configurada.
     monkeypatch.setattr(settings, "SMTP_USER", "bot@example.com")
     monkeypatch.setattr(settings, "SMTP_PASSWORD", "senha")
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "")
     monkeypatch.setattr(settings, "RESEND_API_KEY", "re_algumachave")
 
     called = {}
@@ -114,12 +118,151 @@ def test_send_verification_email_falls_back_to_resend_when_smtp_fails(monkeypatc
     assert called.get("resend") is True
 
 
+def test_send_verification_email_prefers_brevo_over_resend(monkeypatch):
+    # Brevo com sender único verificado manda pra qualquer destinatário de graça, sem
+    # precisar de domínio — por isso fica na frente do Resend na cascata (que sem
+    # domínio verificado só entrega pro próprio email da conta).
+    monkeypatch.setattr(settings, "SMTP_USER", "")
+    monkeypatch.setattr(settings, "SMTP_PASSWORD", "")
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "chave-brevo")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "remetente@example.com")
+    monkeypatch.setattr(settings, "RESEND_API_KEY", "re_algumachave")
+
+    called = {}
+    monkeypatch.setattr(
+        email_service, "_send_via_brevo",
+        lambda to_email, subject, html, reply_to=None: called.setdefault("brevo", True) or True,
+    )
+    monkeypatch.setattr(
+        email_service, "_send_via_resend",
+        lambda to_email, subject, html, reply_to=None: called.setdefault("resend", True) or True,
+    )
+
+    ok = email_service.send_verification_email("destino@example.com")
+
+    assert ok is True
+    assert called.get("brevo") is True
+    assert "resend" not in called
+
+
+def test_send_verification_email_falls_back_to_resend_when_brevo_fails(monkeypatch):
+    monkeypatch.setattr(settings, "SMTP_USER", "")
+    monkeypatch.setattr(settings, "SMTP_PASSWORD", "")
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "chave-brevo")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "remetente@example.com")
+    monkeypatch.setattr(settings, "RESEND_API_KEY", "re_algumachave")
+
+    called = {}
+    monkeypatch.setattr(email_service, "_send_via_brevo", lambda *a, **kw: False)
+    monkeypatch.setattr(
+        email_service, "_send_via_resend",
+        lambda to_email, subject, html, reply_to=None: called.setdefault("resend", True) or True,
+    )
+
+    ok = email_service.send_verification_email("destino@example.com")
+
+    assert ok is True
+    assert called.get("resend") is True
+
+
 def test_send_verification_email_returns_false_without_any_provider(monkeypatch):
     monkeypatch.setattr(settings, "SMTP_USER", "")
     monkeypatch.setattr(settings, "SMTP_PASSWORD", "")
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "")
     monkeypatch.setattr(settings, "RESEND_API_KEY", "")
 
     ok = email_service.send_verification_email("destino@example.com")
+    assert ok is False
+
+
+def test_brevo_send_success(monkeypatch):
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "chave-brevo")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "remetente@example.com")
+    captured = {}
+
+    class FakeResponse:
+        status_code = 201
+        text = ""
+
+    class FakeClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def post(self, url, headers=None, json=None, timeout=None):
+            captured["url"] = url
+            captured["headers"] = headers
+            captured["json"] = json
+            return FakeResponse()
+
+    with patch("httpx.Client", return_value=FakeClient()):
+        ok = email_service._send_via_brevo("destino@example.com", "Assunto", "<p>oi</p>")
+
+    assert ok is True
+    assert captured["url"] == email_service.BREVO_URL
+    assert captured["headers"]["api-key"] == "chave-brevo"
+    assert captured["json"]["sender"]["email"] == "remetente@example.com"
+    assert captured["json"]["to"] == [{"email": "destino@example.com"}]
+
+
+def test_brevo_send_includes_reply_to_when_provided(monkeypatch):
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "chave-brevo")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "remetente@example.com")
+    captured = {}
+
+    class FakeResponse:
+        status_code = 201
+        text = ""
+
+    class FakeClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def post(self, url, headers=None, json=None, timeout=None):
+            captured["json"] = json
+            return FakeResponse()
+
+    with patch("httpx.Client", return_value=FakeClient()):
+        email_service._send_via_brevo("destino@example.com", "Assunto", "<p>oi</p>", reply_to="user@example.com")
+
+    assert captured["json"]["replyTo"] == {"email": "user@example.com"}
+
+
+def test_brevo_send_handles_non_success_status(monkeypatch):
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "chave-brevo")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "remetente@example.com")
+
+    class FakeResponse:
+        status_code = 400
+        text = '{"message": "erro qualquer"}'
+
+    class FakeClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def post(self, *args, **kwargs):
+            return FakeResponse()
+
+    with patch("httpx.Client", return_value=FakeClient()):
+        ok = email_service._send_via_brevo("destino@example.com", "Assunto", "<p>oi</p>")
+    assert ok is False
+
+
+def test_brevo_send_handles_network_failure_without_raising(monkeypatch):
+    monkeypatch.setattr(settings, "BREVO_API_KEY", "chave-brevo")
+    monkeypatch.setattr(settings, "BREVO_FROM_EMAIL", "remetente@example.com")
+
+    with patch("httpx.Client", side_effect=httpx.ConnectError("falha de rede")):
+        ok = email_service._send_via_brevo("destino@example.com", "Assunto", "<p>oi</p>")
     assert ok is False
 
 
