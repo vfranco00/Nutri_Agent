@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   MailCheck,
 } from "lucide-react";
+import { PasswordInput } from "../components/PasswordInput";
 
 // A API pode devolver `detail` como string (erro de negócio) ou como lista de
 // erros de validação do Pydantic (422) — trata os dois formatos com segurança
@@ -134,38 +135,34 @@ export function Register() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium ml-1">Senha</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-zinc-400" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-green-500 outline-none"
-                placeholder="••••••••"
-              />
-            </div>
+            <PasswordInput
+              icon={<Lock className="absolute left-3 top-3 h-5 w-5 text-zinc-400" />}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2.5 pl-10 pr-10 focus:ring-2 focus:ring-green-500 outline-none"
+              toggleClassName="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              placeholder="••••••••"
+            />
           </div>
 
           {/* Campo Confirmar Senha */}
           <div className="space-y-2">
             <label className="text-sm font-medium ml-1">Confirmar Senha</label>
-            <div className="relative">
-              <CheckCircle2 className="absolute left-3 top-3 h-5 w-5 text-zinc-400" />
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full bg-zinc-50 dark:bg-zinc-800 border rounded-lg py-2.5 pl-10 pr-4 focus:ring-2 outline-none transition-colors
-                  ${
-                    confirmPassword && password !== confirmPassword
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-zinc-200 dark:border-zinc-700 focus:ring-green-500"
-                  }`}
-                placeholder="••••••••"
-              />
-            </div>
+            <PasswordInput
+              icon={<CheckCircle2 className="absolute left-3 top-3 h-5 w-5 text-zinc-400" />}
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className={`w-full bg-zinc-50 dark:bg-zinc-800 border rounded-lg py-2.5 pl-10 pr-10 focus:ring-2 outline-none transition-colors
+                ${
+                  confirmPassword && password !== confirmPassword
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-zinc-200 dark:border-zinc-700 focus:ring-green-500"
+                }`}
+              toggleClassName="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              placeholder="••••••••"
+            />
             {confirmPassword && password !== confirmPassword && (
               <p className="text-xs text-red-500 ml-1">
                 As senhas não conferem.
