@@ -85,7 +85,7 @@ export function AiChef() {
   return (
     <div className="max-w-3xl mx-auto">
       {loading && (
-        <LoadingOverlay text="O Chef IA está criando sua receita..." />
+        <LoadingOverlay text="O Chef IA está criando sua receita..." color="blue" />
       )}
 
       <div className="flex items-center gap-4 mb-8">
