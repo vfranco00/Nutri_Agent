@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { VerifyEmail } from './pages/VerifyEmail';
@@ -14,9 +15,11 @@ import { ShoppingPage } from './pages/ShoppingList';
 import { MealPlans } from './pages/MealPlans';
 import { MealPlanBuilder } from './pages/MealPlanBuilder';
 import { MealPlanDetail } from './pages/MealPlanDetail';
+import { Plans } from './pages/Plans';
 import { Loader2 } from 'lucide-react';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import { AlertProvider } from './lib/AlertContext';
+import { SubscriptionProvider } from './lib/SubscriptionContext';
 import type { JSX } from 'react';
 import { Admin } from './pages/Admin'
 
@@ -38,6 +41,7 @@ function AppRoutes() {
   return(
     <Routes>
           {/* Rotas Públicas (Sem Layout) */}
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
@@ -64,10 +68,12 @@ function AppRoutes() {
           <Route path="/meal-plans/new" element={<PrivateRoute><LayoutRoute color="text-teal-500"><MealPlanBuilder /></LayoutRoute></PrivateRoute>} />
           <Route path="/meal-plans/:id" element={<PrivateRoute><LayoutRoute color="text-teal-500"><MealPlanDetail /></LayoutRoute></PrivateRoute>} />
 
+          {/* Planos = Âmbar */}
+          <Route path="/planos" element={<PrivateRoute><LayoutRoute color="text-amber-500"><Plans /></LayoutRoute></PrivateRoute>} />
+
           {/* Admin = Vermelho */}
           <Route path="/admin" element={<PrivateRoute><LayoutRoute color="text-red-500"><Admin /></LayoutRoute></PrivateRoute>} />
 
-          <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
   )
 }
@@ -76,9 +82,11 @@ function App() {
   return (
     <AlertProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <SubscriptionProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </SubscriptionProvider>
       </AuthProvider>
     </AlertProvider>
   );
