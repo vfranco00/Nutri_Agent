@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, ChefHat, LogOut, Moon, Sun, ArrowLeft, ShoppingCart, UserIcon, Book, CheckCheck, Shield, CalendarRange } from 'lucide-react';
+import { Home, ChefHat, LogOut, Moon, Sun, ArrowLeft, ShoppingCart, UserIcon, Book, CheckCheck, Shield, CalendarRange, Crown } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
 interface SidebarProps {
@@ -20,6 +20,7 @@ export function Sidebar({ toggleTheme, isDark }: SidebarProps) {
     { name: 'Chef IA', icon: ChefHat, path: '/ai-chef', color: 'text-blue-500' },
     { name: 'Lista de Compras', icon: ShoppingCart, path: '/shopping', color: 'text-pink-500' },
     { name: 'Planos Alimentares', icon: CalendarRange, path: '/meal-plans', color: 'text-teal-500' },
+    { name: 'Assinatura', icon: Crown, path: '/planos', color: 'text-amber-500' },
     ...(user?.is_superuser ? [{ name: 'Admin', icon: Shield, path: '/admin', color: 'text-red-500' }] : []),
   ];
 

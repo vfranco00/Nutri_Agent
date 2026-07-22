@@ -139,8 +139,13 @@ export function MealPlanBuilder() {
       const res = await api.post("/meal-plans/", payload);
       showAlert("Plano alimentar salvo!", "success");
       navigate(`/meal-plans/${res.data.id}`);
-    } catch (error) {
-      showAlert("Erro ao salvar o plano.", "error");
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      if (detail?.code === "PLAN_LIMIT_REACHED") {
+        showAlert(detail.message, "warning");
+      } else {
+        showAlert("Erro ao salvar o plano.", "error");
+      }
       console.error(error);
     } finally {
       setSaving(false);

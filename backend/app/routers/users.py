@@ -6,9 +6,12 @@ from app.db.session import get_db
 from app.core.deps import get_current_user, get_current_active_superuser
 from app.core.limiter import limiter
 from app.models.user import User
+from app.models.subscription import Subscription
 # CORREÇÃO AQUI: Importamos UserResponse em vez de User
 from app.schemas.user import UserCreate, UserResponse
+from app.schemas.subscription import SubscriptionResponse, AdminSetPlanRequest
 from app.services.email import send_verification_email
+from app.services.subscription import get_subscription_status
 
 router = APIRouter()
 
@@ -96,6 +99,29 @@ def toggle_user_status(
     user.is_active = not user.is_active
     db.commit()
     return {"message": "Status alterado.", "is_active": user.is_active}
+
+@router.put("/{user_id}/subscription", response_model=SubscriptionResponse)
+def admin_set_subscription(
+    user_id: int,
+    data: AdminSetPlanRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_superuser),
+):
+    """Atribui um plano manualmente (usado enquanto não há pagamento self-service)."""
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+
+    sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
+    if not sub:
+        sub = Subscription(user_id=user_id, plan=data.plan, status="active")
+        db.add(sub)
+    else:
+        sub.plan = data.plan
+        sub.status = "active"
+    db.commit()
+
+    return get_subscription_status(db, target)
 
 @router.get("/leaderboard", response_model=List[UserResponse])
 def get_leaderboard(

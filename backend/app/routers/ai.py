@@ -5,6 +5,7 @@ from typing import List, Dict, Any
 
 from app.db.session import get_db
 from app.core.deps import get_current_user
+from app.core.quotas import check_quota, log_usage, get_user_plan
 from app.models.user import User
 from app.models.shopping import ShoppingList, ShoppingItem
 from app.services.ai import generate_meal_plan, get_food_calories, generate_recipe_from_ingredients, generate_shopping_list_from_plan
@@ -35,18 +36,25 @@ def generate_ai_plan(
 ):
     if not current_user.profile:
         raise HTTPException(status_code=400, detail="Perfil não encontrado.")
-    
+
+    user_plan = get_user_plan(db, current_user)
+    event_type = "generate_plan_starter" if user_plan == "starter" else (
+        "generate_plan_weekly" if data.days >= 7 else "generate_plan_daily"
+    )
+    check_quota(db, current_user, event_type)
+
     # Passa o meals_count para a função
     plan = generate_meal_plan(
-        current_user.profile, 
-        days=data.days, 
+        current_user.profile,
+        days=data.days,
         variety_mode=data.variety,
         meals_count=data.meals_count
     )
-    
+
     if not plan:
         raise HTTPException(status_code=500, detail="Erro ao gerar plano.")
-        
+
+    log_usage(db, current_user.id, event_type)
     return plan
 
 @router.post("/calculate-calories")
@@ -62,11 +70,16 @@ def calculate_calories(
 @router.post("/recipe-by-ingredients")
 def create_recipe_idea(
     data: IngredientList,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    check_quota(db, current_user, "chef_ai")
+
     recipe = generate_recipe_from_ingredients(data.ingredients)
     if not recipe:
         raise HTTPException(status_code=500, detail="A IA não conseguiu gerar a receita.")
+
+    log_usage(db, current_user.id, "chef_ai")
     return recipe
 
 @router.post("/plan-to-shopping-list")

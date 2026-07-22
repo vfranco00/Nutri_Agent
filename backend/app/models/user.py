@@ -28,10 +28,18 @@ class User(Base):
     # 4. Lista de Compras (Um para Muitos)
     shopping_lists = relationship("ShoppingList", back_populates="user", cascade="all, delete-orphan")
 
-    # 5. Pontuação de Usuário (User Score)
+    # 5. Assinatura (Um para Um)
+    subscription = relationship("Subscription", back_populates="user", uselist=False, cascade="all, delete-orphan")
+
+    # 6. Pontuação de Usuário (User Score)
     score: Mapped[int] = mapped_column(Integer, default=0)
 
     @property
     def has_profile(self) -> bool:
         """Usado pelo onboarding no frontend pra saber se é a primeira vez do usuário."""
         return self.profile is not None
+
+    @property
+    def plan(self) -> str:
+        """Usado na listagem do admin — usuário sem Subscription ainda conta como starter."""
+        return self.subscription.plan if self.subscription else "starter"

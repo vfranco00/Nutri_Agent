@@ -43,6 +43,14 @@ export function Admin() {
     } catch (e) { showAlert("Erro ao alterar status.", 'error'); console.error(e); }
   }
 
+  async function handleChangePlan(user: User, plan: string) {
+    try {
+      await api.put(`/users/${user.id}/subscription`, { plan });
+      setUsers(users.map(u => u.id === user.id ? { ...u, plan: plan as User['plan'] } : u));
+      showAlert(`Plano de ${user.full_name || user.email} alterado para ${plan}.`, 'success');
+    } catch (e) { showAlert("Erro ao alterar plano.", 'error'); console.error(e); }
+  }
+
   if (loading) return <div className="p-20 text-center text-zinc-500">Carregando painel...</div>;
 
   return (
@@ -70,6 +78,7 @@ export function Admin() {
                 <th className="px-6 py-4">Email</th>
                 <th className="px-6 py-4 text-center">Privilégio</th>
                 <th className="px-6 py-4 text-center">Status</th>
+                <th className="px-6 py-4 text-center">Plano</th>
                 <th className="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
@@ -91,6 +100,17 @@ export function Admin() {
                     <button onClick={() => handleToggleStatus(user)} className="hover:scale-110 transition-transform" title="Clique para ativar/desativar">
                         {user.is_active ? <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto"/> : <XCircle className="h-5 w-5 text-zinc-400 mx-auto"/>}
                     </button>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <select
+                      value={user.plan || 'starter'}
+                      onChange={(e) => handleChangePlan(user, e.target.value)}
+                      className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs px-2 py-1.5 dark:text-white outline-none"
+                    >
+                      <option value="starter">Starter</option>
+                      <option value="plus">Plus</option>
+                      <option value="pro">Pro</option>
+                    </select>
                   </td>
                   <td className="px-6 py-4 text-right">
                     {!user.is_superuser && (

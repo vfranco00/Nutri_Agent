@@ -4,6 +4,7 @@ from typing import List
 
 from app.db.session import get_db
 from app.core.deps import get_current_user
+from app.core.quotas import check_meal_plan_slot
 from app.models.user import User
 from app.schemas.meal_plan import MealPlanCreate, MealPlanResponse
 from app.crud import meal_plan as crud_meal_plan
@@ -22,6 +23,7 @@ def create_meal_plan(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    check_meal_plan_slot(db, current_user)
     return crud_meal_plan.create_meal_plan(db, meal_plan=meal_plan, user_id=current_user.id)
 
 

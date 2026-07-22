@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
+import { useSubscription } from "../lib/SubscriptionContext";
 import { LoadingOverlay } from "../components/LoadingOverlay";
 import type { AiPlanResponse, DailyPlan } from "../types";
 import {
@@ -26,6 +27,7 @@ import {
 export function AiPlan() {
   const navigate = useNavigate();
   const { showAlert, confirmDialog } = useAlert();
+  const { refreshSubscription } = useSubscription();
 
   // --- ESTADOS ---
   const [loading, setLoading] = useState(false);
@@ -91,17 +93,23 @@ export function AiPlan() {
       } else {
         throw new Error("IA retornou um formato de plano inválido");
       }
-    } catch (error) {
-      showAlert(
-        "Erro ao gerar plano. O servidor ou a IA podem estar indisponíveis.",
-        "error",
-      );
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      if (detail?.code === "PLAN_LIMIT_REACHED") {
+        showAlert(detail.message, "warning");
+      } else {
+        showAlert(
+          "Erro ao gerar plano. O servidor ou a IA podem estar indisponíveis.",
+          "error",
+        );
+      }
       console.error("Erro no Generate Plan:", error);
       // Se falhar, tenta restaurar o que tinha no localStorage
       const savedPlan = localStorage.getItem("nutri_current_plan");
       if (savedPlan) setPlanData(JSON.parse(savedPlan));
     } finally {
       setLoading(false);
+      refreshSubscription();
     }
   }
 

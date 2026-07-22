@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
+import { useSubscription } from "../lib/SubscriptionContext";
 import type { ShoppingList } from "../types";
 import {
   Plus,
@@ -11,6 +12,8 @@ import {
   ShoppingCart,
   Loader2,
   ArrowLeft,
+  Lock,
+  Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 export function ShoppingPage() {
   const navigate = useNavigate();
   const { showAlert, confirmDialog } = useAlert();
+  const { subscription } = useSubscription();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [loading, setLoading] = useState(true);
   const [newListTitle, setNewListTitle] = useState("");
@@ -148,6 +152,42 @@ export function ShoppingPage() {
     } catch (error) {
       console.error("Erro ao deletar item:", error);
     }
+  }
+
+  if (subscription && !subscription.shopping_list_access) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
+          </button>
+          <h1 className="text-2xl font-bold text-pink-500 flex items-center gap-2">
+            <ShoppingCart className="h-8 w-8" /> Lista de Compras
+          </h1>
+        </div>
+
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 text-center">
+          <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-pink-100 dark:bg-pink-500/10 flex items-center justify-center">
+            <Lock className="h-7 w-7 text-pink-600 dark:text-pink-500" />
+          </div>
+          <h2 className="text-lg font-bold dark:text-white mb-2">
+            Disponível a partir do plano Plus
+          </h2>
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">
+            No plano Starter a lista de compras fica bloqueada. Faça upgrade pra organizar suas compras direto do cardápio.
+          </p>
+          <button
+            onClick={() => navigate("/planos")}
+            className="inline-flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold px-5 py-2.5 rounded-lg transition-colors"
+          >
+            <Sparkles className="h-4 w-4" /> Ver planos
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

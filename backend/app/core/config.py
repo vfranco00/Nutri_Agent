@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     RESEND_FROM_EMAIL: str = "NutriAgent <onboarding@resend.dev>"
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Assinaturas via Mercado Pago. Sem essa chave, o checkout cai num 501
+    # ("em breve") em vez de quebrar — mesmo padrão do serviço de email.
+    MERCADO_PAGO_ACCESS_TOKEN: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True,

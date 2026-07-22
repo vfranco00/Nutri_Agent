@@ -18,6 +18,7 @@ from app.models.weight_history import WeightHistory
 from app.models.food_cache import FoodCache
 from app.models.shopping import ShoppingList, ShoppingItem
 from app.models.meal_plan import MealPlan, MealPlanDay, MealPlanMeal
+from app.models.subscription import Subscription, UsageEvent
 
 config = context.config
 

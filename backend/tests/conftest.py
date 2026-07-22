@@ -9,6 +9,7 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.core.limiter import limiter
 from app.models.user import User
+from app.models.subscription import Subscription
 
 # Banco isolado em memória — nunca toca no Postgres/Supabase real que o app usa fora dos testes.
 TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -76,7 +77,7 @@ def make_user(client, db_session):
     """Registra um usuário via API, marca como verificado direto no banco de teste
     (sem precisar decodificar token) e devolve um TestClient já autenticado."""
 
-    def _make(email="user@example.com", password="strongpassword123", full_name="Test User", superuser=False):
+    def _make(email="user@example.com", password="strongpassword123", full_name="Test User", superuser=False, plan="starter"):
         res = client.post(
             "/users/",
             json={"email": email, "password": password, "full_name": full_name},
@@ -87,6 +88,7 @@ def make_user(client, db_session):
         user.is_verified = True
         if superuser:
             user.is_superuser = True
+        db_session.add(Subscription(user_id=user.id, plan=plan, status="active"))
         db_session.commit()
 
         login_res = client.post("/auth/login", data={"username": email, "password": password})

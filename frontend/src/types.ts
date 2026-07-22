@@ -70,6 +70,7 @@ export interface User {
   is_verified?: boolean;
   has_profile?: boolean;
   has_seen_onboarding?: boolean;
+  plan?: "starter" | "plus" | "pro";
   score?: number;
 }
 

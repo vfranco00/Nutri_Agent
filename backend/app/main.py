@@ -4,7 +4,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from app.core.limiter import limiter
-from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans
+from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions
 
 app = FastAPI(
     title="NutriAgent API",
@@ -39,6 +39,7 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(ai.router, prefix="/ai", tags=["ai"])
 app.include_router(shopping.router, prefix="/shopping", tags=["shopping"])
 app.include_router(meal_plans.router, prefix="/meal-plans", tags=["meal-plans"])
+app.include_router(subscriptions.router, prefix="/subscriptions", tags=["subscriptions"])
 
 @app.get("/")
 def read_root():

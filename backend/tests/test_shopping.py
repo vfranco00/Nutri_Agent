@@ -1,5 +1,12 @@
+def test_starter_plan_is_blocked_from_shopping_list(make_user):
+    auth_client = make_user(email="starter_compras@example.com", plan="starter")
+    res = auth_client.post("/shopping/", json={"title": "Lista Bloqueada"})
+    assert res.status_code == 403
+    assert res.json()["detail"]["code"] == "PLAN_LIMIT_REACHED"
+
+
 def test_create_shopping_list_with_initial_items(make_user):
-    auth_client = make_user(email="compras@example.com")
+    auth_client = make_user(email="compras@example.com", plan="plus")
     res = auth_client.post(
         "/shopping/",
         json={"title": "Compras da Semana", "items": [{"name": "Arroz"}, {"name": "Feijão"}]},
@@ -11,8 +18,8 @@ def test_create_shopping_list_with_initial_items(make_user):
 
 
 def test_get_lists_only_shows_own(make_user):
-    a_client = make_user(email="compra_a@example.com")
-    b_client = make_user(email="compra_b@example.com")
+    a_client = make_user(email="compra_a@example.com", plan="plus")
+    b_client = make_user(email="compra_b@example.com", plan="plus")
     a_client.post("/shopping/", json={"title": "Lista da A"})
     b_client.post("/shopping/", json={"title": "Lista da B"})
 
@@ -23,7 +30,7 @@ def test_get_lists_only_shows_own(make_user):
 
 
 def test_add_toggle_and_delete_item(make_user):
-    auth_client = make_user(email="itens@example.com")
+    auth_client = make_user(email="itens@example.com", plan="plus")
     list_id = auth_client.post("/shopping/", json={"title": "Lista"}).json()["id"]
 
     item = auth_client.post(f"/shopping/{list_id}/items", json={"name": "Leite"}).json()
@@ -37,8 +44,8 @@ def test_add_toggle_and_delete_item(make_user):
 
 
 def test_cannot_add_item_to_other_users_list(make_user):
-    owner_client = make_user(email="dona_lista@example.com")
-    other_client = make_user(email="intrusa_lista@example.com")
+    owner_client = make_user(email="dona_lista@example.com", plan="plus")
+    other_client = make_user(email="intrusa_lista@example.com", plan="plus")
     list_id = owner_client.post("/shopping/", json={"title": "Lista Privada"}).json()["id"]
 
     res = other_client.post(f"/shopping/{list_id}/items", json={"name": "Item Invasor"})
@@ -46,7 +53,7 @@ def test_cannot_add_item_to_other_users_list(make_user):
 
 
 def test_delete_list(make_user):
-    auth_client = make_user(email="deletalista@example.com")
+    auth_client = make_user(email="deletalista@example.com", plan="plus")
     list_id = auth_client.post("/shopping/", json={"title": "Lista Descartável"}).json()["id"]
 
     res = auth_client.delete(f"/shopping/{list_id}")

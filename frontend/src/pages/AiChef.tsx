@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
+import { useSubscription } from "../lib/SubscriptionContext";
 import { LoadingOverlay } from "../components/LoadingOverlay";
 import { formatInstructions } from "../lib/utils";
 import { ArrowLeft, ChefHat, Sparkles, Loader2, Save } from "lucide-react";
@@ -9,6 +10,8 @@ import { ArrowLeft, ChefHat, Sparkles, Loader2, Save } from "lucide-react";
 export function AiChef() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
+  const { getUsage, refreshSubscription } = useSubscription();
+  const chefAiUsage = getUsage("chef_ai");
   const [ingredientsInput, setIngredientsInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<any>(null);
@@ -35,15 +38,21 @@ export function AiChef() {
         // Força cair no catch se a resposta vier vazia
         throw new Error("Resposta inválida ou vazia da IA");
       }
-    } catch (error) {
-      showAlert(
-        "Erro ao gerar receita. O Chef IA pode estar sobrecarregado, tente novamente.",
-        "error",
-      );
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      if (detail?.code === "PLAN_LIMIT_REACHED") {
+        showAlert(detail.message, "warning");
+      } else {
+        showAlert(
+          "Erro ao gerar receita. O Chef IA pode estar sobrecarregado, tente novamente.",
+          "error",
+        );
+      }
       console.error("Erro no Chef IA:", error);
       setGeneratedRecipe(null); // Fallback absoluto
     } finally {
       setLoading(false);
+      refreshSubscription();
     }
   }
 
@@ -96,7 +105,7 @@ export function AiChef() {
         />
         <button
           onClick={handleGenerate}
-          disabled={loading || !ingredientsInput}
+          disabled={loading || !ingredientsInput || (chefAiUsage ? chefAiUsage.used >= (chefAiUsage.limit ?? Infinity) : false)}
           className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 disabled:opacity-50 transition-all shadow-lg shadow-blue-900/20"
         >
           {loading ? (
@@ -106,6 +115,19 @@ export function AiChef() {
           )}
           Criar Receita Criativa
         </button>
+        {chefAiUsage && chefAiUsage.limit !== null && (
+          <p className="text-xs text-zinc-400 text-center mt-2">
+            {chefAiUsage.used}/{chefAiUsage.limit} usados nos últimos {chefAiUsage.window_days} dias
+            {chefAiUsage.used >= chefAiUsage.limit && (
+              <>
+                {" "}—{" "}
+                <button onClick={() => navigate("/planos")} className="text-blue-500 hover:underline font-medium">
+                  fazer upgrade
+                </button>
+              </>
+            )}
+          </p>
+        )}
       </div>
 
       {generatedRecipe && (
