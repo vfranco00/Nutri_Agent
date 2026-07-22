@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'; // Adicione useEffect
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
-import { Lock, Mail, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
+import { Lock, Mail, ArrowRight, RefreshCw } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 import { PasswordInput } from '../components/PasswordInput';
-import { LoadingOverlay } from '../components/LoadingOverlay';
+import { BouncingDots } from '../components/BouncingDots';
 
 export function Login() {
   const navigate = useNavigate();
@@ -76,7 +76,6 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      {loading && <LoadingOverlay text="Entrando na sua conta..." />}
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
 
         <div className="text-center mb-8">
@@ -140,7 +139,7 @@ export function Login() {
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed group"
           >
             {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <BouncingDots />
             ) : (
               <>
                 Entrar

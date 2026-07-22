@@ -35,7 +35,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { format } from "date-fns";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 
 interface WeightData {
   id: number;
@@ -181,8 +181,6 @@ export function Profile() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {loading && <LoadingOverlay text="Salvando seu perfil..." />}
-      {addingWeight && <LoadingOverlay text="Registrando seu peso..." />}
       {isOnboarding && (
         <div className="mb-6 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-4 flex items-start gap-3">
           <Sparkles className="h-5 w-5 text-green-600 dark:text-green-500 shrink-0 mt-0.5" />
@@ -467,12 +465,7 @@ export function Profile() {
               disabled={loading}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2"
             >
-              {loading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Save className="h-5 w-5" />
-              )}{" "}
-              Salvar Perfil e Histórico
+              {loading ? <BouncingDots /> : <><Save className="h-5 w-5" /> Salvar Perfil e Histórico</>}
             </button>
           </form>
         </div>
@@ -493,9 +486,10 @@ export function Profile() {
               />
               <button
                 onClick={handleAddWeight}
-                className="bg-blue-600 hover:bg-blue-700 p-2 rounded-lg text-white transition-colors"
+                disabled={addingWeight}
+                className="bg-blue-600 hover:bg-blue-700 p-2 rounded-lg text-white transition-colors disabled:opacity-50"
               >
-                <Plus className="h-6 w-6" />
+                {addingWeight ? <Loader2 className="h-6 w-6 animate-spin" /> : <Plus className="h-6 w-6" />}
               </button>
             </div>
           </div>

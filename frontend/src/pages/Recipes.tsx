@@ -4,7 +4,7 @@ import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
 import { cleanMarkdown, formatInstructions } from "../lib/utils";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 import { type Recipe, CATEGORIES, type User } from "../types"; // Adicionei User aqui
 import {
   Plus,
@@ -301,8 +301,6 @@ export function Recipes() {
 
   return (
     <>
-      {savingEdit && <LoadingOverlay text="Salvando as alterações..." />}
-      {deleting && <LoadingOverlay text="Excluindo a receita..." />}
       <div className="flex flex-col gap-6 mb-8">
         <div className="flex justify-between items-center">
           <div>
@@ -723,9 +721,10 @@ export function Recipes() {
                   </button>
                   <button
                     onClick={handleSaveEdit}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2"
+                    disabled={savingEdit}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 disabled:opacity-50"
                   >
-                    <Save className="h-4 w-4" /> Salvar
+                    {savingEdit ? <BouncingDots /> : <><Save className="h-4 w-4" /> Salvar</>}
                   </button>
                 </>
               ) : (
@@ -733,13 +732,13 @@ export function Recipes() {
                   {viewMode === "mine" && (
                     <>
                       {/* Lógica: Se for IA, bloqueia excluir e mostra badge */}
-                      {/* @ts-ignore */}
                       {!selectedRecipe.is_ai ? (
                         <button
                           onClick={() => handleDelete(selectedRecipe.id)}
-                          className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-lg flex items-center gap-2"
+                          disabled={deleting}
+                          className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
                         >
-                          <Trash2 className="h-4 w-4" /> Excluir
+                          {deleting ? <BouncingDots /> : <><Trash2 className="h-4 w-4" /> Excluir</>}
                         </button>
                       ) : (
                         <span

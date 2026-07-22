@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 
 export function ShoppingPage() {
   const navigate = useNavigate();
@@ -201,8 +201,6 @@ export function ShoppingPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {creatingList && <LoadingOverlay text="Criando sua lista de compras..." />}
-      {deletingListId !== null && <LoadingOverlay text="Apagando a lista..." />}
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate("/dashboard")}
@@ -229,9 +227,10 @@ export function ShoppingPage() {
         />
         <button
           type="submit"
-          className="bg-pink-600 hover:bg-pink-700 text-white px-6 rounded-lg font-bold flex items-center gap-2"
+          disabled={creatingList}
+          className="bg-pink-600 hover:bg-pink-700 text-white px-6 rounded-lg font-bold flex items-center gap-2 disabled:opacity-50"
         >
-          <Plus className="h-5 w-5" /> Criar
+          {creatingList ? <BouncingDots /> : <><Plus className="h-5 w-5" /> Criar</>}
         </button>
       </form>
 
@@ -262,9 +261,14 @@ export function ShoppingPage() {
                 </div>
                 <button
                   onClick={() => handleDeleteList(list.id)}
-                  className="p-2 text-zinc-400 hover:text-red-500 transition-colors"
+                  disabled={deletingListId === list.id}
+                  className="p-2 text-zinc-400 hover:text-red-500 transition-colors disabled:opacity-50"
                 >
-                  <Trash2 className="h-5 w-5" />
+                  {deletingListId === list.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-5 w-5" />
+                  )}
                 </button>
               </div>
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { MEAL_SLOTS, type Recipe } from "../types";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 import {
   ArrowLeft,
   Plus,
@@ -159,7 +159,6 @@ export function MealPlanBuilder() {
 
   return (
     <div className="max-w-4xl mx-auto pb-20">
-      {saving && <LoadingOverlay text="Salvando seu plano alimentar..." />}
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={() => navigate("/meal-plans")}
@@ -275,12 +274,7 @@ export function MealPlanBuilder() {
         disabled={saving}
         className="w-full mt-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-sm disabled:opacity-50"
       >
-        {saving ? (
-          <Loader2 className="animate-spin h-5 w-5" />
-        ) : (
-          <Save className="h-5 w-5" />
-        )}
-        Salvar Plano
+        {saving ? <BouncingDots /> : <><Save className="h-5 w-5" /> Salvar Plano</>}
       </button>
 
       {/* MODAL DE ESCOLHA DE RECEITA */}

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { MessageCircleQuestionIcon, X, Send, Loader2 } from "lucide-react";
+import { MessageCircleQuestionIcon, X, Send } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import { useAlert } from "../lib/AlertContext";
 import { useFeedback } from "../lib/FeedbackContext";
-import { LoadingOverlay } from "./LoadingOverlay";
+import { BouncingDots } from "./BouncingDots";
 
 const CATEGORIES = [
   { value: "duvida", label: "Dúvida" },
@@ -47,7 +47,6 @@ export function FeedbackWidget() {
 
   return (
     <>
-      {sending && <LoadingOverlay text="Enviando seu chamado..." />}
       <button
         onClick={handleOpen}
         className="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg shadow-green-900/30 transition-all hover:scale-105"
@@ -129,8 +128,7 @@ export function FeedbackWidget() {
                 disabled={sending}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Enviar
+                {sending ? <BouncingDots /> : <><Send className="h-4 w-4" /> Enviar</>}
               </button>
             </form>
           </div>

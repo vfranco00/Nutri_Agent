@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { api } from "../lib/api";
-import { Mail, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { BouncingDots } from "../components/BouncingDots";
 
 export function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -25,7 +25,6 @@ export function ForgotPassword() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      {loading && <LoadingOverlay text="Enviando o link de redefinição..." />}
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
         <div className="text-center mb-8">
           <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-20 w-auto object-contain mx-auto mb-2" />
@@ -72,7 +71,7 @@ export function ForgotPassword() {
                 disabled={loading}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Enviar link"}
+                {loading ? <BouncingDots /> : "Enviar link"}
               </button>
             </form>
 

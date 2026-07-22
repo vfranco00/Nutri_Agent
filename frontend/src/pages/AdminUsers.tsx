@@ -18,7 +18,6 @@ import {
   Activity,
   MessageCircleQuestionIcon,
 } from 'lucide-react';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 
 interface ActivityEntry {
   user_email: string;
@@ -63,7 +62,7 @@ export function AdminUsers() {
   const [activityEntries, setActivityEntries] = useState<ActivityEntry[]>([]);
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
-  const [processing, setProcessing] = useState(false);
+  const [processingUserId, setProcessingUserId] = useState<number | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -91,19 +90,19 @@ export function AdminUsers() {
 
   async function handleDelete(id: number) {
     if (!(await confirmDialog("Tem certeza que deseja BANIR este usuário? Essa ação deleta tudo dele.", { danger: true, confirmLabel: 'Banir' }))) return;
-    setProcessing(true);
+    setProcessingUserId(id);
     try {
       await api.delete(`/users/${id}`);
       setUsers(users.filter(u => u.id !== id));
-    } catch (e) { showAlert("Erro ao deletar.", 'error'); console.error(e); } finally { setProcessing(false); }
+    } catch (e) { showAlert("Erro ao deletar.", 'error'); console.error(e); } finally { setProcessingUserId(null); }
   }
 
   async function handleToggleStatus(user: User) {
-    setProcessing(true);
+    setProcessingUserId(user.id);
     try {
       await api.put(`/users/${user.id}/toggle-status`);
       setUsers(users.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u));
-    } catch (e) { showAlert("Erro ao alterar status.", 'error'); console.error(e); } finally { setProcessing(false); }
+    } catch (e) { showAlert("Erro ao alterar status.", 'error'); console.error(e); } finally { setProcessingUserId(null); }
   }
 
   async function handleToggleAdmin(user: User) {
@@ -116,7 +115,7 @@ export function AdminUsers() {
     );
     if (!confirmed) return;
 
-    setProcessing(true);
+    setProcessingUserId(user.id);
     try {
       const res = await api.put(`/users/${user.id}/toggle-admin`);
       setUsers(users.map(u => u.id === user.id ? { ...u, is_superuser: res.data.is_superuser } : u));
@@ -128,17 +127,17 @@ export function AdminUsers() {
       showAlert(e.response?.data?.detail || "Erro ao alterar privilégio de admin.", 'error');
       console.error(e);
     } finally {
-      setProcessing(false);
+      setProcessingUserId(null);
     }
   }
 
   async function handleChangePlan(user: User, plan: string) {
-    setProcessing(true);
+    setProcessingUserId(user.id);
     try {
       await api.put(`/users/${user.id}/subscription`, { plan });
       setUsers(users.map(u => u.id === user.id ? { ...u, plan: plan as User['plan'] } : u));
       showAlert(`Plano de ${user.full_name || user.email} alterado para ${plan}.`, 'success');
-    } catch (e) { showAlert("Erro ao alterar plano.", 'error'); console.error(e); } finally { setProcessing(false); }
+    } catch (e) { showAlert("Erro ao alterar plano.", 'error'); console.error(e); } finally { setProcessingUserId(null); }
   }
 
   async function handleViewDetails(user: User) {
@@ -163,7 +162,6 @@ export function AdminUsers() {
 
   return (
     <div>
-      {processing && <LoadingOverlay text="Atualizando usuário..." />}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
           <Users className="h-7 w-7 text-red-500" /> Gestão de Usuários
@@ -217,15 +215,22 @@ export function AdminUsers() {
                     }
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button onClick={() => handleToggleStatus(user)} className="hover:scale-110 transition-transform" title="Clique para ativar/desativar">
-                        {user.is_active ? <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto"/> : <XCircle className="h-5 w-5 text-zinc-400 mx-auto"/>}
+                    <button onClick={() => handleToggleStatus(user)} disabled={processingUserId === user.id} className="hover:scale-110 transition-transform disabled:opacity-50" title="Clique para ativar/desativar">
+                        {processingUserId === user.id ? (
+                          <Loader2 className="h-5 w-5 text-zinc-400 mx-auto animate-spin" />
+                        ) : user.is_active ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto"/>
+                        ) : (
+                          <XCircle className="h-5 w-5 text-zinc-400 mx-auto"/>
+                        )}
                     </button>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <select
                       value={user.plan || 'starter'}
                       onChange={(e) => handleChangePlan(user, e.target.value)}
-                      className="bg-zinc-800 border border-zinc-700 rounded-lg text-xs px-2 py-1.5 text-white outline-none"
+                      disabled={processingUserId === user.id}
+                      className="bg-zinc-800 border border-zinc-700 rounded-lg text-xs px-2 py-1.5 text-white outline-none disabled:opacity-50"
                     >
                       <option value="starter">Starter</option>
                       <option value="plus">Plus</option>
@@ -242,14 +247,21 @@ export function AdminUsers() {
                       </button>
                       <button
                         onClick={() => handleToggleAdmin(user)}
-                        className={`p-2 rounded transition-colors ${user.is_superuser ? 'text-amber-500 hover:bg-amber-900/20' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}
+                        disabled={processingUserId === user.id}
+                        className={`p-2 rounded transition-colors disabled:opacity-50 ${user.is_superuser ? 'text-amber-500 hover:bg-amber-900/20' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}
                         title={user.is_superuser ? "Remover privilégio de admin" : "Promover a admin"}
                       >
-                          {user.is_superuser ? <ShieldOff className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                          {processingUserId === user.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : user.is_superuser ? (
+                            <ShieldOff className="h-4 w-4" />
+                          ) : (
+                            <ShieldCheck className="h-4 w-4" />
+                          )}
                       </button>
                       {!user.is_superuser && (
-                          <button onClick={() => handleDelete(user.id)} className="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors" title="Deletar Usuário">
-                              <Trash2 className="h-4 w-4" />
+                          <button onClick={() => handleDelete(user.id)} disabled={processingUserId === user.id} className="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors disabled:opacity-50" title="Deletar Usuário">
+                              {processingUserId === user.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                           </button>
                       )}
                     </div>

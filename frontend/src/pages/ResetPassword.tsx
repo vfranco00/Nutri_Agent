@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
-import { Lock, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Lock, CheckCircle2, XCircle } from "lucide-react";
 import { PasswordInput } from "../components/PasswordInput";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 
 export function ResetPassword() {
   const navigate = useNavigate();
@@ -65,7 +65,6 @@ export function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      {loading && <LoadingOverlay text="Redefinindo sua senha..." />}
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
         <div className="text-center mb-8">
           <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-20 w-auto object-contain mx-auto mb-2" />
@@ -120,7 +119,7 @@ export function ResetPassword() {
                 disabled={loading}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Redefinir senha"}
+                {loading ? <BouncingDots /> : "Redefinir senha"}
               </button>
             </form>
           </>

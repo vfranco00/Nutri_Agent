@@ -5,12 +5,11 @@ import {
   Mail,
   Lock,
   ArrowRight,
-  Loader2,
   CheckCircle2,
   MailCheck,
 } from "lucide-react";
 import { PasswordInput } from "../components/PasswordInput";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 
 // A API pode devolver `detail` como string (erro de negócio) ou como lista de
 // erros de validação do Pydantic (422) — trata os dois formatos com segurança
@@ -92,7 +91,6 @@ export function Register() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      {loading && <LoadingOverlay text="Criando sua conta..." />}
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
         <div className="text-center mb-8">
           <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-16 w-auto object-contain mx-auto mb-4" />
@@ -182,7 +180,7 @@ export function Register() {
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed group"
           >
             {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <BouncingDots />
             ) : (
               <>
                 Cadastrar <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

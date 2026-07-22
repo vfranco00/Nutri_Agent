@@ -7,7 +7,7 @@ import {
   Loader2,
   Mail,
 } from "lucide-react";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 
 type Status = "loading" | "success" | "error";
 
@@ -47,7 +47,6 @@ export function VerifyEmail() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-4 text-zinc-900 dark:text-zinc-100 transition-colors">
-      {resending && <LoadingOverlay text="Reenviando o link de confirmação..." />}
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
         {status === "loading" && (
           <>
@@ -113,11 +112,7 @@ export function VerifyEmail() {
                   disabled={resending}
                   className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {resending ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    "Reenviar link"
-                  )}
+                  {resending ? <BouncingDots /> : "Reenviar link"}
                 </button>
               </form>
             )}

@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { BouncingDots } from "../components/BouncingDots";
 import {
   ArrowLeft,
   Check,
-  Loader2,
   Crown,
   Sparkles,
 } from "lucide-react";
@@ -81,7 +80,6 @@ export function Plans() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {loadingPlan && <LoadingOverlay text="Preparando seu checkout..." />}
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate("/dashboard")}
@@ -133,12 +131,7 @@ export function Plans() {
                   disabled={loadingPlan === plan.id}
                   className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {loadingPlan === plan.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-4 w-4" />
-                  )}
-                  Assinar
+                  {loadingPlan === plan.id ? <BouncingDots /> : <><Sparkles className="h-4 w-4" /> Assinar</>}
                 </button>
               )}
             </div>
