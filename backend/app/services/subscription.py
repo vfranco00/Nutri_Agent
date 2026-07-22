@@ -36,7 +36,7 @@ def get_subscription_status(db: Session, user: User) -> SubscriptionResponse:
         status=sub.status if sub else "active",
         current_period_end=sub.current_period_end.isoformat() if sub and sub.current_period_end else None,
         usage=usage,
-        shopping_list_access=limits.get("shopping_list_access", True),
+        shopping_list_access=limits.get("shopping_list_access", False),
         max_saved_meal_plans=limits.get("max_saved_meal_plans"),
         saved_meal_plans_used=saved_meal_plans_used,
         max_saved_recipes=limits.get("max_saved_recipes"),

@@ -5,6 +5,16 @@ def test_starter_plan_is_blocked_from_shopping_list(make_user):
     assert res.json()["detail"]["code"] == "PLAN_LIMIT_REACHED"
 
 
+def test_unrecognized_plan_value_is_blocked_from_shopping_list(make_user):
+    # Regressão do bug real: um valor de `plan` fora dos três conhecidos
+    # (dado corrompido, tier antigo removido do PLAN_LIMITS, etc.) tem que
+    # ficar bloqueado por padrão — nunca liberar acesso pago de graça.
+    auth_client = make_user(email="plano_estranho@example.com", plan="tier_removido_2024")
+    res = auth_client.post("/shopping/", json={"title": "Lista Bloqueada"})
+    assert res.status_code == 403
+    assert res.json()["detail"]["code"] == "PLAN_LIMIT_REACHED"
+
+
 def test_create_shopping_list_with_initial_items(make_user):
     auth_client = make_user(email="compras@example.com", plan="plus")
     res = auth_client.post(

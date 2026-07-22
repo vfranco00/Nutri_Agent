@@ -63,7 +63,9 @@ def log_usage(db: Session, user_id: int, event_type: str) -> None:
 
 def require_shopping_access(db: Session, user: User) -> None:
     plan = get_user_plan(db, user)
-    if not PLAN_LIMITS.get(plan, {}).get("shopping_list_access", True):
+    # Default fail-closed: um valor de `plan` fora dos conhecidos (dado
+    # corrompido, tier removido, etc.) nunca deve liberar acesso pago de graça.
+    if not PLAN_LIMITS.get(plan, {}).get("shopping_list_access", False):
         raise HTTPException(
             status_code=403,
             detail={
