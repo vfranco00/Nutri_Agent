@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 
 export function ShoppingPage() {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ export function ShoppingPage() {
   const [loading, setLoading] = useState(true);
   const [newListTitle, setNewListTitle] = useState("");
   const [newItemNames, setNewItemNames] = useState<Record<number, string>>({}); // Estado por lista
+  const [creatingList, setCreatingList] = useState(false);
+  const [deletingListId, setDeletingListId] = useState<number | null>(null);
 
   // Carregar listas
   async function loadLists() {
@@ -60,14 +63,15 @@ export function ShoppingPage() {
   async function handleCreateList(e: React.FormEvent) {
     e.preventDefault();
     if (!newListTitle) return;
+    setCreatingList(true);
     try {
       const res = await api.post("/shopping/", { title: newListTitle });
-      
+
       if (res && res.data) {
         // Garante que a lista nova já nasça com array de itens vazio caso o back não mande
-        const newList = { 
-          ...res.data, 
-          items: Array.isArray(res.data.items) ? res.data.items : [] 
+        const newList = {
+          ...res.data,
+          items: Array.isArray(res.data.items) ? res.data.items : []
         };
         setLists([newList, ...lists]);
         setNewListTitle("");
@@ -75,18 +79,23 @@ export function ShoppingPage() {
     } catch (error) {
       showAlert("Erro ao criar lista", "error");
       console.error(error);
+    } finally {
+      setCreatingList(false);
     }
   }
 
   // Deletar Lista
   async function handleDeleteList(id: number) {
     if (!(await confirmDialog("Apagar lista?", { danger: true }))) return;
+    setDeletingListId(id);
     try {
       await api.delete(`/shopping/${id}`);
       setLists(lists.filter((l) => l.id !== id));
     } catch (error) {
       showAlert("Erro ao apagar", "error");
       console.error(error);
+    } finally {
+      setDeletingListId(null);
     }
   }
 
@@ -192,6 +201,8 @@ export function ShoppingPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {creatingList && <LoadingOverlay text="Criando sua lista de compras..." />}
+      {deletingListId !== null && <LoadingOverlay text="Apagando a lista..." />}
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate("/dashboard")}

@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
 import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2, Tag } from 'lucide-react';
 import { CATEGORIES } from '../types';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 interface IngredientInput { name: string; quantity: string; unit: string; calories?: number; }
 
@@ -89,6 +90,7 @@ export function NewRecipe() {
 
   return (
     <div className="max-w-3xl mx-auto">
+      {loading && <LoadingOverlay text="Criando sua receita..." />}
       <div className="flex items-center gap-4 mb-8">
         <button onClick={() => navigate('/recipes')} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg">
           <ArrowLeft className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />

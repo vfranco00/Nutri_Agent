@@ -35,6 +35,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { format } from "date-fns";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 
 interface WeightData {
   id: number;
@@ -55,6 +56,7 @@ export function Profile() {
   const isOnboarding = searchParams.get("onboarding") === "1";
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [addingWeight, setAddingWeight] = useState(false);
 
   const [formData, setFormData] = useState<ProfileType>({
     age: 0,
@@ -152,6 +154,7 @@ export function Profile() {
 
   async function handleAddWeight() {
     if (!newWeight) return;
+    setAddingWeight(true);
     try {
       const weightVal = Number(newWeight);
       const res = await api.post("/profiles/weight", { weight: weightVal });
@@ -164,6 +167,8 @@ export function Profile() {
     } catch (error) {
       console.error(error);
       showAlert("Erro ao registrar peso.", "error");
+    } finally {
+      setAddingWeight(false);
     }
   }
 
@@ -176,6 +181,8 @@ export function Profile() {
 
   return (
     <div className="max-w-6xl mx-auto">
+      {loading && <LoadingOverlay text="Salvando seu perfil..." />}
+      {addingWeight && <LoadingOverlay text="Registrando seu peso..." />}
       {isOnboarding && (
         <div className="mb-6 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-4 flex items-start gap-3">
           <Sparkles className="h-5 w-5 text-green-600 dark:text-green-500 shrink-0 mt-0.5" />

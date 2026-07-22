@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
 import { cleanMarkdown, formatInstructions } from "../lib/utils";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 import { type Recipe, CATEGORIES, type User } from "../types"; // Adicionei User aqui
 import {
   Plus,
@@ -73,6 +74,8 @@ export function Recipes() {
   });
 
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // CARREGAR DADOS
   async function loadRecipes() {
@@ -237,6 +240,7 @@ export function Recipes() {
   // SALVAR EDIÇÃO
   async function handleSaveEdit() {
     if (!selectedRecipe) return;
+    setSavingEdit(true);
     try {
       const res = await api.put(`/recipes/${selectedRecipe.id}`, editForm);
       const updatedRecipe = res.data;
@@ -249,11 +253,14 @@ export function Recipes() {
     } catch (error) {
       console.error(error);
       showAlert("Erro ao atualizar.", "error");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
   async function handleDelete(id: number) {
     if (await confirmDialog("Tem certeza que deseja excluir esta receita?", { danger: true })) {
+      setDeleting(true);
       try {
         await api.delete(`/recipes/${id}`);
         setRecipes(recipes.filter((r) => r.id !== id));
@@ -261,6 +268,8 @@ export function Recipes() {
       } catch (error) {
         showAlert("Erro ao excluir.", "error");
         console.error(error);
+      } finally {
+        setDeleting(false);
       }
     }
   }
@@ -292,6 +301,8 @@ export function Recipes() {
 
   return (
     <>
+      {savingEdit && <LoadingOverlay text="Salvando as alterações..." />}
+      {deleting && <LoadingOverlay text="Excluindo a receita..." />}
       <div className="flex flex-col gap-6 mb-8">
         <div className="flex justify-between items-center">
           <div>

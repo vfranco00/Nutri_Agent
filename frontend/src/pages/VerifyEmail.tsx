@@ -7,6 +7,7 @@ import {
   Loader2,
   Mail,
 } from "lucide-react";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 
 type Status = "loading" | "success" | "error";
 
@@ -46,6 +47,7 @@ export function VerifyEmail() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-4 text-zinc-900 dark:text-zinc-100 transition-colors">
+      {resending && <LoadingOverlay text="Reenviando o link de confirmação..." />}
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
         {status === "loading" && (
           <>

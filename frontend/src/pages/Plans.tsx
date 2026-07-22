@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 import {
   ArrowLeft,
   Check,
@@ -80,6 +81,7 @@ export function Plans() {
 
   return (
     <div className="max-w-5xl mx-auto">
+      {loadingPlan && <LoadingOverlay text="Preparando seu checkout..." />}
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate("/dashboard")}

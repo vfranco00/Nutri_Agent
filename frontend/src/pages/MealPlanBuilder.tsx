@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { MEAL_SLOTS, type Recipe } from "../types";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 import {
   ArrowLeft,
   Plus,
@@ -158,6 +159,7 @@ export function MealPlanBuilder() {
 
   return (
     <div className="max-w-4xl mx-auto pb-20">
+      {saving && <LoadingOverlay text="Salvando seu plano alimentar..." />}
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={() => navigate("/meal-plans")}

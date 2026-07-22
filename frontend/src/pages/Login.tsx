@@ -5,6 +5,7 @@ import { useAlert } from '../lib/AlertContext';
 import { Lock, Mail, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 import { PasswordInput } from '../components/PasswordInput';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 export function Login() {
   const navigate = useNavigate();
@@ -75,8 +76,9 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+      {loading && <LoadingOverlay text="Entrando na sua conta..." />}
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
-        
+
         <div className="text-center mb-8">
           <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-20 w-auto object-contain mx-auto mb-2" />
           <p className="text-zinc-400">Entre para gerenciar sua dieta</p>

@@ -18,6 +18,7 @@ import {
   Activity,
   MessageCircleQuestionIcon,
 } from 'lucide-react';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 interface ActivityEntry {
   user_email: string;
@@ -62,6 +63,7 @@ export function AdminUsers() {
   const [activityEntries, setActivityEntries] = useState<ActivityEntry[]>([]);
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -89,17 +91,19 @@ export function AdminUsers() {
 
   async function handleDelete(id: number) {
     if (!(await confirmDialog("Tem certeza que deseja BANIR este usuário? Essa ação deleta tudo dele.", { danger: true, confirmLabel: 'Banir' }))) return;
+    setProcessing(true);
     try {
       await api.delete(`/users/${id}`);
       setUsers(users.filter(u => u.id !== id));
-    } catch (e) { showAlert("Erro ao deletar.", 'error'); console.error(e); }
+    } catch (e) { showAlert("Erro ao deletar.", 'error'); console.error(e); } finally { setProcessing(false); }
   }
 
   async function handleToggleStatus(user: User) {
+    setProcessing(true);
     try {
       await api.put(`/users/${user.id}/toggle-status`);
       setUsers(users.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u));
-    } catch (e) { showAlert("Erro ao alterar status.", 'error'); console.error(e); }
+    } catch (e) { showAlert("Erro ao alterar status.", 'error'); console.error(e); } finally { setProcessing(false); }
   }
 
   async function handleToggleAdmin(user: User) {
@@ -112,6 +116,7 @@ export function AdminUsers() {
     );
     if (!confirmed) return;
 
+    setProcessing(true);
     try {
       const res = await api.put(`/users/${user.id}/toggle-admin`);
       setUsers(users.map(u => u.id === user.id ? { ...u, is_superuser: res.data.is_superuser } : u));
@@ -122,15 +127,18 @@ export function AdminUsers() {
     } catch (e: any) {
       showAlert(e.response?.data?.detail || "Erro ao alterar privilégio de admin.", 'error');
       console.error(e);
+    } finally {
+      setProcessing(false);
     }
   }
 
   async function handleChangePlan(user: User, plan: string) {
+    setProcessing(true);
     try {
       await api.put(`/users/${user.id}/subscription`, { plan });
       setUsers(users.map(u => u.id === user.id ? { ...u, plan: plan as User['plan'] } : u));
       showAlert(`Plano de ${user.full_name || user.email} alterado para ${plan}.`, 'success');
-    } catch (e) { showAlert("Erro ao alterar plano.", 'error'); console.error(e); }
+    } catch (e) { showAlert("Erro ao alterar plano.", 'error'); console.error(e); } finally { setProcessing(false); }
   }
 
   async function handleViewDetails(user: User) {
@@ -155,6 +163,7 @@ export function AdminUsers() {
 
   return (
     <div>
+      {processing && <LoadingOverlay text="Atualizando usuário..." />}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
           <Users className="h-7 w-7 text-red-500" /> Gestão de Usuários

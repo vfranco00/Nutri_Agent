@@ -357,6 +357,7 @@ export function AiPlan() {
     <div className="max-w-5xl mx-auto relative">
       {/* OVERLAY DE LOADING (com dicas rotativas) */}
       {loading && <LoadingOverlay text={loadingText} />}
+      {swappingIndex !== null && <LoadingOverlay text="Trocando a refeição..." />}
 
       {/* Header (Layout original) */}
       <div className="flex items-center gap-4 mb-8">

@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import { useAlert } from "../lib/AlertContext";
 import { useFeedback } from "../lib/FeedbackContext";
+import { LoadingOverlay } from "./LoadingOverlay";
 
 const CATEGORIES = [
   { value: "duvida", label: "Dúvida" },
@@ -46,6 +47,7 @@ export function FeedbackWidget() {
 
   return (
     <>
+      {sending && <LoadingOverlay text="Enviando seu chamado..." />}
       <button
         onClick={handleOpen}
         className="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg shadow-green-900/30 transition-all hover:scale-105"
