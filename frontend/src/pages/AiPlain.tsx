@@ -266,6 +266,13 @@ export function AiPlan() {
   // 4. PREPARAR LISTA (Abre o Modal)
   async function handlePrepareShoppingList() {
     if (!planData) return;
+    if (!subscription?.shopping_list_access) {
+      showAlert(
+        "Lista de compras disponível a partir do plano Plus. Faça upgrade pra desbloquear.",
+        "warning",
+      );
+      return;
+    }
     setLoading(true);
     setLoadingText("Lendo ingredientes do cardápio...");
     try {
