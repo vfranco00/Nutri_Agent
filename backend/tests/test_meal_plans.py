@@ -107,3 +107,38 @@ def test_owner_can_delete_own_meal_plan(make_user):
 
     res = auth_client.delete(f"/meal-plans/{plan_id}")
     assert res.status_code == 200
+
+
+def test_owner_can_rename_meal_plan(make_user):
+    auth_client = make_user(email="renomeia_plano@example.com")
+    plan_id = auth_client.post(
+        "/meal-plans/", json={"title": "Nome Original", "source": "manual", "days": []}
+    ).json()["id"]
+
+    res = auth_client.patch(f"/meal-plans/{plan_id}", json={"title": "Nome Novo"})
+    assert res.status_code == 200
+    assert res.json()["title"] == "Nome Novo"
+
+    res_get = auth_client.get(f"/meal-plans/{plan_id}")
+    assert res_get.json()["title"] == "Nome Novo"
+
+
+def test_rename_meal_plan_from_other_user_returns_404(make_user):
+    owner_client = make_user(email="dono_rename@example.com")
+    other_client = make_user(email="intruso_rename@example.com")
+    plan_id = owner_client.post(
+        "/meal-plans/", json={"title": "Plano Privado 3", "source": "manual", "days": []}
+    ).json()["id"]
+
+    res = other_client.patch(f"/meal-plans/{plan_id}", json={"title": "Hackeado"})
+    assert res.status_code == 404
+
+
+def test_rename_meal_plan_rejects_empty_title(make_user):
+    auth_client = make_user(email="renomeia_vazio@example.com")
+    plan_id = auth_client.post(
+        "/meal-plans/", json={"title": "Nome Original", "source": "manual", "days": []}
+    ).json()["id"]
+
+    res = auth_client.patch(f"/meal-plans/{plan_id}", json={"title": ""})
+    assert res.status_code == 422

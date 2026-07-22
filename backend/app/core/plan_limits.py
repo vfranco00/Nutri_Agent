@@ -21,6 +21,9 @@ PLAN_LIMITS: dict[str, dict] = {
         "chef_ai": {"limit": 30, "window_days": 30},
         "generate_plan_weekly": {"limit": 1, "window_days": 7},
         "generate_plan_daily": {"limit": 7, "window_days": 7},
+        # Contado por cardápio gerado (event_type dinâmico "meal_swap:<plan_token>"),
+        # não por janela de tempo — por isso window_days bem largo (10 anos).
+        "meal_swap": {"limit": 2, "window_days": 3650},
     },
     "pro": {
         "shopping_list_access": True,
@@ -30,6 +33,7 @@ PLAN_LIMITS: dict[str, dict] = {
         "generate_plan_weekly": {"limit": None, "window_days": 7},
         "generate_plan_daily": {"limit": None, "window_days": 7},
         "generate_plan_starter": {"limit": None, "window_days": 30},
+        "meal_swap": {"limit": None, "window_days": 3650},
     },
 }
 

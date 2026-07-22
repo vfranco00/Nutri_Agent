@@ -42,6 +42,9 @@ export function AiPlan() {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [savingMealIndex, setSavingMealIndex] = useState<number | null>(null);
   const [savingPlan, setSavingPlan] = useState(false);
+  const [swappingIndex, setSwappingIndex] = useState<number | null>(null);
+  const [swapInfo, setSwapInfo] = useState<{ used: number; limit: number | null } | null>(null);
+  const [planTitle, setPlanTitle] = useState("");
 
   // Cota de geração de cardápio depende do plano e do modo (1 ou 7 dias) escolhido
   const planEventType =
@@ -68,6 +71,9 @@ export function AiPlan() {
         // Checagem de segurança: É um plano válido e tem a lista de dias?
         if (parsed && Array.isArray(parsed.days)) {
           setPlanData(parsed);
+          setPlanTitle(
+            parsed.days.length > 1 ? "Cardápio Semanal (IA)" : "Cardápio do Dia (IA)",
+          );
         } else {
           // Se for lixo no localStorage, limpa para não quebrar a tela
           localStorage.removeItem("nutri_current_plan");
@@ -100,6 +106,8 @@ export function AiPlan() {
           JSON.stringify(response.data),
         );
         setSelectedDayIndex(0);
+        setPlanTitle(mode === 7 ? "Cardápio Semanal (IA)" : "Cardápio do Dia (IA)");
+        setSwapInfo(null);
       } else {
         throw new Error("IA retornou um formato de plano inválido");
       }
@@ -178,6 +186,63 @@ export function AiPlan() {
     }
   }
 
+  // 3.5 TROCAR REFEIÇÃO (limite por plano — Starter bloqueado, Plus até 2 por cardápio)
+  async function handleSwapMeal(index: number) {
+    if (!planData || !currentDay) return;
+
+    if (subscription?.plan === "starter") {
+      showAlert(
+        "Troca de refeições disponível a partir do plano Plus. Faça upgrade pra desbloquear.",
+        "warning",
+      );
+      return;
+    }
+
+    const meal = currentDay.meals[index];
+    setSwappingIndex(index);
+    try {
+      const avoidSuggestions = currentDay.meals
+        .filter((_, i) => i !== index)
+        .map((m) => m.suggestion);
+      const caloriesPerMeal = currentDay.calories_target / currentDay.meals.length;
+
+      const res = await api.post("/ai/swap-meal", {
+        plan_token: planData.plan_token,
+        slot_name: meal.name,
+        calories_target: caloriesPerMeal,
+        current_suggestion: meal.suggestion,
+        avoid_suggestions: avoidSuggestions,
+      });
+
+      const updatedPlan: AiPlanResponse = {
+        ...planData,
+        days: planData.days.map((d, di) =>
+          di === selectedDayIndex
+            ? {
+                ...d,
+                meals: d.meals.map((m, mi) =>
+                  mi === index ? { ...m, suggestion: res.data.suggestion } : m,
+                ),
+              }
+            : d,
+        ),
+      };
+      setPlanData(updatedPlan);
+      localStorage.setItem("nutri_current_plan", JSON.stringify(updatedPlan));
+      setSwapInfo({ used: res.data.swaps_used, limit: res.data.swaps_limit });
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      if (detail?.code === "PLAN_LIMIT_REACHED") {
+        showAlert(detail.message, "warning");
+      } else {
+        showAlert("Erro ao trocar a refeição. Tente novamente.", "error");
+      }
+      console.error(error);
+    } finally {
+      setSwappingIndex(null);
+    }
+  }
+
   // 4. PREPARAR LISTA (Abre o Modal)
   async function handlePrepareShoppingList() {
     if (!planData) return;
@@ -210,7 +275,7 @@ export function AiPlan() {
     setSavingPlan(true);
     try {
       const payload = {
-        title: mode === 7 ? "Cardápio Semanal (IA)" : "Cardápio do Dia (IA)",
+        title: planTitle.trim() || (mode === 7 ? "Cardápio Semanal (IA)" : "Cardápio do Dia (IA)"),
         source: "ai",
         days: planData.days.map((d, i) => ({
           day_label: d.day,
@@ -466,11 +531,16 @@ export function AiPlan() {
           </div>
 
           <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-            <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30">
+            <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30 flex items-center justify-between">
               <h3 className="font-semibold text-zinc-700 dark:text-zinc-200 flex items-center gap-2">
                 <Utensils className="h-5 w-5 text-purple-500" /> Cardápio
                 Sugerido
               </h3>
+              {subscription?.plan === "plus" && swapInfo && swapInfo.limit !== null && (
+                <span className="text-xs text-zinc-400">
+                  {swapInfo.used}/{swapInfo.limit} trocas usadas
+                </span>
+              )}
             </div>
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {currentDay.meals.map((meal, idx) => (
@@ -486,20 +556,34 @@ export function AiPlan() {
                       {meal.suggestion}
                     </p>
                   </div>
-                  <button
-                    onClick={() =>
-                      handleSaveMeal(meal.name, meal.suggestion, idx)
-                    }
-                    disabled={savingMealIndex === idx}
-                    className="shrink-0 flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-green-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
-                  >
-                    {savingMealIndex === idx ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                    {savingMealIndex === idx ? "Salvando..." : "Salvar Receita"}
-                  </button>
+                  <div className="shrink-0 flex flex-col sm:flex-row gap-2">
+                    <button
+                      onClick={() => handleSwapMeal(idx)}
+                      disabled={swappingIndex === idx}
+                      className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-purple-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
+                    >
+                      {swappingIndex === idx ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Shuffle className="h-4 w-4" />
+                      )}
+                      {swappingIndex === idx ? "Trocando..." : "Trocar"}
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleSaveMeal(meal.name, meal.suggestion, idx)
+                      }
+                      disabled={savingMealIndex === idx}
+                      className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-green-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
+                    >
+                      {savingMealIndex === idx ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {savingMealIndex === idx ? "Salvando..." : "Salvar Receita"}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -515,6 +599,19 @@ export function AiPlan() {
                 "{currentDay.tip}"
               </p>
             </div>
+          </div>
+
+          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+            <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2 mb-2">
+              <Edit3 className="h-4 w-4" /> Nome do plano
+            </label>
+            <input
+              type="text"
+              value={planTitle}
+              onChange={(e) => setPlanTitle(e.target.value)}
+              className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white focus:ring-2 focus:ring-teal-500"
+              placeholder="Nome do plano"
+            />
           </div>
 
           {/* BOTÕES DE AÇÃO (Com o novo handlePrepareShoppingList) */}

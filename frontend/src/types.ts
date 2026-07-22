@@ -117,6 +117,7 @@ export interface DailyPlan {
 
 export interface AiPlanResponse {
   days: DailyPlan[];
+  plan_token: string;
 }
 
 export interface Ingredient {

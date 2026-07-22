@@ -21,64 +21,40 @@ def call_gemini(prompt: str):
     except: return None
     return None
 
-def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: str = "varied", meals_count: int = 4):
-    """
-    Gera o plano alimentar com controle estrito.
-    """
-    
-    # --- PROTEÇÃO CONTRA VALORES NULOS (FIX DO ERRO 500) ---
-    # Se daily_calories for None, assume 2000 padrão
-    target_calories = profile.daily_calories if profile.daily_calories and profile.daily_calories > 0 else 2000
-    
-    # 1. Definição da Estrutura
-    if meals_count == 3:
-        structure = "APENAS 3 REFEIÇÕES: Café da Manhã, Almoço, Jantar."
-    elif meals_count == 4:
-        structure = "4 REFEIÇÕES: Café da Manhã, Almoço, Lanche da Tarde, Jantar."
-    elif meals_count == 5:
-        structure = "5 REFEIÇÕES: Café da Manhã, Lanche da Manhã, Almoço, Lanche da Tarde, Jantar."
-    else:
-        structure = "6 REFEIÇÕES: Café, Lanche Manhã, Almoço, Lanche Tarde, Jantar, Ceia."
 
-    # Calcula média por refeição (Agora seguro)
-    avg_cal_per_meal = target_calories / meals_count
-    
-    # Dados opcionais com fallback
-    fruit_txt = "INCLUA FRUTAS." if getattr(profile, 'eats_fruit', True) else "SEM FRUTAS."
-    fat_txt = "BAIXA GORDURA." if getattr(profile, 'body_fat_goal', False) else "NORMAL."
+def _safe_json_loads(res: str | None):
+    """A IA às vezes devolve texto que não é JSON válido (explicação, markdown residual, etc.) —
+    sem isso, um response ruim vira 500 não tratado em vez do fallback limpo que os routers já esperam."""
+    if not res:
+        return None
+    try:
+        return json.loads(res)
+    except json.JSONDecodeError:
+        return None
 
-    prompt = f"""
-    Atue como nutricionista. Crie um plano de {days} dia(s).
-    
-    DADOS:
-    - Calorias Totais: {target_calories:.0f} kcal.
-    - Estrutura: {structure}
-    - Objetivo: {profile.goal}
-    
-    REGRAS:
-    1. Quantidades exatas para 1 pessoa (peso cru).
-    2. {fruit_txt}
-    3. {fat_txt}
-    4. Gere EXATAMENTE {meals_count} refeições por dia.
-    
-    Responda APENAS JSON:
-    {{
-      "days": [
-        {{
-          "day": "Dia 1",
-          "calories_target": {target_calories:.0f},
-          "macros": {{ "protein": "...", "carbs": "...", "fats": "..." }},
-          "meals": [
-             {{ "name": "...", "suggestion": "...", "category": "almoco" }} 
-          ],
-          "tip": "..."
-        }}
-      ]
-    }}
-    """
-    
-    res = call_gemini(prompt)
-    return json.loads(res) if res else None
+
+_DIET_TYPE_LABELS = {
+    "omnivore": "Onívoro (sem restrições)",
+    "flexitarian": "Flexitariano (reduz carne)",
+    "pescatarian": "Pescetariano (come peixe, não come carne)",
+    "vegetarian_ovo_lacto": "Vegetariano ovo-lacto (come ovos e laticínios, não come carne nem peixe)",
+    "vegetarian_lacto": "Vegetariano lacto (come laticínios, não come ovos, carne nem peixe)",
+    "vegetarian_ovo": "Vegetariano ovo (come ovos, não come laticínios, carne nem peixe)",
+    "vegan": "Vegano (nenhum produto de origem animal)",
+    "paleo": "Dieta Paleolítica",
+}
+
+
+def _diet_restrictions_prompt(profile: ProfileResponse) -> str:
+    diet_label = _DIET_TYPE_LABELS.get(getattr(profile, "diet_type", None), "Onívoro (sem restrições)")
+    lines = [f"Tipo de dieta: {diet_label}. NUNCA sugira ingredientes incompatíveis com essa dieta."]
+    if getattr(profile, "allergies", None):
+        lines.append(f"Alergias/restrições (NUNCA use): {profile.allergies}.")
+    if getattr(profile, "food_dislikes", None):
+        lines.append(f"Não gosta de (evite): {profile.food_dislikes}.")
+    if getattr(profile, "food_likes", None):
+        lines.append(f"Gosta de (priorize quando fizer sentido): {profile.food_likes}.")
+    return "\n    ".join(lines)
 
 _WEIGHT_UNITS = {"g", "grama", "gramas"}
 _VOLUME_UNITS = {"ml", "mililitro", "mililitros"}
@@ -213,10 +189,15 @@ def get_food_calories(db: Session, food_name: str, unit: str) -> float:
         return 0.0
     
 def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: str = "varied", meals_count: int = 4):
-    
-    # Proteção contra nulos
+    """
+    Gera o plano alimentar com controle estrito.
+    """
+
+    # --- PROTEÇÃO CONTRA VALORES NULOS (FIX DO ERRO 500) ---
+    # Se daily_calories for None, assume 2000 padrão
     target_calories = profile.daily_calories if profile.daily_calories and profile.daily_calories > 0 else 2000
-    
+
+    # 1. Definição da Estrutura
     if meals_count == 3:
         structure = "APENAS 3 REFEIÇÕES: Café da Manhã, Almoço, Jantar."
     elif meals_count == 4:
@@ -226,24 +207,38 @@ def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: st
     else:
         structure = "6 REFEIÇÕES: Café, Lanche Manhã, Almoço, Lanche Tarde, Jantar, Ceia."
 
+    # Calcula média por refeição — usado no prompt pra guiar a distribuição calórica
+    avg_cal_per_meal = target_calories / meals_count
+
+    # Dados opcionais com fallback
     fruit_txt = "INCLUA FRUTAS." if getattr(profile, 'eats_fruit', True) else "SEM FRUTAS."
     fat_txt = "BAIXA GORDURA." if getattr(profile, 'body_fat_goal', False) else "NORMAL."
+    variety_txt = (
+        "PRATICIDADE: pode repetir os mesmos pratos em dias diferentes, pra facilitar compras e preparo."
+        if variety_mode == "repetitive"
+        else "VARIEDADE: evite repetir o mesmo prato em dias diferentes do plano."
+    )
+    diet_txt = _diet_restrictions_prompt(profile)
 
     prompt = f"""
     Atue como nutricionista. Crie um plano de {days} dia(s).
-    
+
     DADOS:
-    - Calorias Totais: {target_calories:.0f} kcal.
+    - Calorias Totais: {target_calories:.0f} kcal ({avg_cal_per_meal:.0f} kcal por refeição em média — distribua de forma realista, não precisa ser idêntico em todas).
     - Estrutura: {structure}
     - Objetivo: {profile.goal}
-    
+    - {diet_txt}
+
     REGRAS:
     1. Quantidades exatas para 1 pessoa (peso cru).
     2. {fruit_txt}
     3. {fat_txt}
-    4. Gere EXATAMENTE {meals_count} refeições por dia.
-    
-    Responda APENAS JSON:
+    4. {variety_txt}
+    5. Gere EXATAMENTE {meals_count} refeições por dia.
+    6. O array "days" precisa ter EXATAMENTE {days} objeto(s), um por dia, numerados sequencialmente ("Dia 1", "Dia 2", ..., "Dia {days}"). Nunca gere menos dias do que os {days} pedidos.
+    7. Responda em português do Brasil.
+
+    Responda APENAS JSON válido, sem markdown, sem comentários, sem texto fora do JSON:
     {{
       "days": [
         {{
@@ -251,33 +246,63 @@ def generate_meal_plan(profile: ProfileResponse, days: int = 1, variety_mode: st
           "calories_target": {target_calories:.0f},
           "macros": {{ "protein": "...", "carbs": "...", "fats": "..." }},
           "meals": [
-             {{ "name": "...", "suggestion": "...", "category": "almoco" }} 
+             {{ "name": "...", "suggestion": "...", "category": "almoco" }}
           ],
           "tip": "..."
         }}
       ]
     }}
     """
-    
-    res = call_gemini(prompt)
-    return json.loads(res) if res else None
 
-def generate_recipe_from_ingredients(ingredients: list[str]):
+    res = call_gemini(prompt)
+    return _safe_json_loads(res)
+
+
+def swap_meal_suggestion(
+    profile: ProfileResponse,
+    slot_name: str,
+    calories_target: float,
+    current_suggestion: str,
+    avoid_suggestions: list[str],
+) -> str | None:
+    """Gera UMA sugestão alternativa pra uma refeição específica do cardápio, sem repetir
+    o que já está no dia (current_suggestion + avoid_suggestions) e respeitando o perfil."""
+    diet_txt = _diet_restrictions_prompt(profile)
+    avoid_all = "; ".join(dict.fromkeys([current_suggestion, *avoid_suggestions]))
+
+    prompt = f"""
+    Atue como nutricionista. O usuário não gostou de uma refeição do cardápio e quer uma alternativa.
+
+    Refeição a substituir: {slot_name}
+    Meta calórica dessa refeição: ~{calories_target:.0f} kcal
+    - {diet_txt}
+
+    Sugira UMA alternativa diferente de todas estas (não repita nenhuma, nem parecida): {avoid_all}
+
+    Responda APENAS JSON válido, sem markdown, sem texto fora do JSON:
+    {{ "suggestion": "descrição da nova refeição, com quantidades exatas para 1 pessoa" }}
+    """
+    res = call_gemini(prompt)
+    data = _safe_json_loads(res)
+    return data.get("suggestion") if data else None
+
+
+def generate_recipe_from_ingredients(ingredients: list[str], servings: int = 1):
     prompt = f"""
     Atue como um chef nutricionista preciso.
     Crie uma receita criativa usando ESTRITAMENTE estes ingredientes: {', '.join(ingredients)}.
-    
+
     REGRAS OBRIGATÓRIAS:
-    1. RENDIMENTO: Exatamente 1 PESSOA (Porção individual). Ajuste as quantidades para isso.
-    2. CALORIAS: Calcule as calorias somando cada ingrediente individualmente. SEJA REALISTA.
-    3. INGREDIENTES: Liste cada item com quantidade exata (gramas/unidades) e calorias individuais.
-    
+    1. RENDIMENTO: Exatamente {servings} PESSOA(S). Ajuste as quantidades de cada ingrediente pra render {servings} porção(ões).
+    2. CALORIAS: Calcule as calorias somando cada ingrediente individualmente, já na quantidade total pra {servings} pessoa(s). SEJA REALISTA.
+    3. INGREDIENTES: Liste cada item com quantidade exata (gramas/unidades) e calorias individuais, já escalados pra {servings} pessoa(s).
+
     Responda APENAS JSON estrito:
     {{
       "title": "Nome Criativo do Prato",
       "instructions": "Passo a passo detalhado...",
       "prep_time": 20,
-      "calories": 650, 
+      "calories": 650,
       "ingredients": [
         {{ "name": "Nome (ex: Arroz Cru)", "quantity": 100, "unit": "g", "calories": 360 }},
         {{ "name": "Nome (ex: Azeite)", "quantity": 1, "unit": "colher sopa", "calories": 119 }}
@@ -285,14 +310,14 @@ def generate_recipe_from_ingredients(ingredients: list[str]):
     }}
     """
     res = call_gemini(prompt)
-    return json.loads(res) if res else None
+    return _safe_json_loads(res)
 
 def generate_shopping_list_from_plan(plan_data: dict):
     plan_text = json.dumps(plan_data, ensure_ascii=False)
     prompt = f"""
     Analise este cardápio e gere uma lista de compras consolidada.
     Cardápio: {plan_text}
-    
+
     Responda APENAS JSON:
     {{
       "title": "Lista da Semana",
@@ -300,4 +325,4 @@ def generate_shopping_list_from_plan(plan_data: dict):
     }}
     """
     res = call_gemini(prompt)
-    return json.loads(res) if res else None
+    return _safe_json_loads(res)

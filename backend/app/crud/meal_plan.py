@@ -50,3 +50,10 @@ def get_meal_plan_by_id(db: Session, meal_plan_id: int, user_id: int) -> MealPla
 def delete_meal_plan(db: Session, db_plan: MealPlan):
     db.delete(db_plan)
     db.commit()
+
+
+def update_meal_plan_title(db: Session, db_plan: MealPlan, title: str) -> MealPlan:
+    db_plan.title = title
+    db.commit()
+    db.refresh(db_plan)
+    return db_plan

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing import List, Optional, Literal
 from datetime import datetime
 
@@ -66,6 +66,10 @@ class MealPlanBase(BaseModel):
 
 class MealPlanCreate(MealPlanBase):
     days: List[MealPlanDayCreate] = []
+
+
+class MealPlanUpdate(BaseModel):
+    title: str = Field(min_length=1, max_length=100)
 
 
 class MealPlanResponse(MealPlanBase):

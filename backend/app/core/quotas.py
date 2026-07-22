@@ -93,6 +93,22 @@ def check_meal_plan_slot(db: Session, user: User) -> None:
         raise _limit_reached_error(plan, "max_saved_meal_plans", max_plans, current)
 
 
+def check_meal_swap_quota(db: Session, user: User, plan_token: str) -> None:
+    """Troca de refeição num cardápio gerado. Contado por cardápio (plan_token), não por
+    janela de tempo — Starter não tem a chave "meal_swap" em PLAN_LIMITS, então é bloqueado
+    direto; Plus/Pro usam o limite normal só que aplicado a um event_type dinâmico."""
+    plan = get_user_plan(db, user)
+    rule = PLAN_LIMITS.get(plan, {}).get("meal_swap")
+    if not rule:
+        raise _limit_reached_error(plan, "meal_swap", 0, 0)
+    if rule["limit"] is None:
+        return
+
+    used = get_usage_count(db, user.id, f"meal_swap:{plan_token}", rule["window_days"])
+    if used >= rule["limit"]:
+        raise _limit_reached_error(plan, "meal_swap", rule["limit"], used)
+
+
 def check_recipe_slot(db: Session, user: User) -> None:
     plan = get_user_plan(db, user)
     max_recipes = PLAN_LIMITS.get(plan, {}).get("max_saved_recipes")

@@ -11,6 +11,9 @@ import {
   Sparkles,
   UserRound,
   BookOpen,
+  Edit3,
+  Check,
+  X,
 } from "lucide-react";
 
 export function MealPlanDetail() {
@@ -20,6 +23,9 @@ export function MealPlanDetail() {
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleInput, setTitleInput] = useState("");
+  const [savingTitle, setSavingTitle] = useState(false);
 
   useEffect(() => {
     async function loadPlan() {
@@ -38,6 +44,30 @@ export function MealPlanDetail() {
     loadPlan();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  function startEditingTitle() {
+    if (!plan) return;
+    setTitleInput(plan.title);
+    setEditingTitle(true);
+  }
+
+  async function handleRenamePlan() {
+    if (!plan) return;
+    const title = titleInput.trim();
+    if (!title) return;
+    setSavingTitle(true);
+    try {
+      const res = await api.patch(`/meal-plans/${plan.id}`, { title });
+      setPlan(res.data);
+      setEditingTitle(false);
+      showAlert("Nome do plano atualizado!", "success");
+    } catch (error) {
+      showAlert("Erro ao renomear o plano.", "error");
+      console.error(error);
+    } finally {
+      setSavingTitle(false);
+    }
+  }
 
   if (loading || !plan) {
     return (
@@ -58,15 +88,50 @@ export function MealPlanDetail() {
         >
           <ArrowLeft className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
         </button>
-        <div>
-          <h1 className="text-2xl font-bold text-teal-600 dark:text-teal-500 flex items-center gap-2">
-            {plan.source === "ai" ? (
-              <Sparkles className="h-6 w-6" />
-            ) : (
-              <UserRound className="h-6 w-6" />
-            )}
-            {plan.title}
-          </h1>
+        <div className="flex-1">
+          {editingTitle ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                autoFocus
+                value={titleInput}
+                onChange={(e) => setTitleInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleRenamePlan();
+                  if (e.key === "Escape") setEditingTitle(false);
+                }}
+                className="text-xl font-bold text-teal-600 dark:text-teal-500 bg-zinc-50 dark:bg-zinc-800 border border-teal-300 dark:border-teal-700 rounded-lg px-3 py-1 outline-none"
+              />
+              <button
+                onClick={handleRenamePlan}
+                disabled={savingTitle}
+                className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10 disabled:opacity-50"
+              >
+                {savingTitle ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              </button>
+              <button
+                onClick={() => setEditingTitle(false)}
+                className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <h1 className="text-2xl font-bold text-teal-600 dark:text-teal-500 flex items-center gap-2 group">
+              {plan.source === "ai" ? (
+                <Sparkles className="h-6 w-6" />
+              ) : (
+                <UserRound className="h-6 w-6" />
+              )}
+              {plan.title}
+              <button
+                onClick={startEditingTitle}
+                className="text-zinc-300 hover:text-teal-500 dark:text-zinc-600 dark:hover:text-teal-400 transition-colors"
+              >
+                <Edit3 className="h-4 w-4" />
+              </button>
+            </h1>
+          )}
           <p className="text-xs text-zinc-400">
             {plan.source === "ai" ? "Gerado por IA" : "Montado manualmente"}
           </p>

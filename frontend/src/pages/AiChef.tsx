@@ -13,6 +13,7 @@ export function AiChef() {
   const { getUsage, refreshSubscription } = useSubscription();
   const chefAiUsage = getUsage("chef_ai");
   const [ingredientsInput, setIngredientsInput] = useState("");
+  const [servings, setServings] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<any>(null);
 
@@ -29,6 +30,7 @@ export function AiChef() {
 
       const res = await api.post("/ai/recipe-by-ingredients", {
         ingredients: list,
+        servings,
       });
 
       // Checagem de segurança: A IA realmente respondeu?
@@ -108,6 +110,25 @@ export function AiChef() {
           placeholder="Ex: Frango, batata doce, creme de leite, cebola..."
           className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 h-32 focus:ring-2 focus:ring-blue-500 outline-none resize-none dark:text-white"
         />
+
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-400 mb-2">
+            Rendimento (quantas pessoas?)
+          </label>
+          <div className="grid grid-cols-4 gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
+            {[1, 2, 4, 6].map((count) => (
+              <button
+                key={count}
+                type="button"
+                onClick={() => setServings(count)}
+                className={`py-2 rounded-md text-sm font-medium transition-all ${servings === count ? "bg-white dark:bg-zinc-700 shadow text-blue-600 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"}`}
+              >
+                {count}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           onClick={handleGenerate}
           disabled={loading || !ingredientsInput || (chefAiUsage ? chefAiUsage.used >= (chefAiUsage.limit ?? Infinity) : false)}
@@ -141,8 +162,13 @@ export function AiChef() {
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
               {generatedRecipe.title}
             </h2>
-            <div className="text-xs bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
-              ~ {generatedRecipe.calories} kcal
+            <div className="flex gap-2 shrink-0">
+              <div className="text-xs bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                ~ {generatedRecipe.calories} kcal
+              </div>
+              <div className="text-xs bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                Serve {servings} pessoa{servings > 1 ? "s" : ""}
+              </div>
             </div>
           </div>
 

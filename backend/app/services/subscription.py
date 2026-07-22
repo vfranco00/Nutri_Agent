@@ -18,6 +18,11 @@ def get_subscription_status(db: Session, user: User) -> SubscriptionResponse:
     for event_type, rule in limits.items():
         if not isinstance(rule, dict) or "limit" not in rule:
             continue
+        if event_type == "meal_swap":
+            # Contado por cardápio gerado (event_type dinâmico "meal_swap:<plan_token>"),
+            # não se encaixa no formato de contador fixo — o front mostra isso via a
+            # resposta de /ai/swap-meal em vez de vir aqui.
+            continue
         used = get_usage_count(db, user.id, event_type, rule["window_days"])
         usage.append(
             UsageInfo(event_type=event_type, used=used, limit=rule["limit"], window_days=rule["window_days"])
