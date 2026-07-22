@@ -15,7 +15,7 @@ import {
   Target,
   Scale,
   Bot,
-  LifeBuoy,
+  MessageCircleQuestionIcon
 } from "lucide-react";
 import { useFeedback } from "../lib/FeedbackContext";
 
@@ -373,7 +373,7 @@ export function Landing() {
       {/* AJUDA & FEEDBACK */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-900 text-center">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500/10 mb-4">
-          <LifeBuoy className="h-7 w-7 text-green-500" />
+          <MessageCircleQuestionIcon className="h-7 w-7 text-green-500" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold mb-3">Precisa de ajuda?</h2>
         <p className="text-zinc-400 mb-6 max-w-md mx-auto">
@@ -384,7 +384,7 @@ export function Landing() {
           onClick={openFeedbackModal}
           className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-green-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
         >
-          <LifeBuoy className="h-5 w-5 text-green-500" /> Falar com a gente
+          <MessageCircleQuestionIcon className="h-5 w-5 text-green-500" /> Falar com a gente
         </button>
       </section>
 

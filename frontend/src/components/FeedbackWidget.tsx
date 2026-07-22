@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LifeBuoy, X, Send, Loader2 } from "lucide-react";
+import { MessageCircleQuestionIcon, X, Send, Loader2 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import { useAlert } from "../lib/AlertContext";
@@ -51,7 +51,7 @@ export function FeedbackWidget() {
         className="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg shadow-green-900/30 transition-all hover:scale-105"
         title="Ajuda e feedback"
       >
-        <LifeBuoy className="h-6 w-6" />
+        <MessageCircleQuestionIcon className="h-6 w-6" />
       </button>
 
       {isOpen && (
@@ -59,7 +59,7 @@ export function FeedbackWidget() {
           <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800">
             <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
               <h3 className="text-lg font-bold dark:text-white flex items-center gap-2">
-                <LifeBuoy className="h-5 w-5 text-green-500" /> Ajuda &amp; Feedback
+                <MessageCircleQuestionIcon className="h-5 w-5 text-green-500" /> Ajuda &amp; Feedback
               </h3>
               <button
                 onClick={closeFeedbackModal}

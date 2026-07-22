@@ -16,7 +16,7 @@ import {
   ShieldOff,
   Clock,
   Activity,
-  LifeBuoy,
+  MessageCircleQuestionIcon,
 } from 'lucide-react';
 
 interface ActivityEntry {
@@ -323,7 +323,7 @@ export function AdminUsers() {
                   {/* CHAMADOS */}
                   <div className="p-6">
                     <h4 className="text-sm font-semibold text-zinc-300 mb-3 flex items-center gap-2">
-                      <LifeBuoy className="h-4 w-4 text-zinc-500" /> Chamados
+                      <MessageCircleQuestionIcon className="h-4 w-4 text-zinc-500" /> Chamados
                     </h4>
                     {feedbackEntries.length === 0 ? (
                       <p className="text-sm text-zinc-500">Nenhum chamado aberto por esse usuário.</p>
