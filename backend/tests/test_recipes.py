@@ -22,6 +22,56 @@ def test_create_recipe(make_user):
     assert data["is_public"] is True
 
 
+def test_create_recipe_deduplicates_identical_resubmission(make_user):
+    # Regressão de duplo clique / retry de rede: o mesmo payload (título +
+    # instruções) enviado duas vezes pro mesmo usuário não deve virar duas
+    # receitas — a segunda chamada devolve a receita já existente.
+    auth_client = make_user(email="duplo_clique@example.com")
+    first = auth_client.post("/recipes/", json=_recipe_payload())
+    second = auth_client.post("/recipes/", json=_recipe_payload())
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert first.json()["id"] == second.json()["id"]
+
+    res_list = auth_client.get("/recipes/")
+    assert len(res_list.json()) == 1
+
+
+def test_create_recipe_dedup_is_case_and_whitespace_insensitive(make_user):
+    auth_client = make_user(email="duplo_clique_case@example.com")
+    first = auth_client.post("/recipes/", json=_recipe_payload("Frango com batata doce"))
+    second = auth_client.post("/recipes/", json=_recipe_payload("  FRANGO COM BATATA DOCE  "))
+
+    assert first.json()["id"] == second.json()["id"]
+    assert len(auth_client.get("/recipes/").json()) == 1
+
+
+def test_create_recipe_same_title_different_instructions_is_not_a_duplicate(make_user):
+    # Título repetido não é sinal suficiente de duplicata — só título +
+    # instruções idênticos é que indica reenvio acidental do mesmo payload.
+    auth_client = make_user(email="titulo_repetido@example.com")
+    payload_a = _recipe_payload()
+    payload_b = _recipe_payload()
+    payload_b["instructions"] = "Modo de preparo completamente diferente."
+
+    first = auth_client.post("/recipes/", json=payload_a)
+    second = auth_client.post("/recipes/", json=payload_b)
+
+    assert first.json()["id"] != second.json()["id"]
+    assert len(auth_client.get("/recipes/").json()) == 2
+
+
+def test_create_recipe_dedup_is_scoped_per_user(make_user):
+    a_client = make_user(email="dedup_a@example.com")
+    b_client = make_user(email="dedup_b@example.com")
+
+    res_a = a_client.post("/recipes/", json=_recipe_payload())
+    res_b = b_client.post("/recipes/", json=_recipe_payload())
+
+    assert res_a.json()["id"] != res_b.json()["id"]
+
+
 def test_list_my_recipes_only_shows_own(make_user):
     a_client = make_user(email="ownera@example.com")
     b_client = make_user(email="ownerb@example.com")

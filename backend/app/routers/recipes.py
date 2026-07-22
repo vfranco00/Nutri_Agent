@@ -36,7 +36,22 @@ def create_recipe(
     # 1. Separa os dados da receita dos ingredientes
     recipe_data = recipe.model_dump(exclude={'ingredients'})
     ingredients_data = recipe.ingredients # Salva a lista para usar depois
-    
+
+    # Deduplicação: título + instruções idênticos pro mesmo usuário só pode
+    # acontecer por reenvio acidental (duplo clique, retry de rede) — nunca é
+    # uma receita nova de verdade. Devolve a já existente em vez de duplicar.
+    existing = (
+        db.query(Recipe)
+        .filter(
+            Recipe.user_id == current_user.id,
+            func.lower(Recipe.title) == recipe_data["title"].strip().lower(),
+            Recipe.instructions == recipe_data["instructions"],
+        )
+        .first()
+    )
+    if existing:
+        return existing
+
     # 2. Cria a Receita
     db_recipe = Recipe(**recipe_data, user_id=current_user.id)
     db_recipe.is_new = True

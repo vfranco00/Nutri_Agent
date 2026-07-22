@@ -16,6 +16,7 @@ export function AiChef() {
   const [servings, setServings] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
 
   async function handleGenerate() {
     if (!ingredientsInput) return;
@@ -59,7 +60,8 @@ export function AiChef() {
   }
 
   async function handleSaveRecipe() {
-    if (!generatedRecipe) return;
+    if (!generatedRecipe || saving) return;
+    setSaving(true);
 
     try {
       const res = await api.post("/recipes/", { ...generatedRecipe, is_ai: true });
@@ -79,6 +81,8 @@ export function AiChef() {
         showAlert("Erro ao salvar. Verifique se o servidor está online.", "error");
       }
       console.error("Erro ao salvar receita:", error);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -212,9 +216,14 @@ export function AiChef() {
 
           <button
             onClick={handleSaveRecipe}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-sm"
+            disabled={saving}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-sm disabled:opacity-50"
           >
-            <Save className="h-5 w-5" /> Salvar na Minha Lista
+            {saving ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <><Save className="h-5 w-5" /> Salvar na Minha Lista</>
+            )}
           </button>
         </div>
       )}

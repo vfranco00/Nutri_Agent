@@ -22,6 +22,7 @@ import {
   CheckSquare,
   Square,
   Edit3,
+  CheckCircle2,
 } from "lucide-react";
 
 export function AiPlan() {
@@ -41,6 +42,7 @@ export function AiPlan() {
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [savingMealIndex, setSavingMealIndex] = useState<number | null>(null);
+  const [savedMealKeys, setSavedMealKeys] = useState<Set<string>>(new Set());
   const [savingPlan, setSavingPlan] = useState(false);
   const [swappingIndex, setSwappingIndex] = useState<number | null>(null);
   const [swapInfo, setSwapInfo] = useState<{ used: number; limit: number | null } | null>(null);
@@ -146,6 +148,8 @@ export function AiPlan() {
     index: number,
     mealCategory?: string,
   ) {
+    const mealKey = `${selectedDayIndex}-${index}`;
+    if (savingMealIndex !== null || savedMealKeys.has(mealKey)) return;
     setSavingMealIndex(index);
     try {
       const aiResponse = await api.post("/ai/recipe-by-ingredients", {
@@ -179,6 +183,7 @@ export function AiPlan() {
 
       if (saveRes && saveRes.data) {
         showAlert(`Receita salva em "${cat}"!`, "success");
+        setSavedMealKeys((prev) => new Set(prev).add(mealKey));
       }
     } catch (error: any) {
       const detail = error.response?.data?.detail;
@@ -238,6 +243,13 @@ export function AiPlan() {
       setPlanData(updatedPlan);
       localStorage.setItem("nutri_current_plan", JSON.stringify(updatedPlan));
       setSwapInfo({ used: res.data.swaps_used, limit: res.data.swaps_limit });
+      // A sugestão mudou — se essa refeição já tinha sido salva antes da troca,
+      // o "Salva" ficaria mentindo sobre uma receita que não existe mais.
+      setSavedMealKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(`${selectedDayIndex}-${index}`);
+        return next;
+      });
     } catch (error: any) {
       const detail = error.response?.data?.detail;
       if (detail?.code === "PLAN_LIMIT_REACHED") {
@@ -581,15 +593,21 @@ export function AiPlan() {
                       onClick={() =>
                         handleSaveMeal(meal.name, meal.suggestion, idx, meal.category)
                       }
-                      disabled={savingMealIndex === idx}
-                      className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-green-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
+                      disabled={savingMealIndex === idx || savedMealKeys.has(`${selectedDayIndex}-${idx}`)}
+                      className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-green-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 disabled:hover:bg-zinc-100 dark:disabled:hover:bg-zinc-800 disabled:hover:text-zinc-500 dark:disabled:hover:text-zinc-400"
                     >
                       {savingMealIndex === idx ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : savedMealKeys.has(`${selectedDayIndex}-${idx}`) ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
                       ) : (
                         <Save className="h-4 w-4" />
                       )}
-                      {savingMealIndex === idx ? "Salvando..." : "Salvar Receita"}
+                      {savingMealIndex === idx
+                        ? "Salvando..."
+                        : savedMealKeys.has(`${selectedDayIndex}-${idx}`)
+                          ? "Salva"
+                          : "Salvar Receita"}
                     </button>
                   </div>
                 </div>
