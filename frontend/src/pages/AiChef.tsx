@@ -5,7 +5,7 @@ import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
 import { LoadingOverlay } from "../components/LoadingOverlay";
 import { formatInstructions } from "../lib/utils";
-import { ArrowLeft, ChefHat, Sparkles, Loader2, Save } from "lucide-react";
+import { ArrowLeft, ChefHat, Sparkles, Loader2, Save, Clock, Flame, Users, Carrot } from "lucide-react";
 
 export function AiChef() {
   const navigate = useNavigate();
@@ -158,32 +158,44 @@ export function AiChef() {
 
       {generatedRecipe && (
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 animate-fadeIn space-y-6 shadow-sm">
-          <div className="flex justify-between items-start">
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
-              {generatedRecipe.title}
-            </h2>
-            <div className="flex gap-2 shrink-0">
-              <div className="text-xs bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
-                ~ {generatedRecipe.calories} kcal
-              </div>
-              <div className="text-xs bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
-                Serve {servings} pessoa{servings > 1 ? "s" : ""}
-              </div>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+            {generatedRecipe.title}
+          </h2>
+
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <Clock className="h-4 w-4 text-blue-500" />
+              <span>{generatedRecipe.prep_time} min</span>
+            </div>
+            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <Flame className="h-4 w-4 text-blue-500" />
+              <span>~ {Math.round(generatedRecipe.calories || 0)} kcal</span>
+            </div>
+            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <Users className="h-4 w-4 text-blue-500" />
+              <span>Serve {servings} pessoa{servings > 1 ? "s" : ""}</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-sm font-bold text-blue-600 dark:text-blue-500 uppercase tracking-wider">
-              Ingredientes
+            <h3 className="text-sm font-bold text-blue-600 dark:text-blue-500 uppercase tracking-wider flex items-center gap-2">
+              <Carrot className="h-4 w-4" /> Ingredientes
             </h3>
-            <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-300 text-sm space-y-1">
+            <ul className="space-y-2">
               {generatedRecipe.ingredients.map((ing: any, i: number) => (
-                <li key={i}>
-                  <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                    {ing.quantity}
-                    {ing.unit}
-                  </span>{" "}
-                  de {ing.name}
+                <li
+                  key={i}
+                  className="text-zinc-700 dark:text-zinc-300 text-sm bg-zinc-50 dark:bg-zinc-950/50 p-2 rounded border border-zinc-100 dark:border-zinc-800 flex justify-between items-center"
+                >
+                  <span>{ing.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-zinc-400">
+                      {ing.calories ? `~${Math.round(ing.calories)}kcal` : ""}
+                    </span>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-800 px-2 rounded">
+                      {ing.quantity} {ing.unit}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
