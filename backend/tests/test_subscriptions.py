@@ -109,6 +109,51 @@ def test_max_saved_meal_plans_for_starter(make_user):
     assert blocked.json()["detail"]["code"] == "PLAN_LIMIT_REACHED"
 
 
+def _recipe_payload(title):
+    return {"title": title, "instructions": "Misture tudo.", "calories": 300, "ingredients": []}
+
+
+def test_max_saved_recipes_for_starter(make_user):
+    auth_client = make_user(email="maxreceitas@example.com", plan="starter")
+
+    for i in range(10):
+        res = auth_client.post("/recipes/", json=_recipe_payload(f"Receita {i}"))
+        assert res.status_code == 200
+
+    blocked = auth_client.post("/recipes/", json=_recipe_payload("Receita Extra"))
+    assert blocked.status_code == 403
+    assert blocked.json()["detail"]["code"] == "PLAN_LIMIT_REACHED"
+
+
+def test_max_saved_recipes_for_plus(make_user):
+    auth_client = make_user(email="maxreceitasplus@example.com", plan="plus")
+
+    for i in range(50):
+        res = auth_client.post("/recipes/", json=_recipe_payload(f"Receita {i}"))
+        assert res.status_code == 200
+
+    blocked = auth_client.post("/recipes/", json=_recipe_payload("Receita Extra"))
+    assert blocked.status_code == 403
+
+
+def test_pro_has_unlimited_recipes(make_user):
+    auth_client = make_user(email="receitaspro@example.com", plan="pro")
+
+    for i in range(12):
+        res = auth_client.post("/recipes/", json=_recipe_payload(f"Receita {i}"))
+        assert res.status_code == 200
+
+
+def test_subscriptions_me_includes_recipe_usage(make_user):
+    auth_client = make_user(email="recipeusage@example.com", plan="starter")
+    auth_client.post("/recipes/", json=_recipe_payload("Uma Receita"))
+
+    res = auth_client.get("/subscriptions/me")
+    data = res.json()
+    assert data["max_saved_recipes"] == 10
+    assert data["saved_recipes_used"] == 1
+
+
 def test_admin_can_change_user_plan(make_user):
     admin_client = make_user(email="adminplan@example.com", superuser=True)
     other_client = make_user(email="alvoplan@example.com", plan="starter")

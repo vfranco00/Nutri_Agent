@@ -69,8 +69,13 @@ export function AiChef() {
       } else {
         throw new Error("Backend não retornou confirmação de salvamento");
       }
-    } catch (error) {
-      showAlert("Erro ao salvar. Verifique se o servidor está online.", "error");
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      if (detail?.code === "PLAN_LIMIT_REACHED") {
+        showAlert(detail.message, "warning");
+      } else {
+        showAlert("Erro ao salvar. Verifique se o servidor está online.", "error");
+      }
       console.error("Erro ao salvar receita:", error);
     }
   }

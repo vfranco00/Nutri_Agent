@@ -19,6 +19,8 @@ class SubscriptionResponse(BaseModel):
     shopping_list_access: bool
     max_saved_meal_plans: Optional[int]
     saved_meal_plans_used: int
+    max_saved_recipes: Optional[int]
+    saved_recipes_used: int
 
 
 class AdminSetPlanRequest(BaseModel):

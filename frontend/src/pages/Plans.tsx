@@ -20,6 +20,7 @@ const PLANS = [
     features: [
       "2 cardápios (semanal ou diário) por mês",
       "Chef IA — 5 receitas por semana",
+      "Até 10 receitas próprias salvas",
       "Até 5 planos alimentares salvos",
       "Lista de compras não incluída",
     ],
@@ -33,6 +34,7 @@ const PLANS = [
     features: [
       "1 cardápio semanal + cardápio diário todo dia",
       "Chef IA — 30 receitas por mês",
+      "Até 50 receitas próprias salvas",
       "Até 30 planos alimentares salvos",
       "Lista de compras liberada",
     ],

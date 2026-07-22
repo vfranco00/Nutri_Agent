@@ -5,6 +5,7 @@ from typing import List
 
 from app.db.session import get_db
 from app.core.deps import get_current_user
+from app.core.quotas import check_recipe_slot
 from app.models.user import User
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient # <--- IMPORTANTE: Importar o model Ingredient
@@ -30,6 +31,8 @@ def create_recipe(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    check_recipe_slot(db, current_user)
+
     # 1. Separa os dados da receita dos ingredientes
     recipe_data = recipe.model_dump(exclude={'ingredients'})
     ingredients_data = recipe.ingredients # Salva a lista para usar depois

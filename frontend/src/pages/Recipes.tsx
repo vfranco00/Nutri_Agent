@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
+import { useSubscription } from "../lib/SubscriptionContext";
 import { cleanMarkdown, formatInstructions } from "../lib/utils";
 import { type Recipe, CATEGORIES, type User } from "../types"; // Adicionei User aqui
 import {
@@ -44,6 +45,11 @@ interface EditFormData {
 export function Recipes() {
   const navigate = useNavigate();
   const { showAlert, confirmDialog } = useAlert();
+  const { subscription } = useSubscription();
+  const atRecipeLimit =
+    subscription?.max_saved_recipes !== null &&
+    subscription?.max_saved_recipes !== undefined &&
+    subscription.saved_recipes_used >= subscription.max_saved_recipes;
 
   // ESTADOS
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -288,11 +294,33 @@ export function Recipes() {
     <>
       <div className="flex flex-col gap-6 mb-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-orange-500">
-            {viewMode === "mine" ? "Minhas Receitas" : "Comunidade"}
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold text-orange-500">
+              {viewMode === "mine" ? "Minhas Receitas" : "Comunidade"}
+            </h1>
+            {viewMode === "mine" && subscription?.max_saved_recipes != null && (
+              <p className="text-xs text-zinc-400 mt-1">
+                {subscription.saved_recipes_used}/{subscription.max_saved_recipes} receitas salvas
+                {atRecipeLimit && (
+                  <>
+                    {" "}—{" "}
+                    <button onClick={() => navigate("/planos")} className="text-orange-500 hover:underline font-medium">
+                      fazer upgrade
+                    </button>
+                  </>
+                )}
+              </p>
+            )}
+          </div>
           <button
-            onClick={() => navigate("/recipes/new")}
+            onClick={() =>
+              atRecipeLimit
+                ? showAlert(
+                    `Seu plano permite no máximo ${subscription?.max_saved_recipes} receitas salvas. Faça upgrade pra criar mais.`,
+                    "warning",
+                  )
+                : navigate("/recipes/new")
+            }
             className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 shadow-sm shrink-0"
           >
             <Plus className="h-5 w-5" />{" "}

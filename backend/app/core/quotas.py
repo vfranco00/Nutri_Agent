@@ -9,6 +9,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.models.subscription import Subscription, UsageEvent
 from app.models.meal_plan import MealPlan
+from app.models.recipe import Recipe
 
 
 def get_user_plan(db: Session, user: User) -> str:
@@ -90,3 +91,14 @@ def check_meal_plan_slot(db: Session, user: User) -> None:
     current = db.query(MealPlan).filter(MealPlan.user_id == user.id).count()
     if current >= max_plans:
         raise _limit_reached_error(plan, "max_saved_meal_plans", max_plans, current)
+
+
+def check_recipe_slot(db: Session, user: User) -> None:
+    plan = get_user_plan(db, user)
+    max_recipes = PLAN_LIMITS.get(plan, {}).get("max_saved_recipes")
+    if max_recipes is None:
+        return
+
+    current = db.query(Recipe).filter(Recipe.user_id == user.id).count()
+    if current >= max_recipes:
+        raise _limit_reached_error(plan, "max_saved_recipes", max_recipes, current)

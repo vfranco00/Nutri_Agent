@@ -77,7 +77,10 @@ export function NewRecipe() {
         title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, ingredients: validIngredients
       });
       navigate('/recipes');
-    } catch (error) { showAlert('Erro ao criar.', 'error'); } finally { setLoading(false); }
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      showAlert(detail?.code === 'PLAN_LIMIT_REACHED' ? detail.message : 'Erro ao criar.', 'error');
+    } finally { setLoading(false); }
   }
 
   return (

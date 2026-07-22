@@ -164,11 +164,17 @@ export function AiPlan() {
       if (saveRes && saveRes.data) {
         showAlert(`Receita salva em "${cat}"!`, "success");
       }
-    } catch (error) {
-      showAlert("Erro ao salvar receita. A conexão falhou.", "error");
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      if (detail?.code === "PLAN_LIMIT_REACHED") {
+        showAlert(detail.message, "warning");
+      } else {
+        showAlert("Erro ao salvar receita. A conexão falhou.", "error");
+      }
       console.error(error);
     } finally {
       setSavingMealIndex(null);
+      refreshSubscription();
     }
   }
 

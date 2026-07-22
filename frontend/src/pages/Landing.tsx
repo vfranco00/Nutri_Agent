@@ -300,6 +300,7 @@ export function Landing() {
               <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> 2 cardápios por mês</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Chef IA 5x por semana</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 5 planos alimentares salvos</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 10 receitas próprias salvas</li>
             </ul>
             <button onClick={() => navigate("/register")} className="border border-zinc-700 hover:border-zinc-500 text-white font-bold py-2.5 rounded-lg transition-colors">
               Começar grátis
@@ -318,6 +319,7 @@ export function Landing() {
               <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Chef IA 30x por mês</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Lista de compras liberada</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 30 planos alimentares salvos</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 50 receitas próprias salvas</li>
             </ul>
             <button onClick={() => navigate("/register")} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition-colors">
               Começar grátis

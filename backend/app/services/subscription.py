@@ -5,6 +5,7 @@ from app.core.quotas import get_user_plan, get_usage_count
 from app.models.user import User
 from app.models.subscription import Subscription
 from app.models.meal_plan import MealPlan
+from app.models.recipe import Recipe
 from app.schemas.subscription import SubscriptionResponse, UsageInfo
 
 
@@ -23,6 +24,7 @@ def get_subscription_status(db: Session, user: User) -> SubscriptionResponse:
         )
 
     saved_meal_plans_used = db.query(MealPlan).filter(MealPlan.user_id == user.id).count()
+    saved_recipes_used = db.query(Recipe).filter(Recipe.user_id == user.id).count()
 
     return SubscriptionResponse(
         plan=plan,
@@ -32,4 +34,6 @@ def get_subscription_status(db: Session, user: User) -> SubscriptionResponse:
         shopping_list_access=limits.get("shopping_list_access", True),
         max_saved_meal_plans=limits.get("max_saved_meal_plans"),
         saved_meal_plans_used=saved_meal_plans_used,
+        max_saved_recipes=limits.get("max_saved_recipes"),
+        saved_recipes_used=saved_recipes_used,
     )
