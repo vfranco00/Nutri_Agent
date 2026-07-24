@@ -39,7 +39,8 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
     return <div className="h-screen flex items-center justify-center bg-zinc-950"><Loader2 className="animate-spin text-green-500 h-8 w-8"/></div>;
   }
 
-  return user ? children : <Navigate to="/login" />;
+  // Sem sessão: manda pra home (com o modal de login aberto), não pra uma tela de login.
+  return user ? children : <Navigate to="/?login=1" replace />;
 }
 
 const LayoutRoute = ({ children, color }: { children: React.ReactNode, color?: string }) => (

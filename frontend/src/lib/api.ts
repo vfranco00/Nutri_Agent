@@ -17,8 +17,8 @@ api.interceptors.request.use((config) => {
 });
 
 // Se qualquer requisição (menos o login, onde 401 é só "senha errada") vier com
-// 401, o token não vale mais — desloga e manda pro login em vez de deixar a
-// tela "travada" sem o usuário perceber que a sessão caiu.
+// 401, o token não vale mais — desloga e manda pra home (com o modal de login
+// aberto) em vez de deixar a tela "travada" sem o usuário perceber que caiu.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -26,8 +26,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isLoginRequest) {
       localStorage.removeItem('nutri_token');
       localStorage.removeItem('nutri_current_plan');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (window.location.pathname !== '/') {
+        window.location.href = '/?login=1';
       }
     }
     return Promise.reject(error);
