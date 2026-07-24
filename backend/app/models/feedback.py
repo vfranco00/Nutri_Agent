@@ -21,6 +21,11 @@ class FeedbackTicket(Base):
     category: Mapped[str] = mapped_column(String, nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
 
+    # Status de atendimento — "aberto" (default) ou "resolvido". resolved_at guarda
+    # quando foi resolvido (nulo enquanto aberto), pra dar tempo de resposta no painel.
+    status: Mapped[str] = mapped_column(String, nullable=False, default="aberto", server_default="aberto", index=True)
+    resolved_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
 
     user = relationship("User")
