@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { Login } from "./Login";
+import { LoginForm } from "./LoginForm";
 import { AuthProvider } from "../lib/AuthContext";
 import { AlertProvider } from "../lib/AlertContext";
 import { api } from "../lib/api";
@@ -11,12 +11,12 @@ vi.mock("../lib/api", () => ({
   api: { get: vi.fn(), post: vi.fn() },
 }));
 
-function renderLogin() {
+function renderLoginForm() {
   return render(
     <AlertProvider>
       <AuthProvider>
         <MemoryRouter>
-          <Login />
+          <LoginForm />
         </MemoryRouter>
       </AuthProvider>
     </AlertProvider>,
@@ -35,11 +35,11 @@ beforeEach(() => {
   vi.mocked(api.post).mockReset();
 });
 
-describe("Login", () => {
+describe("LoginForm", () => {
   it("shows a generic error on invalid credentials", async () => {
     vi.mocked(api.post).mockRejectedValue({ response: { data: {} } });
     const user = userEvent.setup();
-    renderLogin();
+    renderLoginForm();
 
     await fillAndSubmit(user);
 
@@ -52,7 +52,7 @@ describe("Login", () => {
       response: { data: { detail: { code: "EMAIL_NOT_VERIFIED", message: "Confirme seu email antes de entrar." } } },
     });
     const user = userEvent.setup();
-    renderLogin();
+    renderLoginForm();
 
     await fillAndSubmit(user);
 
@@ -73,7 +73,7 @@ describe("Login", () => {
       response: { data: { detail: { code: "ACCOUNT_DISABLED", message: "Sua conta foi desativada." } } },
     });
     const user = userEvent.setup();
-    renderLogin();
+    renderLoginForm();
 
     await fillAndSubmit(user);
 

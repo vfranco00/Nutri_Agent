@@ -93,3 +93,17 @@ def test_feedback_leaves_user_id_null_for_unknown_email(client, db_session, monk
 
     ticket = db_session.query(FeedbackTicket).filter(FeedbackTicket.email == "semconta999@example.com").first()
     assert ticket.user_id is None
+
+
+def test_new_feedback_ticket_defaults_to_open(client, db_session, monkeypatch):
+    # Todo chamado nasce "aberto" — é o que a aba de Chamados do painel usa pra saber
+    # o que ainda precisa de atendimento (só o admin resolve depois).
+    from app.models.feedback import FeedbackTicket
+
+    monkeypatch.setattr("app.routers.feedback.send_feedback_email", lambda *a, **kw: True)
+
+    client.post("/feedback/", json={"email": "novoticket@example.com", "message": "Chamado recém-aberto."})
+
+    ticket = db_session.query(FeedbackTicket).filter(FeedbackTicket.email == "novoticket@example.com").first()
+    assert ticket.status == "aberto"
+    assert ticket.resolved_at is None
