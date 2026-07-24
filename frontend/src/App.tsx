@@ -25,8 +25,11 @@ import { FeedbackProvider } from './lib/FeedbackContext';
 import { FeedbackWidget } from './components/FeedbackWidget';
 import { AdminLayout } from './layouts/AdminLayout';
 import { AdminRoute } from './components/AdminRoute';
-import { AdminDashboard } from './pages/AdminDashboard';
+import { AdminOverview } from './pages/AdminOverview';
 import { AdminUsers } from './pages/AdminUsers';
+import { AdminFinance } from './pages/AdminFinance';
+import { AdminUsage } from './pages/AdminUsage';
+import { AdminTickets } from './pages/AdminTickets';
 import type { JSX } from 'react';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
@@ -80,8 +83,11 @@ function AppRoutes() {
           <Route path="/planos" element={<PrivateRoute><LayoutRoute color="text-amber-500"><Plans /></LayoutRoute></PrivateRoute>} />
 
           {/* Admin — layout totalmente separado do resto do app */}
-          <Route path="/admin" element={<PrivateRoute><AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute><AdminRoute><AdminLayout><AdminOverview /></AdminLayout></AdminRoute></PrivateRoute>} />
           <Route path="/admin/users" element={<PrivateRoute><AdminRoute><AdminLayout><AdminUsers /></AdminLayout></AdminRoute></PrivateRoute>} />
+          <Route path="/admin/finance" element={<PrivateRoute><AdminRoute><AdminLayout><AdminFinance /></AdminLayout></AdminRoute></PrivateRoute>} />
+          <Route path="/admin/usage" element={<PrivateRoute><AdminRoute><AdminLayout><AdminUsage /></AdminLayout></AdminRoute></PrivateRoute>} />
+          <Route path="/admin/tickets" element={<PrivateRoute><AdminRoute><AdminLayout><AdminTickets /></AdminLayout></AdminRoute></PrivateRoute>} />
 
         </Routes>
   )

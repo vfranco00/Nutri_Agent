@@ -1,14 +1,17 @@
 import type { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Shield, BarChart3, Users, ArrowLeft } from "lucide-react";
+import { Shield, LayoutDashboard, Users, DollarSign, Activity, MessageCircleQuestion, ArrowLeft } from "lucide-react";
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
 const NAV_ITEMS = [
-  { path: "/admin", label: "Métricas", icon: BarChart3 },
+  { path: "/admin", label: "Visão Geral", icon: LayoutDashboard },
   { path: "/admin/users", label: "Usuários", icon: Users },
+  { path: "/admin/finance", label: "Finanças", icon: DollarSign },
+  { path: "/admin/usage", label: "Usabilidade", icon: Activity },
+  { path: "/admin/tickets", label: "Chamados", icon: MessageCircleQuestion },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

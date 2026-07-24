@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { format, parseISO } from 'date-fns';
 import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
 import type { User } from '../types';
@@ -17,7 +19,18 @@ import {
   Clock,
   Activity,
   MessageCircleQuestionIcon,
+  UserCheck,
+  Crown,
 } from 'lucide-react';
+import { StatCard } from '../components/admin/StatCard';
+import {
+  EVENT_LABELS,
+  FEEDBACK_CATEGORY_LABELS,
+  PLAN_COLORS,
+  GOAL_LABELS,
+  DIET_LABELS,
+  labelFor,
+} from '../lib/adminLabels';
 
 interface ActivityEntry {
   user_email: string;
@@ -32,20 +45,13 @@ interface FeedbackEntry {
   created_at: string;
 }
 
-const EVENT_LABELS: Record<string, string> = {
-  chef_ai: "Chef IA",
-  generate_plan_daily: "Cardápio diário",
-  generate_plan_weekly: "Cardápio semanal",
-  generate_plan_starter: "Cardápio (Starter)",
-  meal_swap: "Troca de refeição",
-};
-
-const FEEDBACK_CATEGORY_LABELS: Record<string, string> = {
-  duvida: "Dúvida",
-  bug: "Bug",
-  sugestao: "Sugestão",
-  outro: "Outro",
-};
+interface UsersInsights {
+  funnel: { total: number; verified: number; with_profile: number; with_activity: number; paying: number };
+  users_by_plan: { starter: number; plus: number; pro: number };
+  signups_last_30d: { date: string; count: number }[];
+  goal_distribution: { key: string; count: number }[];
+  diet_distribution: { key: string; count: number }[];
+}
 
 function formatDateTime(value?: string | null) {
   if (!value) return "Nunca";
@@ -63,9 +69,11 @@ export function AdminUsers() {
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [processingUserId, setProcessingUserId] = useState<number | null>(null);
+  const [insights, setInsights] = useState<UsersInsights | null>(null);
 
   useEffect(() => {
     loadUsers();
+    api.get('/admin/users/insights').then((res) => setInsights(res.data)).catch((e) => console.error(e));
   }, []);
 
   const filteredUsers = useMemo(() => {
@@ -177,6 +185,8 @@ export function AdminUsers() {
           />
         </div>
       </div>
+
+      {insights && <UsersInsightsBlock insights={insights} />}
 
       <div className="bg-zinc-900 rounded-xl shadow-sm border border-zinc-800 overflow-hidden">
         <div className="p-5 border-b border-zinc-800 bg-zinc-950/50 flex items-center gap-2">
@@ -370,6 +380,101 @@ export function AdminUsers() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function UsersInsightsBlock({ insights }: { insights: UsersInsights }) {
+  const f = insights.funnel;
+  const planData = [
+    { name: "Starter", value: insights.users_by_plan.starter, color: PLAN_COLORS.starter },
+    { name: "Plus", value: insights.users_by_plan.plus, color: PLAN_COLORS.plus },
+    { name: "Pro", value: insights.users_by_plan.pro, color: PLAN_COLORS.pro },
+  ];
+  const signups = insights.signups_last_30d.map((s) => ({ date: format(parseISO(s.date), "dd/MM"), count: s.count }));
+  const goals = insights.goal_distribution.map((g) => ({ name: labelFor(GOAL_LABELS, g.key), count: g.count }));
+  const diets = insights.diet_distribution.map((d) => ({ name: labelFor(DIET_LABELS, d.key), count: d.count }));
+
+  const tooltipStyle = { backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 };
+
+  return (
+    <div className="space-y-6 mb-8">
+      {/* FUNIL */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <StatCard icon={Users} label="Total" value={f.total} color="text-blue-400" />
+        <StatCard icon={CheckCircle2} label="Verificados" value={f.verified} color="text-green-400" />
+        <StatCard icon={UserCheck} label="Com perfil" value={f.with_profile} color="text-teal-400" />
+        <StatCard icon={Activity} label="Com atividade" value={f.with_activity} color="text-purple-400" />
+        <StatCard icon={Crown} label="Pagantes" value={f.paying} color="text-amber-400" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+          <h3 className="text-sm font-semibold text-zinc-300 mb-4">Novos usuários (últimos 30 dias)</h3>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={signups}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                <XAxis dataKey="date" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Bar dataKey="count" name="Cadastros" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+          <h3 className="text-sm font-semibold text-zinc-300 mb-4">Distribuição de planos</h3>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={planData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} label>
+                  {planData.map((e) => (
+                    <Cell key={e.name} fill={e.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={tooltipStyle} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {goals.length > 0 && (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <h3 className="text-sm font-semibold text-zinc-300 mb-4">Objetivo dos usuários</h3>
+            <div className="h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={goals}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                  <XAxis dataKey="name" stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="count" name="Usuários" fill="#52cc02" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {diets.length > 0 && (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <h3 className="text-sm font-semibold text-zinc-300 mb-4">Tipo de dieta</h3>
+            <div className="h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={diets}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                  <XAxis dataKey="name" stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="count" name="Usuários" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
