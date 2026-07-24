@@ -39,7 +39,7 @@ export function ForgotPassword() {
             <p className="text-zinc-400 text-sm mb-6">
               Se <strong className="text-zinc-200">{email}</strong> existir na nossa base, mandamos um link pra redefinir a senha. O link expira em 1 hora.
             </p>
-            <a href="/login" className="inline-flex items-center gap-2 text-green-500 hover:text-green-400 text-sm font-medium">
+            <a href="/?login=1" className="inline-flex items-center gap-2 text-green-500 hover:text-green-400 text-sm font-medium">
               <ArrowLeft className="h-4 w-4" /> Voltar para o login
             </a>
           </div>
@@ -76,7 +76,7 @@ export function ForgotPassword() {
             </form>
 
             <div className="mt-8 text-center text-sm text-zinc-500">
-              <a href="/login" className="text-green-500 hover:text-green-400 hover:underline inline-flex items-center gap-1.5">
+              <a href="/?login=1" className="text-green-500 hover:text-green-400 hover:underline inline-flex items-center gap-1.5">
                 <ArrowLeft className="h-3.5 w-3.5" /> Voltar para o login
               </a>
             </div>

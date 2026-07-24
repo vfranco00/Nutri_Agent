@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Landing } from './pages/Landing';
-import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { VerifyEmail } from './pages/VerifyEmail';
 import { ForgotPassword } from './pages/ForgotPassword';
@@ -52,7 +51,9 @@ function AppRoutes() {
     <Routes>
           {/* Rotas Públicas (Sem Layout) */}
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
+          {/* Login não tem tela própria: a caixa vem no modal da home (padrão novo).
+              Qualquer navegação pra /login cai na home com o modal aberto. */}
+          <Route path="/login" element={<Navigate to="/?login=1" replace />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

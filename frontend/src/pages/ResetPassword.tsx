@@ -36,7 +36,7 @@ export function ResetPassword() {
       await api.post("/auth/reset-password", { token, new_password: newPassword });
       setSuccess(true);
       showAlert("Senha redefinida com sucesso!", "success");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate("/?login=1"), 2000);
     } catch (err: any) {
       const detail = err.response?.data?.detail;
       setError(typeof detail === "string" ? detail : "Link inválido ou expirado. Peça um novo.");

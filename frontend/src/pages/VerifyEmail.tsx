@@ -69,7 +69,7 @@ export function VerifyEmail() {
               Sua conta já está ativa. Pode entrar normalmente.
             </p>
             <a
-              href="/login"
+              href="/?login=1"
               className="inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors"
             >
               Ir para o Login

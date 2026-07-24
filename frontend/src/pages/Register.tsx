@@ -79,7 +79,7 @@ export function Register() {
             antes de entrar.
           </p>
           <a
-            href="/login"
+            href="/?login=1"
             className="inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors"
           >
             Ir para o Login
@@ -192,7 +192,7 @@ export function Register() {
         <div className="mt-8 text-center text-sm text-zinc-500">
           Já tem uma conta?{" "}
           <a
-            href="/login"
+            href="/?login=1"
             className="text-green-500 hover:text-green-400 hover:underline"
           >
             Fazer Login

@@ -7,8 +7,8 @@ import { PasswordInput } from "./PasswordInput";
 import { BouncingDots } from "./BouncingDots";
 
 /**
- * Só o miolo do login (cabeçalho + formulário + rodapé) — sem o card/fundo externo,
- * pra ser reaproveitado tanto na página /login quanto no modal de login da home.
+ * Só o miolo do login (cabeçalho + formulário + rodapé) — sem o card/fundo externo.
+ * Hoje é usado só pelo modal de login da home (LoginModal); login não tem tela própria.
  * Não faz o redirect pós-login: quem usa o componente observa `user` do AuthContext
  * e decide pra onde ir (evita a corrida de navegar antes do /users/me responder).
  */
