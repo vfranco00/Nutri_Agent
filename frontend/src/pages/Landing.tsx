@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../lib/AuthContext";
+import { LoginModal } from "../components/LoginModal";
 import {
   Book,
   CheckCheck,
@@ -163,10 +165,27 @@ function DashboardMockup() {
 export function Landing() {
   const navigate = useNavigate();
   const { openFeedbackModal } = useFeedback();
+  const { user } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // O modal de login abre via ?login=1 (assim redirecionamentos como sessão expirada
+  // podem cair na home já com a caixa aberta). Usuário já logado que cai aqui vai
+  // direto pro dashboard em vez de ver o modal.
+  const loginOpen = searchParams.get("login") === "1";
+
+  useEffect(() => {
+    if (loginOpen && user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [loginOpen, user, navigate]);
+
+  const openLogin = () => setSearchParams({ login: "1" });
+  const closeLogin = () => setSearchParams({}, { replace: true });
 
   return (
     <div className="bg-zinc-950 text-zinc-100 min-h-screen">
+      <LoginModal open={loginOpen && !user} onClose={closeLogin} />
       {/* HEADER */}
       <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -177,7 +196,7 @@ export function Landing() {
             <a href="#planos" className="hover:text-white transition-colors">Planos</a>
           </nav>
           <div className="flex items-center gap-4">
-            <button onClick={() => navigate("/login")} className="text-sm text-zinc-400 hover:text-white transition-colors">
+            <button onClick={openLogin} className="text-sm text-zinc-400 hover:text-white transition-colors">
               Entrar
             </button>
             <button
@@ -426,7 +445,7 @@ export function Landing() {
           <div>
             <p className="text-xs font-bold uppercase text-zinc-500 mb-3">Conta</p>
             <ul className="space-y-2 text-sm text-zinc-400">
-              <li><button onClick={() => navigate("/login")} className="hover:text-white">Entrar</button></li>
+              <li><button onClick={openLogin} className="hover:text-white">Entrar</button></li>
               <li><button onClick={() => navigate("/register")} className="hover:text-white">Criar conta</button></li>
             </ul>
           </div>

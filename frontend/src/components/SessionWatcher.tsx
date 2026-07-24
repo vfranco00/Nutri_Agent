@@ -40,7 +40,7 @@ export function SessionWatcher() {
       if (current >= expiryTs && !loggedOutRef.current) {
         loggedOutRef.current = true;
         logout();
-        navigate("/login");
+        navigate("/?login=1");
       }
     }, 1000);
     return () => clearInterval(id);
@@ -61,7 +61,7 @@ export function SessionWatcher() {
     } catch (error) {
       console.error(error);
       logout();
-      navigate("/login");
+      navigate("/?login=1");
     } finally {
       setRefreshing(false);
     }
@@ -69,7 +69,7 @@ export function SessionWatcher() {
 
   function handleLogoutNow() {
     logout();
-    navigate("/login");
+    navigate("/?login=1");
   }
 
   return (

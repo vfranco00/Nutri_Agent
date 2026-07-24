@@ -26,7 +26,7 @@ export function Sidebar({ toggleTheme, isDark }: SidebarProps) {
 
   function handleLogout() {
     logout();
-    navigate('/login');
+    navigate('/'); // "Sair" leva pra home, não pra tela de login
   }
 
   return (
