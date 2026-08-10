@@ -62,6 +62,16 @@ export interface Recipe {
   is_ai?: boolean;
 }
 
+// Ranking da comunidade (GET /users/leaderboard). Tipo próprio, e não `User`:
+// a rota devolve de propósito só o que a tela desenha. Ela já entregou email,
+// is_superuser e last_login_at de todo mundo — inclusive sem login — porque
+// reaproveitava o schema completo de usuário na resposta.
+export interface LeaderboardEntry {
+  id: number;
+  display_name: string;
+  score: number;
+}
+
 export interface User {
   id: number;
   email: string;

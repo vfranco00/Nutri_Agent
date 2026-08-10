@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -10,7 +10,7 @@ from app.core.limiter import limiter
 from app.models.user import User
 from app.models.subscription import Subscription
 # CORREÇÃO AQUI: Importamos UserResponse em vez de User
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import LeaderboardEntry, UserCreate, UserResponse
 from app.schemas.subscription import SubscriptionResponse, AdminSetPlanRequest
 from app.services.email import send_verification_email
 from app.services.subscription import get_subscription_status
@@ -64,8 +64,11 @@ def complete_onboarding(
 # Rota de Admin
 @router.get("/", response_model=List[UserResponse])
 def read_users(
-    skip: int = 0,
-    limit: int = 100,
+    # Teto no `limit`: sem ele, ?limit=99999999 vira um dump da tabela inteira de
+    # usuários numa resposta só — pressão de memória no processo e exfiltração em
+    # uma requisição caso uma conta de admin seja comprometida.
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=200),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_superuser)
 ):
@@ -152,10 +155,26 @@ def admin_set_subscription(
 
     return get_subscription_status(db, target)
 
-@router.get("/leaderboard", response_model=List[UserResponse])
+@router.get("/leaderboard", response_model=List[LeaderboardEntry])
 def get_leaderboard(
-    limit: int = 5,
-    db: Session = Depends(get_db)
+    limit: int = Query(default=5, ge=1, le=50),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    """Retorna os top usuários ordenados por pontuação."""
-    return db.query(User).order_by(User.score.desc()).limit(limit).all()
+    """Top usuários por pontuação, pro ranking da comunidade.
+
+    Exige sessão: o único consumidor é a aba Comunidade (tela autenticada), e sem
+    autenticação qualquer um na internet dispara essa query e lê a base de usuários.
+    O DTO devolve só primeiro nome + pontuação — ver schemas/user.py::LeaderboardEntry.
+    """
+    users = db.query(User).order_by(User.score.desc()).limit(limit).all()
+    return [
+        LeaderboardEntry(
+            id=u.id,
+            # Só o primeiro nome — é o que a tela mostra, e sobrenome completo somado
+            # à pontuação já é dado pessoal desnecessário pra desenhar um ranking.
+            display_name=(u.full_name or "Chef").strip().split(" ")[0] or "Chef",
+            score=u.score or 0,
+        )
+        for u in users
+    ]

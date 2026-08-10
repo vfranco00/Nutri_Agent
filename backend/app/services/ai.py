@@ -1,5 +1,6 @@
 import httpx
 import json
+import logging
 import unicodedata
 from sqlalchemy.orm import Session
 from app.core.config import settings
@@ -7,19 +8,51 @@ from app.schemas.profile import ProfileResponse
 from app.models.food_cache import FoodCache
 from app.data.taco_foods import TACO_PER_100G, TACO_PER_UNIT
 
+logger = logging.getLogger(__name__)
+
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={settings.GEMINI_API_KEY}"
 
+# Abaixo do teto de request da plataforma (Render corta em ~100s). Com 120s, o proxy
+# cortava ANTES do httpx desistir: o usuário via erro, a chamada ao Gemini já tinha sido
+# paga, e o código nunca chegava na linha de debitar cota. Estourando primeiro aqui,
+# a falha vira exceção nossa, tratável e contabilizável.
+GEMINI_TIMEOUT_SECONDS = 90.0
+
+
 def call_gemini(prompt: str):
-    payload = { "contents": [{ "parts": [{"text": prompt}] }] }
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
     try:
         with httpx.Client() as client:
-            response = client.post(GEMINI_URL, json=payload, timeout=120.0)
-            if response.status_code != 200: return None
+            response = client.post(GEMINI_URL, json=payload, timeout=GEMINI_TIMEOUT_SECONDS)
+            if response.status_code != 200:
+                # Distinguir 401/403 (chave inválida) de 429 (cota) de 5xx (lado deles)
+                # é a diferença entre corrigir em minutos e depurar no escuro.
+                logger.error(
+                    "Gemini respondeu %s: %s", response.status_code, response.text[:500]
+                )
+                return None
             data = response.json()
-            if 'candidates' in data and data['candidates']:
-                return data['candidates'][0]['content']['parts'][0]['text'].replace('```json', '').replace('```', '').strip()
-    except: return None
-    return None
+            if "candidates" in data and data["candidates"]:
+                return (
+                    data["candidates"][0]["content"]["parts"][0]["text"]
+                    .replace("```json", "")
+                    .replace("```", "")
+                    .strip()
+                )
+            # Sem candidates normalmente é bloqueio do filtro de segurança do modelo —
+            # silenciar isso fazia parecer erro de rede.
+            logger.warning("Gemini respondeu 200 sem candidates: %s", str(data)[:500])
+            return None
+    except httpx.TimeoutException:
+        logger.error("Gemini estourou o timeout de %ss", GEMINI_TIMEOUT_SECONDS)
+        return None
+    except httpx.HTTPError as exc:
+        logger.error("Falha de rede ao chamar o Gemini: %s", exc)
+        return None
+    except (KeyError, IndexError, TypeError, ValueError) as exc:
+        # Formato de resposta inesperado. Antes caía no mesmo `except:` de um timeout.
+        logger.error("Resposta do Gemini em formato inesperado: %s", exc)
+        return None
 
 
 def _safe_json_loads(res: str | None):

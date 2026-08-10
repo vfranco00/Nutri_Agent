@@ -1,8 +1,8 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 
 class WeightHistoryBase(BaseModel):
-    weight: float
+    weight: float = Field(gt=0, le=1000)
 
 class WeightHistoryCreate(WeightHistoryBase):
     pass

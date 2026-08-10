@@ -4,12 +4,15 @@ Job periódico em thread de background, dentro do próprio processo — sem infr
 vida de assinatura (aviso de vencimento + downgrade automático) uma vez ao subir e
 depois a cada 24h.
 """
+import logging
 import sys
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.db.session import SessionLocal
 from app.services.subscription_lifecycle import run_subscription_lifecycle
+
+logger = logging.getLogger(__name__)
 
 _scheduler: BackgroundScheduler | None = None
 
@@ -18,9 +21,11 @@ def _run_lifecycle_job() -> None:
     db = SessionLocal()
     try:
         run_subscription_lifecycle(db)
-    except Exception as e:
+    except Exception:
         # Uma falha aqui não pode derrubar o processo — é um job de background.
-        print(f"[scheduler] Falha ao rodar o ciclo de vida de assinatura: {e}")
+        # exception() em vez de error(): sem o stack trace, "falhou o ciclo de vida"
+        # não diz em qual das etapas (aviso de vencimento ou downgrade) quebrou.
+        logger.exception("Falha ao rodar o ciclo de vida de assinatura")
     finally:
         db.close()
 

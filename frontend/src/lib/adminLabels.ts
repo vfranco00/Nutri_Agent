@@ -12,6 +12,8 @@ export const EVENT_LABELS: Record<string, string> = {
   generate_plan_weekly: "Cardápio semanal",
   generate_plan_starter: "Cardápio (Starter)",
   meal_swap: "Troca de refeição",
+  food_lookup: "Consulta de calorias",
+  shopping_list_ai: "Lista de compras (IA)",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<string, { label: string; className: string }> = {

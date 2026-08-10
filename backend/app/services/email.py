@@ -1,3 +1,4 @@
+import logging
 import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -12,6 +13,8 @@ from app.services.email_templates import (
     feedback_email_html,
     password_reset_email_html,
 )
+
+logger = logging.getLogger(__name__)
 
 BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 RESEND_URL = "https://api.resend.com/emails"
@@ -39,7 +42,7 @@ def _send_via_smtp(to_email: str, subject: str, html: str, reply_to: str | None 
         # OSError cobre falhas de conexão (timeout, DNS, porta bloqueada pelo host) —
         # smtplib.SMTPException sozinho não pega isso, e sem esse catch o registro
         # de usuário quebrava inteiro (500) quando o SMTP não conseguia nem conectar.
-        print(f"[email] Falha ao enviar via SMTP pra {to_email}: {e}")
+        logger.warning("Falha ao enviar via SMTP pra %s: %s", to_email, e)
         return False
 
 
@@ -62,11 +65,11 @@ def _send_via_resend(to_email: str, subject: str, html: str, reply_to: str | Non
                 timeout=10.0,
             )
             if response.status_code >= 300:
-                print(f"[email] Resend retornou {response.status_code} ao enviar pra {to_email}: {response.text}")
+                logger.warning("Resend retornou %s ao enviar pra %s: %s", response.status_code, to_email, response.text)
                 return False
             return True
     except httpx.HTTPError as e:
-        print(f"[email] Falha ao enviar via Resend pra {to_email}: {e}")
+        logger.warning("Falha ao enviar via Resend pra %s: %s", to_email, e)
         return False
 
 
@@ -89,11 +92,11 @@ def _send_via_brevo(to_email: str, subject: str, html: str, reply_to: str | None
                 timeout=10.0,
             )
             if response.status_code >= 300:
-                print(f"[email] Brevo retornou {response.status_code} ao enviar pra {to_email}: {response.text}")
+                logger.warning("Brevo retornou %s ao enviar pra %s: %s", response.status_code, to_email, response.text)
                 return False
             return True
     except httpx.HTTPError as e:
-        print(f"[email] Falha ao enviar via Brevo pra {to_email}: {e}")
+        logger.warning("Falha ao enviar via Brevo pra %s: %s", to_email, e)
         return False
 
 
@@ -119,7 +122,7 @@ def _send_email(
         if _send_via_resend(to_email, subject, html, reply_to):
             return True
 
-    print(f"[email] Nenhum provedor de email conseguiu enviar. {fallback_log}")
+    logger.error("Nenhum provedor de email conseguiu enviar. %s", fallback_log)
     return False
 
 
@@ -134,9 +137,13 @@ def send_verification_email(to_email: str) -> bool:
     )
 
 
-def send_password_reset_email(to_email: str) -> bool:
-    """Gera o token de reset e envia o link — mesmo padrão de send_verification_email."""
-    token = create_password_reset_token(to_email)
+def send_password_reset_email(to_email: str, hashed_password: str) -> bool:
+    """Gera o token de reset e envia o link — mesmo padrão de send_verification_email.
+
+    `hashed_password` é a senha vigente no momento da geração: ela vira uma
+    impressão digital dentro do token, o que torna o link de uso único (assim que a
+    senha muda, o link morre). Ver core/security.py::create_password_reset_token."""
+    token = create_password_reset_token(to_email, hashed_password)
     reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
     html = password_reset_email_html(to_email, reset_url)
     return _send_email(

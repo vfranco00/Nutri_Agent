@@ -13,6 +13,11 @@ PLAN_LIMITS: dict[str, dict] = {
         "max_saved_recipes": 10,
         "chef_ai": {"limit": 5, "window_days": 7},
         "generate_plan_starter": {"limit": 2, "window_days": 30},
+        # Consulta calórica de ingrediente (POST /ai/calculate-calories). Teto folgado
+        # de propósito: o caminho normal (montar receitas) gasta ~10 por receita, então
+        # 200/dia não incomoda ninguém — serve só pra travar o laço automatizado que
+        # queima chamada de LLM e enche a tabela FoodCache.
+        "food_lookup": {"limit": 200, "window_days": 1},
     },
     "plus": {
         "shopping_list_access": True,
@@ -21,6 +26,9 @@ PLAN_LIMITS: dict[str, dict] = {
         "chef_ai": {"limit": 30, "window_days": 30},
         "generate_plan_weekly": {"limit": 1, "window_days": 7},
         "generate_plan_daily": {"limit": 7, "window_days": 7},
+        "food_lookup": {"limit": 1000, "window_days": 1},
+        # Geração da lista de compras pela IA (POST /ai/plan-to-shopping-list).
+        "shopping_list_ai": {"limit": 30, "window_days": 7},
         # Contado por cardápio gerado (event_type dinâmico "meal_swap:<plan_token>"),
         # não por janela de tempo — por isso window_days bem largo (10 anos).
         "meal_swap": {"limit": 2, "window_days": 3650},
@@ -34,6 +42,8 @@ PLAN_LIMITS: dict[str, dict] = {
         "generate_plan_daily": {"limit": None, "window_days": 7},
         "generate_plan_starter": {"limit": None, "window_days": 30},
         "meal_swap": {"limit": None, "window_days": 3650},
+        "food_lookup": {"limit": None, "window_days": 1},
+        "shopping_list_ai": {"limit": None, "window_days": 7},
     },
 }
 

@@ -179,6 +179,9 @@ export function AiPlan() {
         category: cat,
         is_new: true,
         is_ai: true,
+        // Ver AiChef.tsx: o backend deixou de forçar is_public, então a escolha
+        // precisa ser dita aqui. Mantém o comportamento atual (vai pra comunidade).
+        is_public: true,
       });
 
       if (saveRes && saveRes.data) {

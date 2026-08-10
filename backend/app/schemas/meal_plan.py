@@ -13,11 +13,11 @@ class MealPlanRecipeSummary(BaseModel):
 
 # --- REFEIÇÃO ---
 class MealPlanMealBase(BaseModel):
-    slot_name: str
-    recipe_id: Optional[int] = None
-    custom_title: Optional[str] = None
-    custom_description: Optional[str] = None
-    calories: Optional[float] = None
+    slot_name: str = Field(min_length=1, max_length=80)
+    recipe_id: Optional[int] = Field(default=None, ge=1)
+    custom_title: Optional[str] = Field(default=None, max_length=200)
+    custom_description: Optional[str] = Field(default=None, max_length=2000)
+    calories: Optional[float] = Field(default=None, ge=0, le=1_000_000)
 
     @model_validator(mode="after")
     def must_have_recipe_or_custom_content(self):
@@ -39,16 +39,16 @@ class MealPlanMealResponse(MealPlanMealBase):
 
 # --- DIA ---
 class MealPlanDayBase(BaseModel):
-    day_label: str
-    day_index: int = 0
-    calories_target: Optional[float] = None
-    macros_protein: Optional[str] = None
-    macros_carbs: Optional[str] = None
-    macros_fats: Optional[str] = None
+    day_label: str = Field(min_length=1, max_length=80)
+    day_index: int = Field(default=0, ge=0, le=365)
+    calories_target: Optional[float] = Field(default=None, ge=0, le=100_000)
+    macros_protein: Optional[str] = Field(default=None, max_length=60)
+    macros_carbs: Optional[str] = Field(default=None, max_length=60)
+    macros_fats: Optional[str] = Field(default=None, max_length=60)
 
 
 class MealPlanDayCreate(MealPlanDayBase):
-    meals: List[MealPlanMealCreate] = []
+    meals: List[MealPlanMealCreate] = Field(default_factory=list, max_length=12)
 
 
 class MealPlanDayResponse(MealPlanDayBase):
@@ -60,12 +60,12 @@ class MealPlanDayResponse(MealPlanDayBase):
 
 # --- PLANO ---
 class MealPlanBase(BaseModel):
-    title: str = "Meu Plano Alimentar"
+    title: str = Field(default="Meu Plano Alimentar", min_length=1, max_length=100)
     source: Literal["ai", "manual"] = "manual"
 
 
 class MealPlanCreate(MealPlanBase):
-    days: List[MealPlanDayCreate] = []
+    days: List[MealPlanDayCreate] = Field(default_factory=list, max_length=31)
 
 
 class MealPlanUpdate(BaseModel):

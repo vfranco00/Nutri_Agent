@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -109,8 +109,8 @@ def _signups_by_day(db: Session, days: int) -> List[SignupsByDay]:
 def read_all_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_superuser), # <--- A mágica aqui
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=200),
 ):
     """(Admin Only) Lista todos os usuários do sistema."""
     users = db.query(User).offset(skip).limit(limit).all()
@@ -205,8 +205,8 @@ def read_admin_activity(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_superuser),
     user_id: Optional[int] = None,
-    skip: int = 0,
-    limit: int = 50,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
 ):
     """Últimos eventos de uso (quando cada usuário gerou cardápio, usou o Chef IA, etc.),
     mais recente primeiro. Com user_id, vira o histórico de um usuário específico."""
@@ -231,8 +231,8 @@ def read_admin_activity(
 def read_admin_payments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_superuser),
-    skip: int = 0,
-    limit: int = 50,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
 ):
     """Confirmações de cobrança recebidas do Mercado Pago (tópico
     subscription_authorized_payment), mais recente primeiro."""
@@ -257,7 +257,7 @@ def read_admin_payments(
 def read_admin_top_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_superuser),
-    limit: int = 10,
+    limit: int = Query(default=10, ge=1, le=100),
 ):
     """Usuários mais ativos por número total de ações registradas (UsageEvent)."""
     rows = (
@@ -293,8 +293,8 @@ def read_admin_feedback(
     user_id: Optional[int] = None,
     status: Optional[str] = None,
     category: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 50,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
 ):
     """Chamados de ajuda/feedback (persistidos independente do envio de email dar
     certo). Filtros opcionais: user_id (chamados de um usuário), status (aberto/resolvido)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -16,8 +16,8 @@ router = APIRouter()
 # 1. Rota de Comunidade (Públicas)
 @router.get("/public", response_model=List[RecipeResponse])
 def read_public_recipes(
-    skip: int = 0, 
-    limit: int = 50, 
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -53,9 +53,14 @@ def create_recipe(
         return existing
 
     # 2. Cria a Receita
+    # `is_public` vem do payload (RecipeBase, default False = privada). O código antigo
+    # forçava True aqui e descartava a escolha do usuário: toda receita salva ia parar no
+    # feed da comunidade, com título, instruções e ingredientes visíveis pra qualquer
+    # outra conta via GET /recipes/public — publicação de conteúdo pessoal sem consentimento,
+    # e contrariando o que o próprio README promete. O default privado é o fail-closed:
+    # se o cliente não disser nada, nada é publicado.
     db_recipe = Recipe(**recipe_data, user_id=current_user.id)
     db_recipe.is_new = True
-    db_recipe.is_public = True # <--- FORÇA SER PÚBLICA (Como você pediu para comunidade)
     db_recipe.is_ai = getattr(recipe, 'is_ai', False)
 
     # --- GAMIFICAÇÃO: DAR PONTOS ---
@@ -84,8 +89,8 @@ def create_recipe(
 # 3. Minhas Receitas
 @router.get("/", response_model=List[RecipeResponse])
 def read_recipes(
-    skip: int = 0, 
-    limit: int = 100, 
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=200),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -156,7 +161,7 @@ def delete_recipe(
 # 6. Recomendações Personalizadas
 @router.get("/recommendations", response_model=List[RecipeResponse])
 def get_recommendations(
-    limit: int = 5,
+    limit: int = Query(default=5, ge=1, le=50),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

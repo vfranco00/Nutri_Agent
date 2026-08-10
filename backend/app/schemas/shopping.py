@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 from datetime import datetime
 
 # --- ITEM ---
 class ShoppingItemBase(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=200)
     checked: bool = False
 
 class ShoppingItemCreate(ShoppingItemBase):
@@ -17,11 +17,11 @@ class ShoppingItemResponse(ShoppingItemBase):
 
 # --- LIST ---
 class ShoppingListBase(BaseModel):
-    title: str = "Minha Lista"
+    title: str = Field(default="Minha Lista", min_length=1, max_length=120)
 
 class ShoppingListCreate(ShoppingListBase):
     # Opcional: Já criar lista com itens
-    items: List[ShoppingItemCreate] = []
+    items: List[ShoppingItemCreate] = Field(default_factory=list, max_length=200)
 
 class ShoppingListResponse(ShoppingListBase):
     id: int

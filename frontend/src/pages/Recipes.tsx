@@ -5,7 +5,7 @@ import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
 import { cleanMarkdown, formatInstructions } from "../lib/utils";
 import { BouncingDots } from "../components/BouncingDots";
-import { type Recipe, CATEGORIES, type User } from "../types"; // Adicionei User aqui
+import { type Recipe, CATEGORIES, type LeaderboardEntry } from "../types";
 import {
   Plus,
   Clock,
@@ -58,7 +58,7 @@ export function Recipes() {
   const [filter, setFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"mine" | "community">("mine");
   const [recommendations, setRecommendations] = useState<Recipe[]>([]);
-  const [leaderboard, setLeaderboard] = useState<User[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
   // Estados do Modal
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -370,7 +370,7 @@ export function Recipes() {
                   </div>
                   <div>
                     <span className="block text-sm font-semibold truncate max-w-[100px]">
-                      {user.full_name?.split(" ")[0]}
+                      {user.display_name}
                     </span>
                     <span className="text-xs text-white/60">
                       {user.score} XP

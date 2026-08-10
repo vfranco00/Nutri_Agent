@@ -12,16 +12,20 @@ _HAS_LETTER_RE = re.compile(r"[a-zA-ZÀ-ÖØ-öø-ÿ]")
 
 class ProfileBase(BaseModel):
     age: int = Field(gt=0, le=120)
-    weight: float = Field(gt=0)
-    height: float = Field(gt=0)
-    gender: str
-    activity_level: str
-    goal: str
+    weight: float = Field(gt=0, le=1000)
+    height: float = Field(gt=0, le=300)
+    gender: str = Field(max_length=20)
+    activity_level: str = Field(max_length=30)
+    goal: str = Field(max_length=30)
 
-    diet_type: Optional[str] = "omnivore"
-    allergies: Optional[str] = ""
-    food_likes: Optional[str] = ""
-    food_dislikes: Optional[str] = ""
+    diet_type: Optional[str] = Field(default="omnivore", max_length=50)
+    # Os três campos abaixo são interpolados no prompt enviado ao Gemini
+    # (services/ai.py::_diet_restrictions_prompt). Sem teto, o perfil vira um campo
+    # de texto livre de tamanho ilimitado dentro do prompt — custo de LLM inflado a
+    # cada geração de cardápio e espaço de sobra pra tentativa de injeção de prompt.
+    allergies: Optional[str] = Field(default="", max_length=500)
+    food_likes: Optional[str] = Field(default="", max_length=500)
+    food_dislikes: Optional[str] = Field(default="", max_length=500)
 
     eats_fruit: Optional[bool] = True
     body_fat_goal: Optional[bool] = False

@@ -18,8 +18,27 @@ def test_create_recipe(make_user):
     data = res.json()
     assert data["title"] == "Frango com batata doce"
     assert len(data["ingredients"]) == 1
-    # toda receita criada nasce pública (regra de negócio do app: contribui pra comunidade)
-    assert data["is_public"] is True
+    # ANTES: o router sobrescrevia com is_public=True e publicava TODA receita no feed
+    # da comunidade, ignorando o payload. Agora a decisão é de quem cria, e o default
+    # é privado (fail-closed): quem não pediu pra publicar, não publica.
+    assert data["is_public"] is False
+
+
+def test_create_recipe_honors_explicit_public_flag(make_user):
+    auth_client = make_user(email="chefpublico@example.com")
+    payload = {**_recipe_payload("Receita compartilhada"), "is_public": True}
+    res = auth_client.post("/recipes/", json=payload)
+    assert res.status_code == 200
+    assert res.json()["is_public"] is True
+
+
+def test_private_recipe_does_not_leak_into_community_feed(make_user):
+    a_client = make_user(email="reservada@example.com")
+    b_client = make_user(email="curiosa@example.com")
+    a_client.post("/recipes/", json={**_recipe_payload("Segredo de família"), "is_public": False})
+
+    titles = [r["title"] for r in b_client.get("/recipes/public").json()]
+    assert "Segredo de família" not in titles
 
 
 def test_create_recipe_deduplicates_identical_resubmission(make_user):
@@ -87,7 +106,8 @@ def test_list_my_recipes_only_shows_own(make_user):
 def test_public_recipes_include_any_users_recipe(make_user):
     a_client = make_user(email="publica@example.com")
     b_client = make_user(email="observadora@example.com")
-    a_client.post("/recipes/", json=_recipe_payload("Receita Pública Teste"))
+    # is_public explícito: publicar deixou de ser efeito colateral do salvamento.
+    a_client.post("/recipes/", json={**_recipe_payload("Receita Pública Teste"), "is_public": True})
 
     res = b_client.get("/recipes/public")
     titles = [r["title"] for r in res.json()]

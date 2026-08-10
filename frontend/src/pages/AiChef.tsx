@@ -64,7 +64,11 @@ export function AiChef() {
     setSaving(true);
 
     try {
-      const res = await api.post("/recipes/", { ...generatedRecipe, is_ai: true });
+      // is_public explícito: o backend não força mais a publicação. Aqui a receita
+      // sai da geração pelo Chef IA e continua indo pro feed da comunidade, como
+      // sempre foi — mas agora porque este código pede, e não porque o servidor
+      // sobrescrevia a escolha de todo mundo.
+      const res = await api.post("/recipes/", { ...generatedRecipe, is_ai: true, is_public: true });
 
       // Só redireciona o usuário se o backend confirmar que salvou
       if (res && res.data) {

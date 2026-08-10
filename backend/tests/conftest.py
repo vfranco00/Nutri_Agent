@@ -55,7 +55,7 @@ def _mock_email_sending(monkeypatch):
     """Nunca dispara SMTP/Resend de verdade durante os testes."""
     monkeypatch.setattr("app.routers.users.send_verification_email", lambda email: True)
     monkeypatch.setattr("app.routers.auth.send_verification_email", lambda email: True)
-    monkeypatch.setattr("app.routers.auth.send_password_reset_email", lambda email: True)
+    monkeypatch.setattr("app.routers.auth.send_password_reset_email", lambda email, hashed_password: True)
 
 
 @pytest.fixture

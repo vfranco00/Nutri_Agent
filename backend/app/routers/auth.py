@@ -1,3 +1,4 @@
+import secrets
 from datetime import datetime, timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -26,9 +27,22 @@ def login_for_access_token(
 ):
     # Busca o usuário pelo email
     user = crud_user.get_user_by_email(db, email=form_data.username)
-    
-    # Usuário existe e se senha bate
-    if not user or not security.verify_password(form_data.password, user.hashed_password):
+
+    # Usuário existe e se senha bate.
+    # O hash-dummy quando o usuário não existe é deliberado: sem ele, um email
+    # inexistente responde na hora e um email cadastrado demora o tempo do Argon2
+    # (~100ms). Essa diferença é medível de fora e transforma a rota de login num
+    # oráculo de enumeração de contas — anulando o cuidado que /forgot-password e
+    # /resend-verification já tomam com respostas genéricas.
+    if not user:
+        security.verify_dummy_password(form_data.password)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -53,9 +67,11 @@ def login_for_access_token(
     # Gera o tempo de expiração
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user.email},
+        expires_delta=access_token_expires,
+        hashed_password=user.hashed_password,
     )
-    
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -65,7 +81,9 @@ def refresh_access_token(current_user: User = Depends(get_current_user)):
     sessão expirando no frontend pra "estender" sem pedir a senha de novo."""
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
-        data={"sub": current_user.email}, expires_delta=access_token_expires
+        data={"sub": current_user.email},
+        expires_delta=access_token_expires,
+        hashed_password=current_user.hashed_password,
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -103,7 +121,7 @@ def resend_verification(request: Request, data: ResendVerificationRequest, db: S
 def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
     user = crud_user.get_user_by_email(db, email=data.email)
     if user:
-        send_password_reset_email(user.email)
+        send_password_reset_email(user.email, user.hashed_password)
 
     # Resposta sempre genérica — não revela se o email existe na base (mesma
     # regra de segurança do resend-verification, evita enumeração de usuários).
@@ -113,13 +131,23 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
 @router.post("/reset-password")
 @limiter.limit("5/hour")
 def reset_password(request: Request, data: ResetPasswordRequest, db: Session = Depends(get_db)):
-    email = security.decode_password_reset_token(data.token)
-    if not email:
-        raise HTTPException(status_code=400, detail="Link inválido ou expirado. Peça um novo.")
+    invalid = HTTPException(status_code=400, detail="Link inválido ou expirado. Peça um novo.")
+
+    decoded = security.decode_password_reset_token(data.token)
+    if not decoded:
+        raise invalid
+    email, fingerprint = decoded
 
     user = crud_user.get_user_by_email(db, email=email)
     if not user:
-        raise HTTPException(status_code=400, detail="Link inválido ou expirado. Peça um novo.")
+        raise invalid
+
+    # O token carrega a impressão digital da senha que estava valendo quando o link
+    # foi gerado. Se ela não bate mais, o link já foi usado (ou a senha mudou por
+    # outro caminho) e não pode servir de novo — sem isso o mesmo link do email
+    # redefine a senha quantas vezes quiser durante a hora inteira de validade.
+    if not secrets.compare_digest(fingerprint, security.password_fingerprint(user.hashed_password)):
+        raise invalid
 
     user.hashed_password = security.get_password_hash(data.new_password)
     db.commit()

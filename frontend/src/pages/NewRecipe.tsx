@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
-import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2, Tag } from 'lucide-react';
+import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2, Tag, Users } from 'lucide-react';
 import { CATEGORIES } from '../types';
 import { BouncingDots } from '../components/BouncingDots';
 
@@ -29,6 +29,11 @@ export function NewRecipe() {
   const [totalCalories, setTotalCalories] = useState('');
   const [method, setMethod] = useState('fogao');
   const [category, setCategory] = useState('almoco');
+  // Escolha explícita de privacidade. O backend forçava is_public=true e publicava
+  // toda receita salva no feed da comunidade, sem o usuário saber — agora ele decide.
+  // Começa marcado pra manter o comportamento que a comunidade já tem hoje, mas é
+  // uma decisão visível e reversível, não um padrão escondido no servidor.
+  const [isPublic, setIsPublic] = useState(true);
   const [ingredients, setIngredients] = useState<IngredientInput[]>([{ name: '', quantity: '', unit: '', calories: 0 }]);
 
   async function calculateIngredientCalories(index: number) {
@@ -79,7 +84,8 @@ export function NewRecipe() {
         name: ing.name, quantity: Number(ing.quantity), unit: ing.unit || 'un'
       }));
       await api.post('/recipes/', {
-        title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, category, ingredients: validIngredients
+        title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, category, ingredients: validIngredients,
+        is_public: isPublic,
       });
       navigate('/recipes');
     } catch (error: any) {
@@ -156,6 +162,26 @@ export function NewRecipe() {
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
           <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><AlignLeft className="h-4 w-4" /> Modo de Preparo</label>
           <textarea required rows={4} value={instructions} onChange={e => setInstructions(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white" />
+        </div>
+
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isPublic}
+              onChange={e => setIsPublic(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-green-600"
+            />
+            <span className="text-sm">
+              <span className="flex items-center gap-2 font-medium text-zinc-800 dark:text-zinc-200">
+                <Users className="h-4 w-4" /> Compartilhar com a comunidade
+              </span>
+              <span className="block mt-1 text-zinc-500 dark:text-zinc-400">
+                Outras pessoas poderão ver o título, os ingredientes e o modo de preparo.
+                Desmarque para manter a receita só sua.
+              </span>
+            </span>
+          </label>
         </div>
 
         <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg flex justify-center gap-2">

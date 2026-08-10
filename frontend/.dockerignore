@@ -1,0 +1,22 @@
+# O `COPY . .` do Dockerfile do frontend levava a pasta inteira pra dentro da imagem.
+# Qualquer `.env` aqui entra numa camada — e no frontend isso é pior do que parece: o
+# que está em VITE_* já vai pro bundle que o navegador baixa, então um segredo nessa
+# pasta é um segredo que nunca deveria ter existido. Fora da imagem, ao menos, ele não
+# se propaga junto com o registry.
+.env
+.env.*
+!.env.example
+
+# Instaladas dentro da imagem pelo `npm install`. Copiar as do host ainda traz binário
+# compilado pra outra plataforma.
+node_modules/
+dist/
+.vite/
+
+.git/
+.gitignore
+.DS_Store
+.vscode/
+.idea/
+Dockerfile
+.dockerignore

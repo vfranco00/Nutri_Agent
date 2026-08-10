@@ -376,7 +376,7 @@ def test_send_password_reset_email_builds_link_with_token(monkeypatch):
 
     monkeypatch.setattr(email_service, "_send_via_smtp", fake_smtp)
 
-    ok = email_service.send_password_reset_email("destino@example.com")
+    ok = email_service.send_password_reset_email("destino@example.com", "$argon2$hash-fake")
 
     assert ok is True
     assert captured["to_email"] == "destino@example.com"

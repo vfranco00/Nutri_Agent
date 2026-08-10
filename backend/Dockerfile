@@ -14,8 +14,23 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
+# O que este COPY leva pra dentro da imagem é filtrado por backend/.dockerignore —
+# sem ele, `backend/.env` (SECRET_KEY, DATABASE_URL, GEMINI_API_KEY, token do Mercado
+# Pago) e `backend/.venv` viravam camada da imagem, e camada não se apaga.
 COPY . .
+
+# Processo sem privilégio: se alguma falha virar execução de código no container, o
+# atacante não começa como root — não instala pacote, não escreve no sistema de arquivos
+# da imagem e não escala pelo runtime do container.
+RUN useradd --create-home --uid 10001 appuser \
+    && chown -R appuser:appuser /app
+USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Sem --reload. O reloader é ferramenta de desenvolvimento: ele vigia o sistema de
+# arquivos e respawna workers, o que em produção é custo à toa e um caminho a mais pra
+# reexecução de código a partir de qualquer escrita no diretório da aplicação.
+# O ambiente local não perde nada: docker-compose.yml sobrescreve o command e continua
+# subindo com --reload.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { Profile } from "./Profile";
 import { AlertProvider } from "../lib/AlertContext";
 import { api } from "../lib/api";
@@ -19,10 +20,14 @@ beforeEach(() => {
 });
 
 async function renderReadyProfile() {
+  // Profile chama useSearchParams() (para detectar ?onboarding=1), então precisa
+  // de um Router no contexto — sem ele o componente lança antes de renderizar.
   const utils = render(
-    <AlertProvider>
-      <Profile />
-    </AlertProvider>,
+    <MemoryRouter>
+      <AlertProvider>
+        <Profile />
+      </AlertProvider>
+    </MemoryRouter>,
   );
   await waitFor(() =>
     expect(screen.getByText("Salvar Perfil e Histórico")).toBeInTheDocument(),

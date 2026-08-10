@@ -25,6 +25,77 @@ def test_create_manual_meal_plan_with_recipe(make_user):
     assert data["days"][0]["meals"][0]["recipe"]["id"] == recipe_id
 
 
+def test_meal_plan_cannot_reference_another_users_private_recipe(make_user):
+    """BOLA: `recipe_id` vinha cru do payload e nunca era conferido contra o dono.
+
+    O atacante criava um plano alimentar apontando pra IDs de receita que não são
+    dele — são sequenciais, então basta iterar — e o GET do plano devolvia o objeto
+    `recipe` preenchido com título, calorias e categoria da receita PRIVADA da vítima.
+    Enumerar a base inteira de receitas era um laço.
+    """
+    vitima = make_user(email="dona_da_receita@example.com")
+    atacante = make_user(email="bisbilhoteira@example.com")
+
+    privada_id = vitima.post(
+        "/recipes/",
+        json={
+            "title": "Receita privada da vítima",
+            "instructions": "Segredo.",
+            "calories": 400,
+            "is_public": False,
+            "ingredients": [],
+        },
+    ).json()["id"]
+
+    payload = {
+        "title": "Plano bisbilhoteiro",
+        "source": "manual",
+        "days": [
+            {
+                "day_label": "Dia 1",
+                "day_index": 0,
+                "meals": [{"slot_name": "Almoço", "recipe_id": privada_id}],
+            }
+        ],
+    }
+    res = atacante.post("/meal-plans/", json=payload)
+    assert res.status_code == 404
+
+    # E o plano não pode ter sido criado pela metade.
+    assert atacante.get("/meal-plans/").json() == []
+
+
+def test_meal_plan_can_reference_a_public_community_recipe(make_user):
+    # O bloqueio é de ownership, não de existência: receita publicada na comunidade o
+    # usuário já pode ler, então montar um plano com ela continua valendo.
+    autora = make_user(email="autora_publica@example.com")
+    outra = make_user(email="montadora@example.com")
+
+    publica_id = autora.post(
+        "/recipes/",
+        json={
+            "title": "Receita da comunidade",
+            "instructions": "Preparar.",
+            "calories": 400,
+            "is_public": True,
+            "ingredients": [],
+        },
+    ).json()["id"]
+
+    payload = {
+        "title": "Plano com receita da comunidade",
+        "source": "manual",
+        "days": [
+            {
+                "day_label": "Dia 1",
+                "day_index": 0,
+                "meals": [{"slot_name": "Almoço", "recipe_id": publica_id}],
+            }
+        ],
+    }
+    assert outra.post("/meal-plans/", json=payload).status_code == 200
+
+
 def test_create_ai_sourced_meal_plan_with_free_text(make_user):
     auth_client = make_user(email="plano_ia@example.com")
     payload = {

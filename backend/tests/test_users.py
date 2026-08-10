@@ -190,8 +190,32 @@ def test_complete_onboarding_marks_flag(make_user):
     assert res.json()["has_seen_onboarding"] is True
 
 
-def test_leaderboard_is_public_and_ordered(make_user):
+def test_leaderboard_requires_authentication(make_user):
+    # ANTES: a rota era aberta e respondia com List[UserResponse] — ou seja, qualquer
+    # pessoa na internet lia email, is_superuser, is_active e last_login_at dos
+    # usuários da base, e descobria de graça quais contas são administradoras.
     make_user(email="board1@example.com")
     res = client.get("/users/leaderboard")
+    assert res.status_code == 401
+
+
+def test_leaderboard_returns_only_display_name_and_score(make_user):
+    auth_client = make_user(email="board2@example.com", full_name="Maria Silva Souza")
+    res = auth_client.get("/users/leaderboard")
     assert res.status_code == 200
-    assert isinstance(res.json(), list)
+
+    entries = res.json()
+    assert isinstance(entries, list)
+    assert entries, "esperava ao menos o usuário criado no ranking"
+
+    for entry in entries:
+        # Contrato fechado: nada além destes três campos sai daqui.
+        assert set(entry.keys()) == {"id", "display_name", "score"}
+
+    # Só o primeiro nome — sobrenome completo é dado pessoal que o ranking não precisa.
+    assert entries[0]["display_name"] == "Maria"
+
+
+def test_leaderboard_rejects_absurd_limit(make_user):
+    auth_client = make_user(email="board3@example.com")
+    assert auth_client.get("/users/leaderboard", params={"limit": 999999}).status_code == 422

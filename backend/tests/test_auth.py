@@ -3,6 +3,13 @@ from app.core.security import create_email_verification_token, create_password_r
 from app.models.user import User
 
 
+def _reset_token_for(db_session, email: str) -> str:
+    """Token de reset válido pro usuário. O token é amarrado ao hash da senha vigente
+    (torna o link de uso único), então precisa ser gerado a partir do banco."""
+    user = db_session.query(User).filter(User.email == email).first()
+    return create_password_reset_token(email, user.hashed_password)
+
+
 def test_login_wrong_password(client, make_user):
     make_user(email="login1@example.com", password="strongpassword123")
     res = client.post("/auth/login", data={"username": "login1@example.com", "password": "senhaerrada"})
@@ -129,7 +136,7 @@ def test_forgot_password_sends_email_for_existing_user(client, make_user, monkey
     called = {}
     monkeypatch.setattr(
         "app.routers.auth.send_password_reset_email",
-        lambda email: called.setdefault("email", email) or True,
+        lambda email, hashed_password: called.setdefault("email", email) or True,
     )
 
     client.post("/auth/forgot-password", json={"email": "mandaemail@example.com"})
@@ -140,16 +147,16 @@ def test_forgot_password_does_not_send_email_for_unknown_user(client, monkeypatc
     called = {}
     monkeypatch.setattr(
         "app.routers.auth.send_password_reset_email",
-        lambda email: called.setdefault("email", email) or True,
+        lambda email, hashed_password: called.setdefault("email", email) or True,
     )
 
     client.post("/auth/forgot-password", json={"email": "naoexiste777@example.com"})
     assert "email" not in called
 
 
-def test_reset_password_with_valid_token(client, make_user):
+def test_reset_password_with_valid_token(client, make_user, db_session):
     make_user(email="resetsenha@example.com", password="senhaoriginal123")
-    token = create_password_reset_token("resetsenha@example.com")
+    token = _reset_token_for(db_session, "resetsenha@example.com")
 
     res = client.post("/auth/reset-password", json={"token": token, "new_password": "senhanova456"})
     assert res.status_code == 200
@@ -168,14 +175,14 @@ def test_reset_password_with_invalid_token(client):
 
 
 def test_reset_password_with_unknown_user(client):
-    token = create_password_reset_token("naoexiste666@example.com")
+    token = create_password_reset_token("naoexiste666@example.com", "$argon2-hash-qualquer")
     res = client.post("/auth/reset-password", json={"token": token, "new_password": "senhanova456"})
     assert res.status_code == 400
 
 
-def test_reset_password_rejects_short_password(client, make_user):
+def test_reset_password_rejects_short_password(client, make_user, db_session):
     make_user(email="senhacurta@example.com", password="strongpassword123")
-    token = create_password_reset_token("senhacurta@example.com")
+    token = _reset_token_for(db_session, "senhacurta@example.com")
 
     res = client.post("/auth/reset-password", json={"token": token, "new_password": "curta"})
     assert res.status_code == 422
@@ -187,9 +194,66 @@ def test_reset_password_token_cannot_be_reused_as_verification_token(client, mak
     from app.core.security import decode_email_verification_token
 
     make_user(email="tipotoken@example.com", password="strongpassword123")
-    reset_token = create_password_reset_token("tipotoken@example.com")
+    reset_token = _reset_token_for(db_session, "tipotoken@example.com")
 
     assert decode_email_verification_token(reset_token) is None
+
+
+def test_reset_password_token_is_single_use(client, make_user, db_session):
+    # O link do email vale 1h. Sem amarrar o token à senha vigente, o MESMO link
+    # redefine a senha quantas vezes quiser dentro dessa hora — quem interceptar o
+    # email (ou pegar o link no histórico do navegador) recupera a conta de volta
+    # depois que a vítima já trocou a senha.
+    make_user(email="usounico@example.com", password="senhaoriginal123")
+    token = _reset_token_for(db_session, "usounico@example.com")
+
+    primeira = client.post("/auth/reset-password", json={"token": token, "new_password": "senhanova456"})
+    assert primeira.status_code == 200
+
+    segunda = client.post("/auth/reset-password", json={"token": token, "new_password": "senhadoatacante789"})
+    assert segunda.status_code == 400
+
+    login = client.post("/auth/login", data={"username": "usounico@example.com", "password": "senhadoatacante789"})
+    assert login.status_code == 401
+
+
+def test_password_reset_invalidates_existing_sessions(client, make_user, db_session):
+    """Trocar a senha tem que expulsar quem já está dentro.
+
+    Cenário: o atacante roubou o token de sessão da vítima. Ela percebe e redefine a
+    senha. Sem revogação, o token roubado continua valendo até expirar sozinho — o
+    reset de senha vira teatro, porque o acesso do atacante não é interrompido.
+    """
+    sessao = make_user(email="revoga@example.com", password="senhaoriginal123")
+    assert sessao.get("/users/me").status_code == 200
+
+    token = _reset_token_for(db_session, "revoga@example.com")
+    assert client.post(
+        "/auth/reset-password", json={"token": token, "new_password": "senhanova456"}
+    ).status_code == 200
+
+    # Mesmo token de sessão, senha nova: não vale mais.
+    assert sessao.get("/users/me").status_code == 401
+
+
+def test_reset_password_token_is_not_accepted_as_session_token(client, make_user, db_session):
+    # Todos os tokens são assinados com a mesma SECRET_KEY. Sem checar o claim "type"
+    # na validação da sessão, o token de reset (que trafega em query string no link do
+    # email, entra no histórico do navegador e no log de acesso) vale como Bearer e dá
+    # acesso completo à conta.
+    make_user(email="tokentroca@example.com", password="strongpassword123")
+    reset_token = _reset_token_for(db_session, "tokentroca@example.com")
+
+    client.headers.update({"Authorization": f"Bearer {reset_token}"})
+    assert client.get("/users/me").status_code == 401
+
+
+def test_email_verification_token_is_not_accepted_as_session_token(client, make_user):
+    make_user(email="tokenverif@example.com", password="strongpassword123")
+    verification_token = create_email_verification_token("tokenverif@example.com")
+
+    client.headers.update({"Authorization": f"Bearer {verification_token}"})
+    assert client.get("/users/me").status_code == 401
 
 
 def test_verification_token_cannot_be_reused_as_reset_password_token(client, make_user):

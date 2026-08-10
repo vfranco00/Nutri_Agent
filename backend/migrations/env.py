@@ -7,18 +7,13 @@ from sqlalchemy.ext.asyncio import async_engine_from_config # Se fossemos usar a
 
 from alembic import context
 
-# IMPORTANTE: Importar nossa Base e Configurações
+# IMPORTANTE: `app.db.base` é o agregador — importar de lá garante que TODOS os models
+# estejam registrados em Base.metadata. Não volte a listar models aqui um a um: era
+# assim antes, dois foram esquecidos (payment e feedback), e o autogenerate passou a
+# enxergar as tabelas `payments` e `feedback_tickets` como órfãs — pronto pra emitir
+# DROP TABLE nas duas. O ponto de registro tem que ser único.
 from app.core.config import settings
 from app.db.base import Base
-from app.models.user import User
-from app.models.profile import Profile
-from app.models.recipe import Recipe
-from app.models.ingredient import Ingredient
-from app.models.weight_history import WeightHistory
-from app.models.food_cache import FoodCache
-from app.models.shopping import ShoppingList, ShoppingItem
-from app.models.meal_plan import MealPlan, MealPlanDay, MealPlanMeal
-from app.models.subscription import Subscription, UsageEvent
 
 config = context.config
 

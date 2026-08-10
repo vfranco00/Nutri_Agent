@@ -1,3 +1,5 @@
+import logging
+
 import httpx
 
 from app.core.config import settings
@@ -5,6 +7,9 @@ from app.core.plan_limits import PLAN_LABELS, PLAN_PRICES_BRL
 from app.models.user import User
 
 MP_API_BASE = "https://api.mercadopago.com"
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_subscription_checkout(user: User, plan: str) -> str | None:
@@ -42,11 +47,11 @@ def create_subscription_checkout(user: User, plan: str) -> str | None:
                 timeout=15.0,
             )
             if response.status_code >= 300:
-                print(f"[mercado_pago] erro ao criar assinatura pro user {user.id}: {response.status_code} {response.text}")
+                logger.error("Erro ao criar assinatura pro user %s: %s %s", user.id, response.status_code, response.text)
                 return None
             return response.json().get("init_point")
     except httpx.HTTPError as e:
-        print(f"[mercado_pago] falha de conexão: {e}")
+        logger.error("Falha de conexão com o Mercado Pago: %s", e)
         return None
 
 

@@ -1,0 +1,40 @@
+# O `COPY . .` do Dockerfile copiava esta pasta inteira pra dentro da imagem.
+# Sem este arquivo, `backend/.env` — que tem SECRET_KEY, DATABASE_URL, GEMINI_API_KEY,
+# credencial de SMTP e o access token do Mercado Pago — vira uma camada da imagem.
+# Camada de imagem não é apagável: quem tiver acesso ao registry (ou a qualquer
+# push posterior dessa tag) extrai o arquivo com `docker save` + tar, mesmo que o
+# `.env` seja removido depois num RUN. Segredo que entrou em layer é segredo vazado.
+.env
+.env.*
+*.env
+!.env.example
+
+# Ambiente virtual local: além de inútil na imagem (as deps vêm do requirements.txt),
+# carrega binários compilados pro macOS que não rodam no linux do container, e pode
+# conter credencial de índice privado de pacote.
+.venv/
+venv/
+ENV/
+
+# Cache e artefato de teste — engordam a imagem e podem carregar dado de execução.
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+tests/
+
+# Metadados de repositório: `.git` guarda TODO o histórico, inclusive segredo que
+# tenha sido commitado e removido depois.
+.git/
+.gitignore
+
+# Sistema/IDE
+.DS_Store
+.vscode/
+.idea/
+Dockerfile
+.dockerignore
