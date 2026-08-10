@@ -1,0 +1,36 @@
+# PIPELINE 1 de 3 — CI de teste.
+#
+# É o único check que precisa ser marcado como obrigatório no branch protection.
+# Roda em push de qualquer branch e em PR para main.
+#
+# Nomes exatos dos checks para marcar como "required" nas settings do repositório
+# (o prefixo vem do id do job chamador, `tests`):
+#   tests / Backend (pytest)
+#   tests / Frontend (tsc + vitest + lint)
+#
+# Sem isso marcado no servidor, este arquivo é só informativo: o GitHub mostra o X
+# vermelho e continua deixando fazer merge.
+
+name: CI
+
+on:
+  push:
+    # `'**'` cobre qualquer branch e, de propósito, NÃO cobre tags — senão todo
+    # `git push --tags` reexecutaria a suíte inteira sem motivo.
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# `github.event_name` entra na chave de propósito: sem ele, o run do evento `push` e o
+# do evento `pull_request` do mesmo commit caem no mesmo grupo e um cancela o outro.
+# Um required check cancelado conta como "não passou" e trava o PR para sempre.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml

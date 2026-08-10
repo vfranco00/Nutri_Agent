@@ -1,0 +1,136 @@
+# Suíte de verificação — NÃO tem gatilho próprio.
+#
+# Existe como workflow reutilizável (`workflow_call`) para que os três pipelines
+# (ci.yml, deploy-vercel.yml, deploy-render.yml) executem EXATAMENTE a mesma
+# verificação. É isso que torna o gate real: o deploy não "confia" que o CI passou
+# em outro lugar, ele depende de um job que roda aqui e falha junto.
+#
+# Não declare `concurrency` neste arquivo. Em workflow reutilizável o contexto
+# (`github.workflow`, `github.ref`) é o do CHAMADOR — grupos iguais entre chamador e
+# chamado se cancelam mutuamente e travam o deploy no meio. A concorrência é
+# declarada em cada workflow que tem gatilho.
+
+name: Tests
+
+on:
+  workflow_call:
+
+# Least privilege: a suíte só lê o código. Sem isto, o token herda o default do
+# repositório, que costuma incluir escrita em contents/packages.
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # o token do git não precisa sobrar no runner
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          # Fonte única da versão: backend/.python-version. Trocar lá troca aqui.
+          python-version-file: backend/.python-version
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: pytest
+        run: python -m pytest -q
+        env:
+          # ATENÇÃO: estes três valores são FALSOS e propositalmente inúteis.
+          #
+          # `app/core/config.py` executa `settings = Settings()` no import, e
+          # DATABASE_URL / SECRET_KEY / GEMINI_API_KEY não têm default — sem eles o
+          # pytest nem chega a coletar os testes (ValidationError do pydantic).
+          # No runner não existe `.env`, então precisam vir daqui.
+          #
+          # Não são secrets e NÃO devem virar secrets: os testes usam SQLite em
+          # memória (tests/conftest.py sobrescreve get_db) e nunca abrem conexão com
+          # a URL abaixo. Colocar a credencial real do Supabase aqui só criaria o
+          # risco de a suíte escrever em produção.
+          DATABASE_URL: sqlite:///./ci_placeholder.db
+          SECRET_KEY: ci-placeholder-not-a-real-secret
+          GEMINI_API_KEY: ci-placeholder-not-a-real-key
+          ENVIRONMENT: test
+
+  frontend:
+    name: Frontend (tsc + vitest + lint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # Fonte única da versão: frontend/.nvmrc.
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependências
+        id: deps
+        # `ci`, nunca `install`: respeita o package-lock.json e falha se ele estiver
+        # dessincronizado do package.json, em vez de resolver versões novas em silêncio.
+        run: npm ci
+
+      # Os três passos abaixo rodam mesmo se um deles falhar (`steps.deps` OK e job não
+      # cancelado). Assim um erro de tipo não esconde um teste quebrado: o run mostra os
+      # três resultados de uma vez, em vez de exigir três idas e voltas.
+      - name: Typecheck (tsc --noEmit)
+        if: ${{ !cancelled() && steps.deps.outcome == 'success' }}
+        run: npx tsc --noEmit -p tsconfig.app.json
+
+      - name: Testes (vitest)
+        if: ${{ !cancelled() && steps.deps.outcome == 'success' }}
+        run: npm test
+
+      # ---------------------------------------------------------------------------
+      # LINT NÃO BLOQUEIA — decisão consciente, não esquecimento.
+      #
+      # Estado medido em 10/08/2026 rodando `npx eslint .` na árvore atual:
+      #   37 errors + 3 warnings em 22 arquivos
+      #     21x @typescript-eslint/no-explicit-any
+      #      7x @typescript-eslint/ban-ts-comment
+      #      4x react-refresh/only-export-components
+      #      3x react-hooks/set-state-in-effect
+      #      3x react-hooks/exhaustive-deps
+      #      1x react-hooks/purity
+      #      1x @typescript-eslint/no-unused-vars
+      #
+      # Tornar isso obrigatório agora bloquearia 100% dos merges no primeiro dia, e o
+      # desfecho previsível é alguém desligar o check inteiro. O lint entra como sinal
+      # visível; vira bloqueante quando a dívida chegar a zero — aí basta remover a
+      # linha `continue-on-error` abaixo.
+      # ---------------------------------------------------------------------------
+      - name: Lint (eslint) — informativo
+        if: ${{ !cancelled() && steps.deps.outcome == 'success' }}
+        id: lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Resumo do lint
+        if: ${{ !cancelled() && steps.lint.conclusion != 'skipped' }}
+        run: |
+          if [ "${{ steps.lint.outcome }}" = "success" ]; then
+            echo "Lint limpo. Já dá para tornar bloqueante: remova o \`continue-on-error\` do passo de lint em .github/workflows/tests.yml." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Lint com pendências (não bloqueia o merge hoje). Veja o log do passo \"Lint (eslint)\"." >> "$GITHUB_STEP_SUMMARY"
+          fi

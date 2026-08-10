@@ -1,0 +1,340 @@
+# PIPELINE 3 de 3 — Backend no Render.
+#
+# Só roda em push para main. Ordem, e a ordem é o ponto do arquivo:
+#
+#   gate       -> a mesma suíte de tests.yml (231 testes de backend + frontend)
+#   migrate    -> alembic upgrade head, do commit testado, contra o banco de produção
+#   deploy     -> cria o deploy no Render no MESMO commit e espera ficar "live"
+#   healthcheck-> bate em /health (que toca o banco) até responder 200
+#
+# `alembic upgrade head` deixa de ser manual aqui. Ele roda ANTES do deploy: se a
+# migration falhar, o Render nunca é acionado e a versão antiga continua servindo com
+# o schema antigo — que é o estado consistente.
+#
+# ---------------------------------------------------------------------------------
+# A CONSEQUÊNCIA DISSO, QUE VOCÊ PRECISA SABER: migration tem que ser compatível
+# para trás.
+#
+# Entre o fim do passo `migrate` e o fim do `deploy` existe uma janela de alguns
+# minutos em que o schema JÁ É NOVO e o código AINDA É O ANTIGO. Se a migration
+# apagar ou renomear uma coluna que o código antigo lê, a aplicação quebra nessa
+# janela — e quebra de novo se você tentar fazer rollback depois.
+#
+# A disciplina é expandir e contrair, em dois deploys:
+#   deploy 1: adiciona coluna nova (nullable), passa a escrever nas duas
+#   deploy 2: para de ler a antiga, e só então uma migration a remove
+# ---------------------------------------------------------------------------------
+#
+# ---------------------------------------------------------------------------------
+# SECRETS (Settings > Secrets and variables > Actions > Repository secrets)
+# ---------------------------------------------------------------------------------
+#   RENDER_API_KEY                 Render > Account Settings > API Keys.
+#   RENDER_SERVICE_ID              Render > o serviço do backend > a URL do dashboard
+#                                  termina em `srv-xxxxxxxxxxxx`. É esse valor.
+#   RENDER_MIGRATION_DATABASE_URL  A connection string do Postgres de produção
+#                                  (Supabase) que o Alembic vai usar.
+#
+# Sobre RENDER_MIGRATION_DATABASE_URL — leia antes de cadastrar:
+# é a credencial do banco de produção guardada no GitHub, e é o item de maior risco
+# deste pipeline. Vale a pena porque tira a migration da mão de alguém rodando
+# `alembic upgrade head` do próprio laptop contra produção, que é o estado de hoje.
+# Para reduzir o risco:
+#   - use um usuário do Postgres exclusivo para migration, não o `postgres`;
+#   - se o Supabase permitir, restrinja por IP/rede;
+#   - se seu plano do Render tiver "Pre-Deploy Command" (recurso de plano pago),
+#     prefira mover a migration para lá: Render > o serviço > Settings > Pre-Deploy
+#     Command > `alembic upgrade head`. A credencial nunca sai do Render, este secret
+#     pode ser apagado, e o job `migrate` abaixo pode ser removido. Não deixei os dois
+#     ligados de propósito — duas migrations no mesmo deploy confundem o diagnóstico
+#     quando uma delas falha.
+#
+# NENHUM desses valores deve ser escrito neste arquivo. O GitHub mascara secrets
+# registrados no log automaticamente, mas isso só vale para o valor exato — por isso
+# nenhum passo abaixo usa `set -x` nem `curl -v`, que imprimiriam headers e URLs
+# montadas antes de qualquer mascaramento.
+
+name: Deploy Render
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-production
+  # NUNCA cancelar no meio. Um cancelamento entre `migrate` e `deploy` deixaria o
+  # banco migrado com o código antigo rodando, sem ninguém sabendo. Deploys
+  # simultâneos ficam na fila, um de cada vez.
+  cancel-in-progress: false
+
+env:
+  # URL pública do backend, usada só no health check. Não é secret.
+  # AJUSTE se o serviço no Render mudar de nome.
+  BACKEND_URL: https://nutri-agent-api.onrender.com
+  RENDER_API: https://api.render.com/v1
+
+jobs:
+  gate:
+    uses: ./.github/workflows/tests.yml
+
+  migrate:
+    name: Migration (alembic upgrade head)
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version-file: backend/.python-version
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Conferir secrets
+        env:
+          RENDER_MIGRATION_DATABASE_URL: ${{ secrets.RENDER_MIGRATION_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RENDER_MIGRATION_DATABASE_URL:-}" ]; then
+            echo "::error::Cadastre o secret RENDER_MIGRATION_DATABASE_URL em Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Instalar dependências
+        # `migrations/env.py` importa `app.core.config` e `app.db.base` (que registra
+        # todos os models), então a instalação precisa ser a completa, não só alembic.
+        run: pip install -r requirements.txt
+
+      - name: Mostrar a head do repositório
+        # Read-only, não abre conexão com o banco. Serve de sanidade: se aparecer mais
+        # de uma head aqui, `upgrade head` falharia com "Multiple head revisions" e é
+        # melhor descobrir nesta linha do que no meio do deploy.
+        env:
+          DATABASE_URL: ${{ secrets.RENDER_MIGRATION_DATABASE_URL }}
+          SECRET_KEY: ci-placeholder-not-a-real-secret
+          GEMINI_API_KEY: ci-placeholder-not-a-real-key
+        run: python -m alembic heads
+
+      - name: alembic upgrade head
+        env:
+          # `pydantic-settings` lê a variável de ambiente antes do arquivo .env, e no
+          # runner não existe .env — então é esta que vale.
+          DATABASE_URL: ${{ secrets.RENDER_MIGRATION_DATABASE_URL }}
+          # Falsos de propósito: `Settings()` exige os três no import, mas migration
+          # não assina token nem chama o Gemini.
+          SECRET_KEY: ci-placeholder-not-a-real-secret
+          GEMINI_API_KEY: ci-placeholder-not-a-real-key
+        run: python -m alembic upgrade head
+
+      - name: Registrar no resumo
+        if: success()
+        run: |
+          echo "Migration aplicada com sucesso a partir do commit \`${GITHUB_SHA}\`." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Registrar falha da migration
+        if: failure()
+        run: |
+          {
+            echo "## Migration falhou — nada foi para produção"
+            echo ""
+            echo "Commit: \`${GITHUB_SHA}\`"
+            echo ""
+            echo "O deploy no Render NÃO foi acionado: a versão antiga continua no ar com o schema antigo."
+            echo "Esse é o estado consistente — corrija a migration e faça um novo push."
+            echo ""
+            echo "Se a migration falhou **no meio**, o banco pode ter ficado numa revisão intermediária."
+            echo "Confira em que revisão ele está antes de tentar de novo."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: Deploy no Render
+    needs: migrate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      deploy_anterior: ${{ steps.anterior.outputs.id }}
+      deploy_novo: ${{ steps.criar.outputs.id }}
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+    steps:
+      - name: Conferir secrets
+        run: |
+          set -euo pipefail
+          faltando=""
+          [ -n "${RENDER_API_KEY:-}" ]    || faltando="$faltando RENDER_API_KEY"
+          [ -n "${RENDER_SERVICE_ID:-}" ] || faltando="$faltando RENDER_SERVICE_ID"
+          if [ -n "$faltando" ]; then
+            echo "::error::Secrets ausentes em Settings > Secrets and variables > Actions:$faltando"
+            exit 1
+          fi
+
+      - name: Guardar o deploy atualmente no ar
+        id: anterior
+        # Capturado ANTES de subir o novo: é o alvo do rollback. Sem esta linha, o
+        # rollback vira caça ao id certo no dashboard com o serviço já degradado.
+        run: |
+          set -euo pipefail
+          resp="$(curl -sS -w '\n%{http_code}' \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "${RENDER_API}/services/${RENDER_SERVICE_ID}/deploys?limit=20")"
+          code="$(printf '%s' "$resp" | tail -n1)"
+          body="$(printf '%s' "$resp" | sed '$d')"
+          if [ "$code" != "200" ]; then
+            echo "::error::Render respondeu HTTP $code ao listar deploys. Confira RENDER_API_KEY e RENDER_SERVICE_ID."
+            echo "$body"
+            exit 1
+          fi
+          # `(.deploy // .)` aceita as duas formas de resposta da API (item cru ou
+          # embrulhado em {"deploy": ...}) em vez de quebrar se o formato variar.
+          id="$(printf '%s' "$body" | jq -r '[.[] | (.deploy // .) | select(.status == "live")][0].id // empty')"
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          if [ -n "$id" ]; then
+            echo "Deploy no ar antes desta subida: $id"
+          else
+            echo "Nenhum deploy 'live' encontrado (serviço novo?). Rollback automático não terá alvo."
+          fi
+
+      - name: Criar o deploy
+        id: criar
+        # `commitId` amarra o deploy ao MESMO commit que passou nos testes e cuja
+        # migration acabou de rodar. Sem isso o Render pegaria o topo do branch, que
+        # pode já ter avançado — e aí sobe código que ninguém testou.
+        run: |
+          set -euo pipefail
+          resp="$(curl -sS -w '\n%{http_code}' -X POST \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg c "$GITHUB_SHA" '{clearCache:"do_not_clear", commitId:$c}')" \
+            "${RENDER_API}/services/${RENDER_SERVICE_ID}/deploys")"
+          code="$(printf '%s' "$resp" | tail -n1)"
+          body="$(printf '%s' "$resp" | sed '$d')"
+          case "$code" in
+            200|201) ;;
+            *) echo "::error::Render respondeu HTTP $code ao criar o deploy."; echo "$body"; exit 1 ;;
+          esac
+          id="$(printf '%s' "$body" | jq -r '(.deploy // .).id // empty')"
+          if [ -z "$id" ]; then
+            echo "::error::A API aceitou a chamada mas não devolveu um id de deploy."
+            echo "$body"
+            exit 1
+          fi
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "Deploy criado: $id"
+
+      - name: Esperar ficar live
+        env:
+          DEPLOY_ID: ${{ steps.criar.outputs.id }}
+        run: |
+          set -euo pipefail
+          # 90 x 10s = 15 min de teto. O `timeout-minutes` do job (30) é a rede de
+          # segurança caso a API pare de responder.
+          for _ in $(seq 1 90); do
+            sleep 10
+            # `|| true` de propósito: com `set -e`, uma oscilação de rede em UMA
+            # consulta de status mataria o passo e marcaria como falho um deploy que
+            # está subindo normalmente. Consultar de novo é a resposta certa; quem
+            # decide desistir é o teto do laço.
+            resp="$(curl -sS -w '\n%{http_code}' \
+              -H "Authorization: Bearer ${RENDER_API_KEY}" \
+              "${RENDER_API}/services/${RENDER_SERVICE_ID}/deploys/${DEPLOY_ID}" || true)"
+            code="$(printf '%s' "$resp" | tail -n1)"
+            body="$(printf '%s' "$resp" | sed '$d')"
+            if [ "$code" != "200" ]; then
+              echo "Consulta de status devolveu HTTP ${code:-sem resposta}; tentando de novo."
+              continue
+            fi
+            status="$(printf '%s' "$body" | jq -r '(.deploy // .).status // "desconhecido"' 2>/dev/null || echo "desconhecido")"
+            echo "status: $status"
+            case "$status" in
+              live)
+                echo "Deploy no ar."
+                exit 0
+                ;;
+              build_failed|update_failed|pre_deploy_failed|canceled|deactivated)
+                echo "::error::Deploy terminou como '$status'. Log completo em: https://dashboard.render.com/web/${RENDER_SERVICE_ID}"
+                exit 1
+                ;;
+            esac
+          done
+          echo "::error::Deploy não ficou 'live' dentro de 15 minutos."
+          exit 1
+
+  healthcheck:
+    name: Health check e rollback
+    # Sem `if:` de propósito — `needs` já garante que só roda se o deploy ficou live.
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Bater em /health
+        # /health não é um 200 fixo: `app/main.py` faz SELECT 1 pelo mesmo caminho de
+        # conexão dos requests reais e devolve 503 se o banco não responder. Ou seja,
+        # este passo valida aplicação E banco depois da migration — que é exatamente o
+        # que pode ter quebrado.
+        run: |
+          set -euo pipefail
+          for tentativa in $(seq 1 20); do
+            code="$(curl -sS -o /tmp/health.json -w '%{http_code}' --max-time 30 "${BACKEND_URL}/health" || echo "000")"
+            echo "tentativa $tentativa: HTTP $code"
+            if [ "$code" = "200" ]; then
+              cat /tmp/health.json
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::/health não respondeu 200 em ~5 minutos."
+          exit 1
+
+      - name: Instruções de rollback
+        # Roda só quando o health check falhou.
+        #
+        # POR QUE O ROLLBACK NÃO É AUTOMÁTICO AQUI: a migration já foi aplicada. Voltar
+        # só o código deixa código antigo rodando sobre schema novo — seguro apenas se
+        # a migration for compatível para trás. Um bot não sabe se ela é; você sabe.
+        # Automatizar essa decisão trocaria uma falha visível por corrupção silenciosa.
+        if: failure()
+        env:
+          ANTERIOR: ${{ needs.deploy.outputs.deploy_anterior }}
+          NOVO: ${{ needs.deploy.outputs.deploy_novo }}
+        run: |
+          {
+            echo "## Health check falhou depois do deploy"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Deploy que subiu | \`${NOVO}\` |"
+            echo "| Deploy anterior (alvo do rollback) | \`${ANTERIOR:-nenhum encontrado}\` |"
+            echo "| Commit | \`${GITHUB_SHA}\` |"
+            echo ""
+            echo "### Como voltar (~1 a 2 min)"
+            echo "1. Render > o serviço > aba **Deploys**"
+            echo "2. Localize o deploy \`${ANTERIOR:-anterior}\` e use **Rollback**"
+            echo ""
+            echo "### Antes de clicar, confirme"
+            echo "A migration deste deploy JÁ foi aplicada no banco e o rollback NÃO a desfaz."
+            echo "Só volte o código se a migration for compatível para trás (só adicionou coisas)."
+            echo "Se ela removeu ou renomeou coluna que o código anterior lê, voltar o código quebra de novo —"
+            echo "nesse caso o caminho é corrigir para frente, com um novo commit."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Resumo do deploy
+        if: success()
+        run: |
+          {
+            echo "## Backend em produção"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Migration: aplicada antes do deploy"
+            echo "- Health check: 200 em ${BACKEND_URL}/health"
+          } >> "$GITHUB_STEP_SUMMARY"

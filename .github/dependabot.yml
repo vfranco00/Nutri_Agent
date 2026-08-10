@@ -1,0 +1,41 @@
+# Pinar action por SHA congela a versão — inclusive quando sai correção de segurança.
+# Sem alguém atualizando os pins, "seguro" vira "desatualizado" em poucos meses.
+#
+# O Dependabot entende o formato `uses: dono/acao@<sha> # vX.Y.Z`: ele lê o comentário
+# para saber em que versão você está, abre PR trocando o SHA e atualiza o comentário
+# junto. É o que fecha o ciclo do pinning — por isso o comentário de versão ao lado de
+# cada SHA nos workflows não é decoração, é dado de entrada.
+#
+# Todo PR aberto por aqui passa pelo CI como qualquer outro: nada entra sem os testes.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'ci'
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+    groups:
+      # Agrupado para não virar enxurrada de PR de patch. Atualização major continua
+      # vindo em PR separado, que é onde você realmente quer olhar com atenção.
+      dev-e-patches:
+        patterns: ['*']
+        update-types: ['minor', 'patch']
+
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
