@@ -13,6 +13,22 @@ node_modules/
 dist/
 frontend/.env
 
+# Contorno do iCloud (Desktop & Documents sincronizado neste Mac).
+# O iCloud ignora qualquer caminho terminado em .nosync, então o venv mora em
+# `backend/.venv.nosync` e `backend/.venv` é um symlink pra ele. Sem isso o iCloud
+# evicta os arquivos pra nuvem e todo import trava esperando download: um
+# `import app.main` chegou a levar 1849s (30 min) — depois da mudança, 0,84s.
+#
+# O mesmo NÃO foi feito no node_modules: `npm ci` apaga e recria o diretório, o que
+# destrói o symlink em toda instalação, e o vitest passa a varrer `node_modules.nosync`
+# porque o exclude padrão dele é `**/node_modules/**`. A solução de verdade pro
+# frontend é tirar o projeto de ~/Documents.
+#
+# O padrão sem barra final é pro symlink: git trata symlink como arquivo, e `.venv/`
+# só casa diretório de verdade.
+.venv.nosync/
+.venv
+
 # OS
 .DS_Store
 Thumbs.db
