@@ -1,4 +1,7 @@
-FROM python:3.11-slim
+# Mantenha esta versão igual à de backend/.python-version e à do job de backend em
+# .github/workflows/tests.yml. Estava em 3.11 enquanto o CI testava em 3.12: produção
+# rodava um runtime que nenhum teste cobria — a divergência que quebra deploy sem aviso.
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
