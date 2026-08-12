@@ -69,6 +69,39 @@ app = FastAPI(
 # uma origem que qualquer pessoa consegue servir na própria máquina.
 origins = settings.cors_origin_list
 
+@app.middleware("http")
+async def erro_interno_com_cors(request: Request, call_next):
+    """Converte exceção não tratada em 500 DENTRO da pilha de CORS.
+
+    Sem isto, exceção não tratada sobe até o `ServerErrorMiddleware` do Starlette, que
+    é o middleware mais externo de todos — por fora do `CORSMiddleware`. O 500 sai sem
+    `Access-Control-Allow-Origin`, e o navegador não mostra o erro: mostra
+    "blocked by CORS policy". Quem depura vai investigar CORS, que está correto, em vez
+    do erro que de fato aconteceu.
+
+    Custou um diagnóstico inteiro: uma tabela ausente em produção apareceu no console
+    como problema de CORS.
+
+    REGISTRO ANTES DO CORS DE PROPÓSITO. No Starlette o middleware adicionado depois
+    fica por FORA, então registrar aqui coloca este por DENTRO do `CORSMiddleware` — a
+    resposta que ele devolve ainda atravessa o CORS na volta e recebe os cabeçalhos.
+    Registrado depois, não resolveria nada.
+
+    Não intercepta `HTTPException` nem `RateLimitExceeded`: ambos são tratados pelo
+    `ExceptionMiddleware`, que fica mais interno, e nunca chegam aqui.
+    """
+    try:
+        return await call_next(request)
+    except Exception:
+        # Traceback completo no log do servidor; para o cliente, nada além de que falhou.
+        # Mensagem de erro é canal de vazamento: em um diário alimentar o texto da exceção
+        # pode carregar nome de alimento, que é dado de saúde.
+        logger.exception(
+            "Erro não tratado em %s %s", request.method, request.url.path
+        )
+        return JSONResponse(status_code=500, content={"detail": "Erro interno."})
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
