@@ -91,6 +91,28 @@ def _quantidade_implausivel() -> HTTPException:
     )
 
 
+def _porcao_sem_energia() -> HTTPException:
+    """O outro lado do teto: porção tão pequena que o total arredonda para zero.
+
+    Persistir grava uma afirmação nutricional FALSA — "esta refeição tem 0 kcal" — sobre
+    um alimento que tem energia. Pior que o número errado é ele parecer certo: a entrada
+    aparece na lista, conta no teto de 60 do dia e some do total sem deixar rastro.
+
+    Alimento de densidade zero (água, café puro na TACO) NÃO cai aqui: ali o zero é
+    verdade, e recusar impediria de registrar o que a pessoa de fato consumiu.
+    """
+    return HTTPException(
+        status_code=422,
+        detail=[
+            {
+                "type": "value_error",
+                "loc": ["body", "quantity"],
+                "msg": "Quantidade pequena demais para registrar.",
+            }
+        ],
+    )
+
+
 def _buscar_entrada(db: Session, entry_id: int, user_id: int) -> DiaryEntry:
     """Escopo NA query, nunca depois dela.
 
@@ -206,6 +228,8 @@ def criar_entrada(
     )
     if kcal > diary_math.TETO_KCAL_ENTRADA:
         raise _quantidade_implausivel()
+    if kcal <= 0.0 and (opcao.kcal_per_base_unit or 0.0) > 0.0:
+        raise _porcao_sem_energia()
 
     # (6) INSERT e recomposição do dia
     entrada = DiaryEntry(
@@ -296,6 +320,10 @@ def ler_faixa(
 
     perfil = db.query(Profile).filter(Profile.user_id == current_user.id).first()
 
+    # UMA query para todos os vínculos do intervalo, resolvidos em memória dia a dia.
+    # Antes era uma query por dia — até 32 — contrariando a própria docstring da rota.
+    vinculos = diary_plan.carregar_vinculos(db, current_user.id, start, end)
+
     dias: list[DiaryDaySummary] = []
     # Itera sobre o DESLOCAMENTO, nunca acumulando em cima da própria data.
     #
@@ -309,7 +337,7 @@ def ler_faixa(
     for deslocamento in range((end - start).days + 1):
         atual = start + timedelta(days=deslocamento)
         kcal, quantas = por_data.get(atual, (0.0, 0))
-        vinculo = diary_plan.resolver_dia_do_plano(db, current_user.id, atual)
+        vinculo = diary_plan.resolver_dia_entre(vinculos, atual)
         planejado = 0.0
         if vinculo is not None:
             planejado = diary_math.somar([m.calories for m in vinculo[1].meals])
@@ -466,6 +494,8 @@ def editar_entrada(
     )
     if kcal > diary_math.TETO_KCAL_ENTRADA:
         raise _quantidade_implausivel()
+    if kcal <= 0.0 and (opcao.kcal_per_base_unit or 0.0) > 0.0:
+        raise _porcao_sem_energia()
 
     entrada.entry_date = nova_data
     entrada.meal_slot = payload.meal_slot if payload.meal_slot is not None else entrada.meal_slot

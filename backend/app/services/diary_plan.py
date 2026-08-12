@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.normalize import normalize_food_name
 from app.models.diary import DiaryEntry, DiaryPlanBinding
-from app.models.meal_plan import MealPlanDay
+from app.models.meal_plan import MealPlan, MealPlanDay
 from app.models.profile import Profile
 from app.schemas.diary import (
     DiaryBoundPlan,
@@ -52,37 +52,75 @@ def mapear_slot(slot_name: str) -> Optional[str]:
     return _SLOT_POR_NOME.get(normalize_food_name(slot_name or ""))
 
 
-def resolver_dia_do_plano(
-    db: Session, user_id: int, alvo: date
-) -> Optional[tuple[DiaryPlanBinding, MealPlanDay]]:
-    """"Qual dia do plano cai na data D" — aritmética de inteiros, sem query extra.
+def carregar_vinculos(
+    db: Session, user_id: int, inicio: date, fim: date
+) -> list[DiaryPlanBinding]:
+    """Todos os vínculos que tocam [inicio, fim], em UMA query.
 
-    Sem constraint de não sobreposição (EXCLUDE exige btree_gist e não existe em SQLite):
-    o desempate é `start_date DESC, id DESC` — "o vínculo mais recente que já começou
-    ganha". Determinístico e testável, que resolve o mesmo problema no lugar certo.
+    Traz o plano, seus dias e as refeições de cada dia no mesmo `SELECT`. Sem isso,
+    `GET /diary/summary` emitia uma query de vínculo POR DIA — 32 num intervalo de 32
+    dias — e mais uma por dia para carregar `meals` na hora de somar o planejado.
+
+    Importa porque o § 11 do ADR-0001 dimensiona a feature pelo pool de 5+5 conexões por
+    processo, disputado com o APScheduler: uma rota que consome dezenas de round-trips
+    por chamada é a que esgota o pool primeiro.
+
+    A ordem é a MESMA do desempate de um dia só — `start_date DESC, id DESC` — para que
+    `resolver_dia_entre` possa parar no primeiro que casar.
     """
-    binding = (
+    return (
         db.query(DiaryPlanBinding)
-        .options(joinedload(DiaryPlanBinding.meal_plan))
+        .options(
+            joinedload(DiaryPlanBinding.meal_plan)
+            .joinedload(MealPlan.days)
+            .joinedload(MealPlanDay.meals)
+        )
         .filter(
             DiaryPlanBinding.user_id == user_id,
-            DiaryPlanBinding.start_date <= alvo,
+            DiaryPlanBinding.start_date <= fim,
             or_(
                 DiaryPlanBinding.end_date.is_(None),
-                DiaryPlanBinding.end_date >= alvo,
+                DiaryPlanBinding.end_date >= inicio,
             ),
         )
         .order_by(DiaryPlanBinding.start_date.desc(), DiaryPlanBinding.id.desc())
-        .first()
+        .all()
     )
-    if binding is None or binding.meal_plan is None:
-        return None
 
-    dias = binding.meal_plan.days  # já ordenado por day_index no relationship
-    if not dias:
-        return None
 
-    return binding, dias[(alvo - binding.start_date).days % len(dias)]
+def resolver_dia_entre(
+    vinculos: list[DiaryPlanBinding], alvo: date
+) -> Optional[tuple[DiaryPlanBinding, MealPlanDay]]:
+    """"Qual dia do plano cai na data D", sobre vínculos JÁ carregados — sem tocar o banco.
+
+    Sem constraint de não sobreposição (EXCLUDE exige btree_gist e não existe em SQLite):
+    o desempate é `start_date DESC, id DESC` — "o vínculo mais recente que já começou
+    ganha". Como `carregar_vinculos` já devolve nessa ordem, o primeiro que casar é o
+    vencedor.
+
+    A regra de desempate mora AQUI e em nenhum outro lugar: duplicá-la para a versão de
+    um dia só deixaria as duas divergirem em silêncio, e a divergência apareceria como
+    "o planejado do resumo não bate com o planejado do dia".
+    """
+    for vinculo in vinculos:
+        if vinculo.start_date > alvo:
+            continue
+        if vinculo.end_date is not None and vinculo.end_date < alvo:
+            continue
+        if vinculo.meal_plan is None:
+            return None
+        dias = vinculo.meal_plan.days  # já ordenado por day_index no relationship
+        if not dias:
+            return None
+        return vinculo, dias[(alvo - vinculo.start_date).days % len(dias)]
+    return None
+
+
+def resolver_dia_do_plano(
+    db: Session, user_id: int, alvo: date
+) -> Optional[tuple[DiaryPlanBinding, MealPlanDay]]:
+    """Versão de um dia só. Uma query, e o mesmo desempate da versão em lote."""
+    return resolver_dia_entre(carregar_vinculos(db, user_id, alvo, alvo), alvo)
 
 
 def _planejado_por_slot(dia_do_plano: Optional[MealPlanDay]):

@@ -184,7 +184,17 @@ class DiaryEntryUpdate(BaseModel):
 
     @model_validator(mode="after")
     def pelo_menos_um_campo(self) -> "DiaryEntryUpdate":
-        if self.model_fields_set == set():
+        # `model_fields_set` responde "o cliente MENCIONOU o campo?", não "mandou valor?".
+        # `{"quantity": null}` marca `quantity` como informado, passava por aqui, e o
+        # PATCH devolvia 200 tendo atualizado exatamente nada — com a tela anunciando
+        # "Registro atualizado." para uma operação que não aconteceu.
+        #
+        # Nenhum campo deste schema pode ser LIMPO: uma entrada sempre tem data, slot,
+        # quantidade e unidade. Portanto `None` aqui só pode significar "não informado".
+        informados = [
+            nome for nome in self.model_fields_set if getattr(self, nome, None) is not None
+        ]
+        if not informados:
             raise ValueError("Informe ao menos um campo para atualizar.")
         return self
 

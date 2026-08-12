@@ -171,13 +171,10 @@ class _ContadorDeQueries:
         return sum(1 for s in self.statements if trecho in s)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "A-04 (Media): GET /diary/summary resolve o vinculo com uma query por dia (ate 32), contrariando a propria docstring."
-))
-def test_achado_a04_summary_nao_pode_ter_uma_query_de_binding_por_dia(
+def test_a04_summary_resolve_os_vinculos_em_uma_query(
     client, db_session, make_user
 ):
-    """FALHA HOJE (32 SELECTs em diary_plan_bindings para um intervalo de 32 dias).
+    """Regressao do A-04: eram 32 SELECTs em diary_plan_bindings para 32 dias.
 
     A docstring da própria rota (`app/routers/diary.py:264-268`) afirma "nunca uma query
     por dia". `resolver_dia_do_plano` (`app/services/diary_plan.py:64-77`) emite um SELECT
@@ -292,13 +289,10 @@ def test_achado_a05_alimento_estimado_acima_do_teto_de_cache_nao_registra(
 # ======================================================================================
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "A-06 (Baixa): quantidade minuscula grava entrada afirmando 0.0 kcal em vez de recusar."
-))
-def test_achado_a06_quantidade_que_arredonda_para_zero_nao_deve_virar_entrada(
+def test_a06_quantidade_que_arredonda_para_zero_e_recusada(
     client, db_session, make_user
 ):
-    """FALHA HOJE (201 com calories_total = 0.0).
+    """Regressao do A-06: a entrada era persistida afirmando 0.0 kcal.
 
     1.28 kcal/g × 0.01 g = 0.0128 → `round(..., 1)` = 0.0. A linha é persistida, aparece
     como "0 kcal" e ocupa uma das 60 vagas do teto do RS-11.
@@ -329,12 +323,8 @@ def test_achado_a06_quantidade_que_arredonda_para_zero_nao_deve_virar_entrada(
 # ======================================================================================
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "A-07 (Baixa): PATCH com todos os campos nulos devolve 200 e a tela anuncia "
-    "registro atualizado sem nada ter mudado."
-))
-def test_achado_a07_patch_com_campo_nulo_deve_ser_422(client, db_session, make_user):
-    """FALHA HOJE (200 sem efeito).
+def test_a07_patch_com_campo_nulo_e_422(client, db_session, make_user):
+    """Regressao do A-07: PATCH sem mudanca nenhuma devolvia 200.
 
     `pelo_menos_um_campo` (`app/schemas/diary.py:185-189`) testa `model_fields_set`, que
     contém `"quantity"` mesmo quando o valor enviado foi `null`. O router então cai no
