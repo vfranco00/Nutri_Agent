@@ -15,6 +15,7 @@ import {
 import { api } from "../lib/api";
 import {
   buildNextSteps,
+  formatDayShort,
   formatKcal,
   relativeDayLabel,
   remainingCalories,
@@ -237,13 +238,20 @@ function DayNav({
       >
         <ChevronLeft aria-hidden="true" className="h-4 w-4" />
       </button>
+      {/* Mostra a DATA em foco, não um rótulo fixo — ver o comentário de `formatDayShort`. */}
       <button
         type="button"
         onClick={() => diary.goToDate(hoje)}
         disabled={diary.date === hoje || diary.mutating}
-        className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:border-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
+        title={diary.date === hoje ? undefined : "Voltar para hoje"}
+        aria-label={
+          diary.date === hoje
+            ? `Hoje, ${formatDayShort(diary.date, hoje)}`
+            : `${formatDayShort(diary.date, hoje)}. Voltar para hoje`
+        }
+        className="min-w-[4.5rem] rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold tabular-nums text-zinc-600 hover:border-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
       >
-        Hoje
+        {formatDayShort(diary.date, hoje)}
       </button>
       <button
         type="button"

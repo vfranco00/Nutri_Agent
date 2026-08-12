@@ -47,6 +47,21 @@ export function formatDiaryDate(iso: string): string {
   return format(fromIsoDate(iso), "EEEE, d 'de' MMMM", { locale: ptBR });
 }
 
+/** "13/08" — data curta para o indicador entre as setas de navegação.
+ *
+ *  Mostra o ano quando ele difere do corrente, senão navegar para dezembro do ano
+ *  passado exibiria "15/12" sem nada distinguindo de dezembro deste ano.
+ *
+ *  Existe porque aquele espaço era um botão de rótulo FIXO ("Hoje"): o dia mudava, a
+ *  tela toda mudava, e o elemento mais visível entre as duas setas continuava escrito
+ *  "Hoje" — dando a impressão de que clicar na seta não fazia nada.
+ */
+export function formatDayShort(iso: string, hoje = toIsoDate(new Date())): string {
+  const d = fromIsoDate(iso);
+  const mesmoAno = d.getFullYear() === fromIsoDate(hoje).getFullYear();
+  return format(d, mesmoAno ? "dd/MM" : "dd/MM/yyyy", { locale: ptBR });
+}
+
 /** Rótulo curto e relativo: "Hoje", "Ontem", "Amanhã" ou a data por extenso. */
 export function relativeDayLabel(iso: string, today = toIsoDate(new Date())): string {
   if (iso === today) return "Hoje";

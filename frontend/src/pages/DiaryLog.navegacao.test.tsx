@@ -109,7 +109,25 @@ describe("DiaryLog — navegação de dia", () => {
     await waitFor(() => expect(screen.getByText(/Ontem/)).toBeInTheDocument());
   });
 
-  it("o botão Hoje volta para o dia atual", async () => {
+  it("o indicador entre as setas mostra a DATA em foco, não um rótulo fixo", async () => {
+    // Era o defeito relatado: o dia trocava, mas o elemento mais visível entre as duas
+    // setas continuava escrito "Hoje", dando a impressão de que a seta não fez nada.
+    const user = userEvent.setup();
+    renderDiary();
+    await waitFor(() => expect(datasPedidas().length).toBeGreaterThan(0));
+
+    const dd = (iso: string) => iso.slice(8, 10) + "/" + iso.slice(5, 7);
+    expect(await screen.findByText(dd(HOJE))).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Próximo dia" }));
+    expect(await screen.findByText(dd(shiftIsoDate(HOJE, 1)))).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Dia anterior" }));
+    await user.click(screen.getByRole("button", { name: "Dia anterior" }));
+    expect(await screen.findByText(dd(shiftIsoDate(HOJE, -1)))).toBeInTheDocument();
+  });
+
+  it("o indicador continua levando de volta para hoje", async () => {
     const user = userEvent.setup();
     renderDiary();
     await waitFor(() => expect(datasPedidas().length).toBeGreaterThan(0));
@@ -117,7 +135,9 @@ describe("DiaryLog — navegação de dia", () => {
     await user.click(screen.getByRole("button", { name: "Dia anterior" }));
     await waitFor(() => expect(datasPedidas()).toContain(shiftIsoDate(HOJE, -1)));
 
-    await user.click(screen.getByRole("button", { name: "Hoje" }));
+    // Fora de hoje o indicador vira o atalho de volta, e o rótulo acessível diz as duas
+    // coisas: que data está em foco e o que o clique faz.
+    await user.click(screen.getByRole("button", { name: /Voltar para hoje/ }));
 
     await waitFor(() => {
       const pedidas = datasPedidas();
