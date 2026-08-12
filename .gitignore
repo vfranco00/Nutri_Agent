@@ -3,15 +3,27 @@ __pycache__/
 *.py[cod]
 *$py.class
 .venv/
-.env
-backend/.env
 .coverage
 htmlcov/
+
+# Configuração de ambiente.
+#
+# O padrão `.env` casa SÓ o nome exato — `.env.prod` passaria batido e entraria no
+# commit com a senha do banco de produção dentro. Por isso o glob: qualquer variante
+# é ignorada por padrão, e só o modelo sem segredo é versionado.
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
 
 # Node / Frontend
 node_modules/
 dist/
-frontend/.env
 
 # Contorno do iCloud (Desktop & Documents sincronizado neste Mac).
 # O iCloud ignora qualquer caminho terminado em .nosync, então o venv mora em
