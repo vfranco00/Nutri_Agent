@@ -31,7 +31,18 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      # Aponta para o serviço `db` acima, NÃO para o DATABASE_URL do .env.
+      #
+      # Antes esta linha era `DATABASE_URL: ${DATABASE_URL}`, que herdava o valor do
+      # .env — e lá ele aponta para o Supabase de PRODUÇÃO. O container local subia o
+      # Postgres do compose, esperava ele ficar healthy por causa do `depends_on`, e
+      # depois o ignorava: todo desenvolvimento no container lia e escrevia em produção.
+      # Criar usuário de teste, apagar receita, depurar um POST — tudo em cima dos dados
+      # reais, com a aparência de ambiente isolado.
+      #
+      # `db` é o nome do serviço na rede do compose, e a porta é a interna (5432), não a
+      # publicada.
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
       db:
         condition: service_healthy
