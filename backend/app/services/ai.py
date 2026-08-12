@@ -5,6 +5,7 @@ import unicodedata
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.core.config import settings
+from app.core.normalize import normalizar_base_unit
 from app.schemas.profile import ProfileResponse
 from app.models.food_cache import FoodCache
 from app.data.taco_foods import TACO_PER_100G, TACO_PER_UNIT
@@ -207,10 +208,18 @@ def get_food_calories(db: Session, food_name: str, unit: str, user_id: int | Non
             # Sem dono para escopar, não cacheia. Recalcular custa uma chamada; publicar
             # um número de origem não verificável para toda a base custa o A-3.
             return kcal
+        # `unit` chega desta rota como texto livre (`unit: str` de até 40 caracteres),
+        # e `unit_type` é lido depois como `Literal["g","ml","un"]` para montar a
+        # `FoodOption`. Gravar cru punha `Gramas`, `unidade` e `fatia` na tabela — e
+        # quem lesse aquelas linhas recebia 500 (achado A-03). O cálculo continua sendo
+        # devolvido; o que não acontece é gravar linha que ninguém consegue usar.
+        unidade_base = normalizar_base_unit(unit)
+        if unidade_base is None:
+            return kcal
         try:
             exists = db.query(FoodCache).filter(
                 FoodCache.name_normalized == normalizado,
-                FoodCache.unit_type == unit,
+                FoodCache.unit_type == unidade_base,
                 FoodCache.source == source,
                 FoodCache.created_by_user_id.is_(None) if dono is None
                 else FoodCache.created_by_user_id == dono,
@@ -219,7 +228,7 @@ def get_food_calories(db: Session, food_name: str, unit: str, user_id: int | Non
                 db.add(FoodCache(
                     name=food_name,
                     name_normalized=normalizado,
-                    unit_type=unit,
+                    unit_type=unidade_base,
                     calories_per_unit=kcal,
                     source=source,
                     created_by_user_id=dono,

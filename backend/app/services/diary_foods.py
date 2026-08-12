@@ -22,7 +22,7 @@ import httpx
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from app.core.normalize import normalize_food_name
+from app.core.normalize import normalize_food_name, normalizar_base_unit
 from app.models.food_cache import FoodCache
 from app.models.food_catalog import FoodCatalog
 from app.schemas.diary import FoodOption
@@ -152,16 +152,32 @@ def opcao_do_catalogo(linha: FoodCatalog) -> FoodOption:
     )
 
 
-def opcao_do_cache(linha: FoodCache) -> FoodOption:
+def opcao_do_cache(linha: FoodCache) -> Optional[FoodOption]:
+    """Monta a `FoodOption` de uma linha de cache, ou `None` se a linha for inutilizável.
+
+    `food_cache.unit_type` é texto livre — `/ai/calculate-calories` grava o que receber.
+    `FoodOption.base_unit` é `Literal["g","ml","un"]`, então uma linha com `Gramas` ou
+    `fatia` estourava na serialização do Pydantic e virava **500** numa rota autenticada
+    (achado A-03). Devolver `None` faz o chamador tratar como "não encontrado", que é a
+    verdade: a linha existe, mas não dá para usá-la sem inventar a unidade.
+    """
+    base_unit = normalizar_base_unit(linha.unit_type)
+    if base_unit is None:
+        # WARNING e não exception: uma linha ruim não pode derrubar a requisição, mas
+        # tem que ser visível — são linhas `taco` de dono NULL, servidas a todos.
+        logger.warning(
+            "food_cache com unit_type fora do dominio food_cache_id=%s", linha.id
+        )
+        return None
     return FoodOption(
         food_ref=f"cache:{linha.id}",
         name=linha.name,
-        base_unit=linha.unit_type,
+        base_unit=base_unit,
         kcal_per_base_unit=linha.calories_per_unit,
         protein_per_base_unit=linha.protein_per_base_unit,
         carbs_per_base_unit=linha.carbs_per_base_unit,
         fat_per_base_unit=linha.fat_per_base_unit,
-        allowed_units=diary_math.allowed_units(linha.unit_type),
+        allowed_units=diary_math.allowed_units(base_unit),
         # is_estimate é calculado no servidor, nunca inferido no cliente.
         source=linha.source,
         is_estimate=linha.source in ("openfoodfacts", "llm"),
@@ -406,7 +422,11 @@ def resolver_alimento(
     # (2) cache, com o escopo do RS-17 dentro do WHERE
     linha_cache = ler_cache_escopado(db, normalizado, base_unit, user_id)
     if linha_cache is not None:
-        return opcao_do_cache(linha_cache), False
+        opcao_cacheada = opcao_do_cache(linha_cache)
+        # `None` = linha com unidade inutilizável (A-03). Segue para as fontes seguintes
+        # em vez de devolver erro: para o usuário, é um cache miss.
+        if opcao_cacheada is not None:
+            return opcao_cacheada, False
 
     pode_gravar = _pode_gravar_cache(db, user_id)
 
@@ -432,7 +452,12 @@ def resolver_alimento(
             user_id=user_id,
             off_product_id=product_id or None,
         )
-        return opcao_do_cache(linha), True
+        # `_gravar_cache` recebeu `base_unit` já validado, então a opção nunca é
+        # `None` aqui — mas o tipo permite, e um `None` silencioso viraria um bug pior
+        # que o A-03. Falha alto se a invariante quebrar.
+        opcao = opcao_do_cache(linha)
+        assert opcao is not None, "linha recem-gravada com unit_type invalido"
+        return opcao, True
 
     # (4) LLM
     kcal_llm, modelo_respondeu = consultar_llm(nome, unit)
@@ -456,7 +481,9 @@ def resolver_alimento(
         source="llm",
         user_id=user_id,
     )
-    return opcao_do_cache(linha), True
+    opcao = opcao_do_cache(linha)
+    assert opcao is not None, "linha recem-gravada com unit_type invalido"
+    return opcao, True
 
 
 def _opcao_efemera(nome: str, base_unit: str, kcal: float, source: str) -> FoodOption:

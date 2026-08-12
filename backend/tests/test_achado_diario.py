@@ -70,26 +70,23 @@ def test_achado_a01_unidade_de_contagem_com_quantidade_de_gramas(
 # ---------------------------------------------------------------------------------
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "A-03 (Media): POST /diary devolve 500 quando o food_ref aponta para linha de food_cache com unit_type fora de g|ml|un. Linhas assim sao criadas por /ai/calculate-calories, que aceita unit como texto livre."
-))
-def test_achado_a03_cache_com_unit_type_invalido_nao_pode_dar_500(
+def test_a03_cache_com_unit_type_sinonimo_e_recuperado(
     client, db_session, make_user
 ):
-    """FALHA HOJE (500 em vez de 404).
+    """Regressão do A-03, que devolvia 500 numa rota autenticada.
 
-    A linha abaixo é EXATAMENTE a que `POST /ai/calculate-calories` grava: aquele endpoint
-    aceita `unit` como texto livre (`app/routers/ai.py:51`, `str` de 1 a 40 caracteres) e
-    o repassa direto para `food_cache.unit_type` (`app/services/ai.py:219-224`). Com
-    `source="taco"` e `created_by_user_id=NULL` a linha é COMPARTILHADA: qualquer usuário
-    a alcança pelo escopo de `_resolver_food_ref`.
+    A linha abaixo é EXATAMENTE a que `POST /ai/calculate-calories` gravava: aquele
+    endpoint aceita `unit` como texto livre (`app/routers/ai.py:51`) e o repassava direto
+    para `food_cache.unit_type`. Com `source="taco"` e `created_by_user_id=NULL` a linha é
+    COMPARTILHADA — qualquer usuário a alcança. `opcao_do_cache` montava
+    `FoodOption(base_unit=linha.unit_type)` contra um `Literal["g","ml","un"]`, e o
+    Pydantic estourava dentro do router sem ninguém capturar.
 
-    `opcao_do_cache` monta `FoodOption(base_unit=linha.unit_type)` sem checar o domínio, e
-    `FoodBaseUnitType` é `Literal["g","ml","un"]` — o Pydantic estoura dentro do router e
-    ninguém captura.
+    O remédio tem dois lados, e este teste fixa o primeiro: `unidade` é apenas outra
+    grafia de `un`, então a linha é RECUPERADA em vez de descartada. Descartar perderia
+    dado correto — em produção havia linhas com `unidade` e `Gramas`.
 
-    O correto é tratar a linha como não resolvida: 404 FOOD_NOT_RESOLVED, o mesmo corpo do
-    id inexistente. Um valor que não dá para servir não é erro de servidor.
+    O segundo lado está no teste seguinte: unidade sem conversão honesta vira 404.
     """
     cli = make_user()
     u = usuario(db_session, "user@example.com")
@@ -99,6 +96,41 @@ def test_achado_a03_cache_com_unit_type_invalido_nao_pode_dar_500(
         name_normalized="rap10",
         calories_per_unit=120.0,
         unit_type="unidade",  # <- texto livre vindo de /ai/calculate-calories
+        source="taco",
+        created_by_user_id=None,
+    )
+    db_session.add(linha)
+    db_session.commit()
+    db_session.refresh(linha)
+
+    res = criar(cli, food_ref=f"cache:{linha.id}", quantity=1, unit="un")
+
+    # O 500 era o defeito. Ele acabou.
+    assert res.status_code != 500, f"500 não tratado: {res.text}"
+    # E "unidade" é APENAS outra grafia de "un": o dado é correto, só a escrita variava.
+    # Rejeitar descartaria linha boa — em produção havia `unidade` e `Gramas`.
+    assert res.status_code == 201, res.text
+    assert res.json()["totals"]["calories"] == 120.0
+
+
+def test_a03_cache_com_unit_type_sem_conversao_honesta_nao_resolve(
+    client, db_session, make_user
+):
+    """O outro lado da mesma correção: sinônimo se recupera, ambiguidade não.
+
+    `fatia` é unidade de PORÇÃO válida para registrar, mas não é unidade BASE — não existe
+    fator honesto entre "fatia" e g/ml/un sem saber o peso da fatia. Adivinhar produziria
+    número errado com cara de certo, que num diário alimentar é pior que não responder.
+    Tem que virar 404, nunca 500 e nunca um palpite.
+    """
+    cli = make_user()
+    usuario(db_session, "user@example.com")
+
+    linha = FoodCache(
+        name="queijo",
+        name_normalized="queijo",
+        calories_per_unit=60.0,
+        unit_type="fatia",
         source="taco",
         created_by_user_id=None,
     )
