@@ -17,6 +17,7 @@ import {
   formatDensity,
   formatKcal,
   formatQuantity,
+  quantidadePadraoPara,
   relativeDayLabel,
   toIsoDate,
 } from "../lib/diary";
@@ -474,7 +475,12 @@ function PortionForm({
   // § 9.2: o seletor sai de `allowed_units`, nunca da lista completa das 8
   // unidades. A regra de compatibilidade mora no servidor, em um lugar só.
   const [unit, setUnit] = useState<DiaryUnit>(food.allowed_units[0] ?? food.base_unit);
-  const [quantity, setQuantity] = useState("100");
+  // Depende da unidade: `100` para g/ml, `1` para unidade de contagem. Fixo em "100",
+  // escolher um alimento medido por unidade e adicionar sem tocar no campo gravava
+  // 100 unidades sem nenhum aviso.
+  const [quantity, setQuantity] = useState(() =>
+    String(quantidadePadraoPara(food.allowed_units[0] ?? food.base_unit)),
+  );
   const [erro, setErro] = useState<string | null>(null);
   const quantidadeRef = useRef<HTMLInputElement>(null);
 
@@ -555,7 +561,13 @@ function PortionForm({
             <select
               id="porcao-unidade"
               value={unit}
-              onChange={(e) => setUnit(e.target.value as DiaryUnit)}
+              // Trocar de unidade reajusta a quantidade: 250 g virando 250 unidades é
+              // o mesmo defeito por outro caminho.
+              onChange={(e) => {
+                const nova = e.target.value as DiaryUnit;
+                setUnit(nova);
+                setQuantity(String(quantidadePadraoPara(nova)));
+              }}
               className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus-visible:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
             >
               {food.allowed_units.map((u) => (
@@ -668,19 +680,23 @@ function LoggedList({
                       </span>
                     </div>
 
+                    {/* `disabled` durante a mutação: sem isto, dois cliques rápidos em
+                        apagar disparam duas exclusões concorrentes. */}
                     <button
                       type="button"
                       onClick={() => onEdit(e)}
+                      disabled={mutating}
                       aria-label={`Editar ${e.food_name}`}
-                      className="rounded-md p-1.5 text-zinc-400 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 dark:hover:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
+                      className="rounded-md p-1.5 text-zinc-400 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
                     >
                       <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => onDelete(e)}
+                      disabled={mutating}
                       aria-label={`Apagar ${e.food_name}`}
-                      className="rounded-md p-1.5 text-zinc-400 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                      className="rounded-md p-1.5 text-zinc-400 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:focus-visible:ring-offset-zinc-900"
                     >
                       <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                     </button>

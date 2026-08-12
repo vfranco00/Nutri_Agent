@@ -4,6 +4,7 @@ import {
   isDiaryApiError,
   type DiaryDay,
   type DiaryTotals,
+  type DiaryUnit,
   type FoodBaseUnit,
   type MealSlot,
 } from "../types";
@@ -57,6 +58,17 @@ export function relativeDayLabel(iso: string, today = toIsoDate(new Date())): st
 /** kcal sempre inteiro na tela: o décimo do backend é ruído para o usuário e
  *  a formatação não altera o valor guardado. */
 export function formatKcal(value: number): string {
+  // DIVERGÊNCIA CONHECIDA E ACEITA — achado A-08 de `docs/qa/relatorio-diario.md`.
+  //
+  // Arredondar cada parcela para inteiro NUNCA garante que elas fechem com o total
+  // arredondado: 100,5 e 200,5 viram "101" e "201" (soma 302) enquanto o total 301,0
+  // vira "301". Isso enfraquece a garantia do § 9.3, que existe para que quem confira
+  // na calculadora encontre o mesmo número.
+  //
+  // Mantido em inteiro de propósito: é decisão de produto fixada em `diary.test.ts`
+  // ("drops the decimal"). As duas saídas possíveis são mostrar a casa decimal aqui ou
+  // fazer o backend arredondar para inteiro — a segunda faz as pontas concordarem sem
+  // poluir a tela, e é mudança de contrato. Pendente de decisão do dono do projeto.
   return value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 }
 
@@ -77,6 +89,22 @@ const BASE_UNIT_NOUN: Record<FoodBaseUnit, string> = {
   ml: "ml",
   un: "unidade",
 };
+
+/**
+ * Quantidade inicial razoável para a unidade escolhida.
+ *
+ * `100` só faz sentido para massa e volume. Para unidade de contagem — `un`, `fatia`,
+ * `xicara`, `colher_*`, `porcao` — o padrão é `1`.
+ *
+ * Não é preciosismo: o formulário abria fixo em `100` para qualquer unidade, então
+ * escolher "Ovo" (70 kcal por unidade) e clicar em adicionar sem tocar no campo gravava
+ * 100 unidades — 7.000 kcal — e o servidor aceitava, porque 70 × 100 é a conta certa
+ * para o que foi pedido. Nenhuma validação pega: o teto de plausibilidade só corta acima
+ * de 20.000 kcal e `quantity` aceita até 10.000.
+ */
+export function quantidadePadraoPara(unit: DiaryUnit): number {
+  return unit === "g" || unit === "ml" ? 100 : 1;
+}
 
 /**
  * Densidade energética do alimento, exatamente como a API a expressa: por 1 g,
