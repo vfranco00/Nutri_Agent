@@ -23,6 +23,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.core.normalize import normalize_food_name, normalizar_base_unit
+from app.core.plan_limits import PLAN_LIMITS
 from app.models.food_cache import FoodCache
 from app.models.food_catalog import FoodCatalog
 from app.schemas.diary import FoodOption
@@ -39,9 +40,24 @@ OFF_TIMEOUT_SECONDS = 8.0
 DISJUNTOR_TETO_HORA = 500
 DISJUNTOR_JANELA_SEGUNDOS = 3600
 
-# Teto de linhas novas de cache por usuário por dia (RS-23). Passando disso, resolve
-# normalmente mas não grava — o resultado continua correto, o crescimento da tabela para.
-TETO_LINHAS_CACHE_POR_DIA = 50
+# Teto de linhas novas de cache por usuário por dia (RS-23), DERIVADO da maior cota de
+# `diary_food_resolve` entre os planos — nunca um número solto.
+#
+# Era 50 fixo, enquanto o plano `pro` permite 200 resoluções pagas por dia. Os dois
+# mecanismos se contradiziam: o sistema cobrava por 200 e só conseguia persistir 50, e o
+# usuário do 51º em diante pagava por um alimento que o `POST /diary` depois recusava com
+# "Não encontramos esse alimento" — mentira, e sem saída (achado A-05).
+#
+# Amarrar ao teto da cota faz a contradição ser impossível de reintroduzir: subir a cota
+# de um plano sobe este limite junto. A cota continua sendo quem limita o custo; este teto
+# só impede crescimento de tabela por caminho que a cota não veja.
+TETO_LINHAS_CACHE_POR_DIA = max(
+    (
+        (plano.get("diary_food_resolve") or {}).get("limit") or 0
+        for plano in PLAN_LIMITS.values()
+    ),
+    default=50,
+)
 
 # Faixa física de energia de alimento. O teto de ~9 kcal/g é gordura pura; o maior valor
 # da própria TACO é o azeite, 884 kcal/100 g = 8,84.

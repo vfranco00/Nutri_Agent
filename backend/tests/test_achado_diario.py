@@ -2,9 +2,11 @@
 
 Relatório: `docs/qa/relatorio-diario.md`.
 
-Estes testes descrevem o comportamento CORRETO segundo o ADR-0001. Os que falham hoje
-são a prova do defeito; os que passam estão marcados como documentação do estado atual.
-Nenhum código de aplicação foi alterado para fazê-los passar.
+Escritos pela auditoria para PROVAR cada defeito, e mantidos depois da correção como
+regressão. Todos passam. Enquanto os defeitos existiam, os marcadores `xfail(strict=True)`
+faziam o serviço de registrar sem esconder — e cumpriram o papel: ao corrigir o A-03, o
+`strict` acusou que o remédio implementado divergia do proposto no relatório, o que teria
+passado despercebido.
 """
 
 from datetime import date, datetime, timedelta
@@ -58,16 +60,6 @@ def test_achado_a01_unidade_de_contagem_com_quantidade_de_gramas(
 # ======================================================================================
 # A-03 — cache com unit_type fora do domínio derruba o POST /diary com 500
 # ======================================================================================
-
-
-# ---------------------------------------------------------------------------------
-# `xfail(strict=True)` NAO e' tolerancia ao defeito — e' o registro dele.
-#
-# O teste PASSA enquanto o defeito existir e fica VERMELHO no dia em que alguem o
-# corrigir, obrigando a apagar o marcador. `skip` esconderia; deixar falhando treinaria
-# o time a ignorar vermelho no CI. Cada `reason` abaixo aponta o achado no relatorio
-# `docs/qa/relatorio-diario.md`.
-# ---------------------------------------------------------------------------------
 
 
 def test_a03_cache_com_unit_type_sinonimo_e_recuperado(
@@ -225,10 +217,7 @@ def test_a04_summary_resolve_os_vinculos_em_uma_query(
 # ======================================================================================
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "A-05 (Media): alimento estimado acima do teto de escrita do cache consome cota paga e termina em 404 — beco sem saida."
-))
-def test_achado_a05_alimento_estimado_acima_do_teto_de_cache_nao_registra(
+def test_a05_alimento_estimado_dentro_da_cota_e_registravel(
     client, db_session, make_user, monkeypatch
 ):
     """FALHA HOJE (o POST /diary devolve 404 para um alimento que o resolve entregou).

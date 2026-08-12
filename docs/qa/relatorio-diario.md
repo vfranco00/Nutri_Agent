@@ -8,6 +8,21 @@ Auditoria da feature entregue, contra o contrato `docs/adr/0001-diario-alimentar
 - **Fora de escopo por instrução do dono**: navegação de dia por setas no `DiaryLog`;
   macros `UNVERIFIED` de `app/data/taco_foods.py`; `UniqueConstraint` duplicada em `payments.mp_payment_id`.
 
+> **Situação em 12/08/2026 — todos os 9 achados confirmados foram corrigidos.**
+>
+> As correções estão nos commits de `fix(diario)`. Cada achado tem teste de regressão que
+> falhava antes e passa agora. Duas correções divergiram do remédio proposto aqui, com a
+> justificativa registrada no commit: **A-03** recupera sinônimo de unidade em vez de
+> rejeitar toda linha fora do domínio (`unidade` É `un`, e havia linhas assim em produção),
+> e **A-05** foi resolvido na raiz — o teto de escrita de cache passou a ser derivado da
+> maior cota de plano, em vez de ser um número solto menor que ela.
+>
+> **A-08 continua aberto por decisão de produto**, não por esquecimento: exibir kcal
+> inteiro é escolha deliberada, fixada em `diary.test.ts`. Ou a tela mostra a casa decimal,
+> ou o backend arredonda nas duas pontas. Pinado com `it.fails` até alguém decidir.
+>
+> **A-09 segue como observação**, não reproduzível pela API.
+
 ## Índice dos achados
 
 | # | Severidade | Título | Teste que prova |
