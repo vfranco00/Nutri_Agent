@@ -188,7 +188,10 @@ def calculate_calories(
     os dois lados (gasto por usuário e rajada por origem)."""
     check_quota(db, current_user, "food_lookup")
 
-    kcal_unit = get_food_calories(db, query.name, query.unit)
+    # user_id escopa as linhas NÃO confiáveis (openfoodfacts/llm) que esta consulta
+    # gravar no cache — RS-17. Sem ele, o valor que a Open Food Facts (base editável por
+    # qualquer pessoa) devolveu para esta conta seria servido para todas as outras.
+    kcal_unit = get_food_calories(db, query.name, query.unit, user_id=current_user.id)
     total = kcal_unit * query.quantity
 
     log_usage(db, current_user.id, "food_lookup")

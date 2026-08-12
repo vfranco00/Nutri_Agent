@@ -2,6 +2,7 @@ import httpx
 import json
 import logging
 import unicodedata
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.schemas.profile import ProfileResponse
@@ -19,11 +20,16 @@ GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-fl
 GEMINI_TIMEOUT_SECONDS = 90.0
 
 
-def call_gemini(prompt: str):
+def call_gemini(prompt: str, timeout: float = GEMINI_TIMEOUT_SECONDS):
+    """`timeout` é parâmetro porque os 90s foram calibrados para GERAÇÃO DE CARDÁPIO,
+    que é assíncrona do ponto de vista da percepção. O caminho interativo do diário usa
+    10s (RS-23): ali o usuário está parado olhando um campo, e uma requisição que segura
+    um worker por 90s é, ela própria, o vetor de DoS — bastam N conexões para ocupar o
+    pool inteiro. Um único lugar que fala com o Gemini, dois orçamentos de tempo."""
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
     try:
         with httpx.Client() as client:
-            response = client.post(GEMINI_URL, json=payload, timeout=GEMINI_TIMEOUT_SECONDS)
+            response = client.post(GEMINI_URL, json=payload, timeout=timeout)
             if response.status_code != 200:
                 # Distinguir 401/403 (chave inválida) de 429 (cota) de 5xx (lado deles)
                 # é a diferença entre corrigir em minutos e depurar no escuro.
@@ -44,7 +50,7 @@ def call_gemini(prompt: str):
             logger.warning("Gemini respondeu 200 sem candidates: %s", str(data)[:500])
             return None
     except httpx.TimeoutException:
-        logger.error("Gemini estourou o timeout de %ss", GEMINI_TIMEOUT_SECONDS)
+        logger.error("Gemini estourou o timeout de %ss", timeout)
         return None
     except httpx.HTTPError as exc:
         logger.error("Falha de rede ao chamar o Gemini: %s", exc)
@@ -167,21 +173,57 @@ def _lookup_open_food_facts(food_name: str, unit: str) -> float | None:
     return None
 
 
-def get_food_calories(db: Session, food_name: str, unit: str) -> float:
-    # 1. Cache do banco (hits anteriores de qualquer uma das fontes abaixo)
+def get_food_calories(db: Session, food_name: str, unit: str, user_id: int | None = None) -> float:
+    """`user_id` é o dono das linhas NÃO confiáveis que esta consulta gravar (RS-17).
+
+    Chamador que não o informa continua funcionando, mas só aproveita e só grava cache
+    das linhas `taco` — compartilháveis por construção. Isso é deliberado: gravar uma
+    linha de origem `openfoodfacts`/`llm` sem dono a deixaria casando o índice parcial
+    COMPARTILHADO, servida a toda a base, que é exatamente o achado A-3 que a partição
+    do ADR-0001 existe para fechar.
+    """
+    normalizado = _normalize(food_name)
+
+    # 1. Cache do banco, agora com o escopo do RS-17 dentro do próprio WHERE: linha
+    #    compartilhada (taco/curated) ou linha privada do próprio requisitante. Sem esta
+    #    cláusula, a estimativa de LLM que o usuário A gravou pelo diário voltaria para o
+    #    usuário B por esta rota — a partição seria contornada pela porta dos fundos.
+    escopo = FoodCache.source.in_(("taco", "curated"))
+    if user_id is not None:
+        escopo = or_(escopo, FoodCache.created_by_user_id == user_id)
+
     cache = db.query(FoodCache).filter(
-        FoodCache.name == food_name,
-        FoodCache.unit_type == unit
+        FoodCache.name_normalized == normalizado,
+        FoodCache.unit_type == unit,
+        escopo,
     ).first()
 
     if cache:
         return cache.calories_per_unit
 
-    def _save_and_return(kcal: float) -> float:
+    def _save_and_return(kcal: float, source: str) -> float:
+        dono = None if source in ("taco", "curated") else user_id
+        if dono is None and source not in ("taco", "curated"):
+            # Sem dono para escopar, não cacheia. Recalcular custa uma chamada; publicar
+            # um número de origem não verificável para toda a base custa o A-3.
+            return kcal
         try:
-            exists = db.query(FoodCache).filter(FoodCache.name == food_name, FoodCache.unit_type == unit).first()
+            exists = db.query(FoodCache).filter(
+                FoodCache.name_normalized == normalizado,
+                FoodCache.unit_type == unit,
+                FoodCache.source == source,
+                FoodCache.created_by_user_id.is_(None) if dono is None
+                else FoodCache.created_by_user_id == dono,
+            ).first()
             if not exists:
-                db.add(FoodCache(name=food_name, unit_type=unit, calories_per_unit=kcal))
+                db.add(FoodCache(
+                    name=food_name,
+                    name_normalized=normalizado,
+                    unit_type=unit,
+                    calories_per_unit=kcal,
+                    source=source,
+                    created_by_user_id=dono,
+                ))
                 db.commit()
         except Exception:
             db.rollback()
@@ -190,12 +232,12 @@ def get_food_calories(db: Session, food_name: str, unit: str) -> float:
     # 2. Tabela TACO local (alimentos brasileiros comuns, sem chamada externa)
     taco_kcal = _lookup_taco(food_name, unit)
     if taco_kcal is not None:
-        return _save_and_return(taco_kcal)
+        return _save_and_return(taco_kcal, "taco")
 
     # 3. Open Food Facts (produtos de marca que não estão na TACO)
     off_kcal = _lookup_open_food_facts(food_name, unit)
     if off_kcal is not None:
-        return _save_and_return(off_kcal)
+        return _save_and_return(off_kcal, "openfoodfacts")
 
     # 4. Último recurso: pergunta pra IA
     prompt = f"""
@@ -216,7 +258,7 @@ def get_food_calories(db: Session, food_name: str, unit: str) -> float:
         kcal = float(numbers[0]) if numbers else 0.0
 
         if kcal > 0:
-            return _save_and_return(kcal)
+            return _save_and_return(kcal, "llm")
         return kcal
     except Exception:
         return 0.0

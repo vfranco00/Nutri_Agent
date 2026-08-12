@@ -32,5 +32,7 @@ from app.models.meal_plan import MealPlan, MealPlanDay, MealPlanMeal  # noqa: F4
 from app.models.subscription import Subscription, UsageEvent  # noqa: F401
 from app.models.payment import Payment  # noqa: F401
 from app.models.feedback import FeedbackTicket  # noqa: F401
+from app.models.food_catalog import FoodCatalog  # noqa: F401
+from app.models.diary import DiaryEntry, DiaryPlanBinding  # noqa: F401
 
 __all__ = ["Base"]

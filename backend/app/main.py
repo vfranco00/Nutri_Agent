@@ -1,8 +1,11 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Response, status
+from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -13,8 +16,9 @@ from app.core.config import settings
 from app.core.limiter import limiter
 from app.core.logging_config import setup_logging
 from app.core.scheduler import start_scheduler, stop_scheduler
-from app.db.session import get_db
-from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions, feedback
+from app.data.seed_food_catalog import sync_food_catalog
+from app.db.session import SessionLocal, get_db
+from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions, feedback, diary, diary_foods
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -26,6 +30,21 @@ async def lifespan(app: FastAPI):
         # Aviso alto no log — se isso aparecer em produção, os links de email
         # (verificação, vencimento de assinatura) estão indo pra localhost.
         logger.warning("FRONTEND_URL não configurado — usando o padrão de localhost.")
+
+    # Catálogo de alimentos sincronizado a partir de app/data/taco_foods.py. No caminho
+    # normal custa um COUNT e volta. Não fica na migration de propósito: migration que
+    # importa código de aplicação quebra retroativamente quando o código muda, e este
+    # dado muda por curadoria, não por schema.
+    db = SessionLocal()
+    try:
+        sync_food_catalog(db)
+    except Exception:
+        # Falhar aqui não pode impedir a API de subir: sem catálogo a busca devolve
+        # vazio (degradação visível), com a API fora do ar nada funciona.
+        logger.exception("Falha ao sincronizar o catálogo de alimentos")
+    finally:
+        db.close()
+
     start_scheduler()
     yield
     stop_scheduler()
@@ -63,6 +82,32 @@ app.add_middleware(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError):
+    """Handler global de erro de validação. Resolve DOIS problemas de uma vez.
+
+    (a) Corrige um 500 que existe hoje. O handler padrão do FastAPI devolve o valor
+    recebido no campo `input` do corpo do erro, e `json.dumps` não serializa `inf`/`nan`.
+    Como o parser de JSON do Python ACEITA os literais `Infinity`, `-Infinity`, `NaN` e
+    `1e400`, o valor chega à validação, é corretamente rejeitado pelo `le=`, e a
+    RENDERIZAÇÃO da resposta de erro estoura. Atenção ao conserto errado:
+    `Field(allow_inf_nan=False)` NÃO resolve — o `inf` volta pelo campo `input` do mesmo
+    jeito. O handler é o conserto.
+
+    (b) Para de devolver dado sensível na mensagem de erro. Num diário alimentar, esse
+    `input` é o nome do alimento — dado de saúde — viajando no corpo de uma resposta de
+    erro, que é justamente o que proxy, APM e agregador de log capturam por padrão.
+
+    É global e muda o corpo do 422 de TODA a API: `detail` continua sendo uma lista, mas
+    sem `input`, `ctx` e `url`.
+    """
+    limpo = [
+        {k: v for k, v in err.items() if k not in ("input", "ctx", "url")}
+        for err in exc.errors()
+    ]
+    return JSONResponse(status_code=422, content=jsonable_encoder({"detail": limpo}))
 
 # Registrado por último de propósito: o middleware adicionado depois fica por fora na
 # pilha do Starlette, então este envelopa também as respostas geradas pelo SlowAPI
@@ -111,6 +156,11 @@ app.include_router(shopping.router, prefix="/shopping", tags=["shopping"])
 app.include_router(meal_plans.router, prefix="/meal-plans", tags=["meal-plans"])
 app.include_router(subscriptions.router, prefix="/subscriptions", tags=["subscriptions"])
 app.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
+# A ORDEM importa e quebra silenciosamente: invertida, GET /diary/foods/search casa
+# GET /diary/{entry_id}, o FastAPI tenta converter "foods" para int e devolve 422 em vez
+# do resultado da busca.
+app.include_router(diary_foods.router, prefix="/diary/foods", tags=["diary"])
+app.include_router(diary.router, prefix="/diary", tags=["diary"])
 
 @app.get("/")
 def read_root():
