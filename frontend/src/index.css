@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Faixa hachurada da barra de energia do diário = "planejado, ainda não
+     registrado". Mora aqui, e não numa classe utilitária, porque um
+     repeating-linear-gradient com parada dupla e duas variantes de tema fica
+     ilegível como valor arbitrário do Tailwind. */
+  .diary-hatch {
+    background-color: rgba(82, 204, 2, 0.12);
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(82, 204, 2, 0.5) 0 5px,
+      transparent 5px 11px
+    );
+  }
+
+  .dark .diary-hatch {
+    background-color: rgba(82, 204, 2, 0.16);
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(158, 249, 98, 0.45) 0 5px,
+      transparent 5px 11px
+    );
+  }
+}
+
+/* Respeita quem pediu menos movimento no sistema. Vale para o app inteiro,
+   não só para o diário. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -5,6 +5,7 @@ import { VerifyEmail } from './pages/VerifyEmail';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
+import { DiaryLog } from './pages/DiaryLog';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
 import { NewRecipe } from './pages/NewRecipe';
@@ -61,6 +62,9 @@ function AppRoutes() {
 
           {/* Rotas Privadas (Com Layout e Sidebar) */}
           <Route path="/dashboard" element={<PrivateRoute><LayoutRoute color="text-zinc-500"><Dashboard /></LayoutRoute></PrivateRoute>} />
+
+          {/* Diário Alimentar = Verde da marca */}
+          <Route path="/diario" element={<PrivateRoute><LayoutRoute color="text-green-500"><DiaryLog /></LayoutRoute></PrivateRoute>} />
 
           {/* Perfil = Verde */}
           <Route path="/profile" element={<PrivateRoute><LayoutRoute color="text-green-500"><Profile /></LayoutRoute></PrivateRoute>} />

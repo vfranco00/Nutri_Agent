@@ -8,6 +8,7 @@ import {
   CalendarRange,
   Crown,
   Shield,
+  UtensilsCrossed,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -23,6 +24,7 @@ export interface NavItem {
 // título/breadcrumb do topo, pra não desincronizar.
 const BASE_ITEMS: NavItem[] = [
   { name: "Início", path: "/dashboard", icon: Home, color: "text-zinc-500 dark:text-zinc-400", keywords: "home dashboard" },
+  { name: "Diário Alimentar", path: "/diario", icon: UtensilsCrossed, color: "text-green-500", keywords: "diario alimentar registrar refeicao comida calorias almoco jantar" },
   { name: "Meu Perfil", path: "/profile", icon: UserIcon, color: "text-green-500", keywords: "perfil metas peso dados" },
   { name: "Minhas Receitas", path: "/recipes", icon: Book, color: "text-orange-500", keywords: "receitas pratos comunidade" },
   { name: "Gerar Cardápio", path: "/ai-plan", icon: CheckCheck, color: "text-purple-500", keywords: "cardapio ia plano dieta" },
