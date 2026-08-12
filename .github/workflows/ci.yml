@@ -1,4 +1,11 @@
-# PIPELINE 1 de 3 — CI de teste.
+# CI de teste — o único pipeline do repositório.
+#
+# Os pipelines de deploy (Render e Vercel) foram removidos: exigiam secrets de
+# produção que não estavam cadastrados e travavam a entrega sem oferecer nada em
+# troca enquanto isso. Consequência a ter em mente: o deploy e o
+# `alembic upgrade head` voltaram a ser manuais. Se as integrações Git nativas do
+# Render e da Vercel estiverem ligadas, elas continuam publicando a cada push —
+# só que sem passar por este gate.
 #
 # É o único check que precisa ser marcado como obrigatório no branch protection.
 # Roda em push de qualquer branch e em PR para main.

@@ -1,14 +1,14 @@
 # Suíte de verificação — NÃO tem gatilho próprio.
 #
-# Existe como workflow reutilizável (`workflow_call`) para que os três pipelines
-# (ci.yml, deploy-vercel.yml, deploy-render.yml) executem EXATAMENTE a mesma
-# verificação. É isso que torna o gate real: o deploy não "confia" que o CI passou
-# em outro lugar, ele depende de um job que roda aqui e falha junto.
+# Existe como workflow reutilizável (`workflow_call`). Hoje o único chamador é o
+# `ci.yml` — os pipelines de deploy que também o chamavam foram removidos. Continua
+# separado para que um pipeline futuro (deploy, release, agendado) possa executar
+# EXATAMENTE esta verificação em vez de "confiar" que o CI passou em outro lugar.
 #
 # Não declare `concurrency` neste arquivo. Em workflow reutilizável o contexto
 # (`github.workflow`, `github.ref`) é o do CHAMADOR — grupos iguais entre chamador e
-# chamado se cancelam mutuamente e travam o deploy no meio. A concorrência é
-# declarada em cada workflow que tem gatilho.
+# chamado se cancelam mutuamente. A concorrência é declarada em cada workflow que
+# tem gatilho.
 
 name: Tests
 
