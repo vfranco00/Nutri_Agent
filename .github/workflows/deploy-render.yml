@@ -100,15 +100,39 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
 
+      # Confere os secrets dos DOIS jobs, não só os deste.
+      #
+      # Antes, `migrate` validava apenas a própria credencial e os secrets do `deploy`
+      # só eram exercidos depois. Com `RENDER_SERVICE_ID` ausente, a ordem produzia o
+      # pior desfecho possível: a migration rodava, o `deploy` falhava, e produção
+      # ficava com o schema novo servido pelo código antigo — que não consegue gravar
+      # em `food_cache` (`name_normalized` e `source` são NOT NULL). O `except` do
+      # serviço engole o erro, então nada aparece quebrado: só cada consulta de
+      # alimento passa a pagar o LLM, para sempre, em silêncio.
+      #
+      # Falhar aqui é barato — nada foi tocado. Falhar entre `migrate` e `deploy` custa
+      # uma intervenção manual em produção.
       - name: Conferir secrets
         env:
           RENDER_MIGRATION_DATABASE_URL: ${{ secrets.RENDER_MIGRATION_DATABASE_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
           set -euo pipefail
-          if [ -z "${RENDER_MIGRATION_DATABASE_URL:-}" ]; then
-            echo "::error::Cadastre o secret RENDER_MIGRATION_DATABASE_URL em Settings > Secrets and variables > Actions."
+          faltando=()
+          # `if` explícito em vez de `[ ... ] && ...`: sob `set -e`, uma lista `&&`
+          # cujo teste falha devolve status 1, e depender de qual cláusula do manual
+          # do bash cobre esse caso é frágil demais para um passo de produção.
+          for s in RENDER_MIGRATION_DATABASE_URL RENDER_API_KEY RENDER_SERVICE_ID; do
+            if [ -z "${!s:-}" ]; then
+              faltando+=("$s")
+            fi
+          done
+          if [ ${#faltando[@]} -gt 0 ]; then
+            echo "::error::Secret(s) ausente(s): ${faltando[*]}. Cadastre em Settings > Secrets and variables > Actions. Nada foi migrado."
             exit 1
           fi
+          echo "Os três secrets do deploy do backend estão presentes." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Instalar dependências
         # `migrations/env.py` importa `app.core.config` e `app.db.base` (que registra
