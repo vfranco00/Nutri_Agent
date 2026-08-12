@@ -28,6 +28,35 @@ jobs:
     defaults:
       run:
         working-directory: backend
+
+    # Postgres real para `tests/test_migrations.py`, que executa a cadeia de migrations
+    # de verdade e compara o schema resultante com `Base.metadata`.
+    #
+    # Sem este serviço aqueles testes se auto-pulam e o CI fica cego exatamente para a
+    # falha que os motivou: o resto da suíte monta o schema com `create_all()` a partir
+    # dos MODELOS, enquanto a produção o monta a partir das MIGRATIONS. Nada comparava os
+    # dois, e uma tabela que a migration nunca criou passou por 410 testes verdes até
+    # aparecer em produção como `UndefinedTable: relation "diary_entries" does not exist`.
+    #
+    # Não roda em SQLite: a migration `9c1e2f7a4b10` usa `ALTER COLUMN ... DROP NOT NULL`,
+    # sintaxe exclusiva do Postgres.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        # Sem o healthcheck o pytest começa antes de o banco aceitar conexão, e o teste
+        # se pula por "Postgres indisponível" — falso verde, o pior desfecho possível.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -63,6 +92,10 @@ jobs:
           SECRET_KEY: ci-placeholder-not-a-real-secret
           GEMINI_API_KEY: ci-placeholder-not-a-real-key
           ENVIRONMENT: test
+          # Banco de MANUTENÇÃO do serviço acima. `tests/test_migrations.py` usa esta URL
+          # só para CREATE/DROP DATABASE e roda as migrations num banco descartável
+          # `migracao_teste_*` — nunca neste. Sem esta variável aqueles testes se pulam.
+          MIGRATION_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
 
   frontend:
     name: Frontend (tsc + vitest + lint)
