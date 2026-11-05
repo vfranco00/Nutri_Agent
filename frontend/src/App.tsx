@@ -41,6 +41,7 @@ import { Termos } from './pages/legal/Termos';
 import { Privacidade } from './pages/perfil/Privacidade';
 import { ConsentGate } from './components/consent/ConsentGate';
 import './lib/consents';
+import { CodigoDeBarras } from './pages/registrar/CodigoDeBarras';
 import type { JSX } from 'react';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
@@ -120,6 +121,7 @@ function AppRoutes() {
 
       {naFolha && (
         <Routes>
+          <Route path={ROUTES.codigoDeBarras} element={<PrivateRoute><CodigoDeBarras /></PrivateRoute>} />
           <Route path="/registrar/*" element={<PrivateRoute><RegistrarOutlet /></PrivateRoute>} />
         </Routes>
       )}

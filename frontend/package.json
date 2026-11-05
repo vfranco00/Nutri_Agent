@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

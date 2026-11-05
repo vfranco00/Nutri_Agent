@@ -1,0 +1,9 @@
+/* Linha de leitura do código de barras (protótipo: @keyframes sweep). */
+@keyframes barcode-sweep {
+  to {
+    top: 128px;
+  }
+}
+.barcode-line {
+  animation: barcode-sweep 1.4s ease-in-out infinite alternate;
+}
