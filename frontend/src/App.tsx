@@ -33,6 +33,7 @@ import { AdminTickets } from './pages/AdminTickets';
 import { LEGACY_REDIRECTS, ROUTES } from './routes';
 import { LegacyRedirect } from './components/shell/LegacyRedirect';
 import { RegistrarOutlet } from './components/shell/RegistrarOutlet';
+import { Toaster } from './components/ui/Toast';
 import { SplashGate } from './components/brand/Splash';
 import { EmBreve } from './components/shell/EmBreve';
 import type { JSX } from 'react';
@@ -127,6 +128,7 @@ function App() {
             <BrowserRouter>
               <AppRoutes />
               <SplashGate />
+              <Toaster />
               <FeedbackWidget />
             </BrowserRouter>
           </FeedbackProvider>
