@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './components/brand/brand.css';
+@import './components/shell/shell.css';
 
 /* Tema escuro por classe .dark no <html> (o AppLayout liga e desliga). */
 @custom-variant dark (&:where(.dark, .dark *));

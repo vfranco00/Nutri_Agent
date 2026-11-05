@@ -49,7 +49,7 @@ export function FeedbackWidget() {
     <>
       <button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg shadow-green-900/30 transition-all hover:scale-105"
+        className="fixed bottom-28 right-4 md:bottom-6 md:right-6 z-40 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg shadow-green-900/30 transition-all hover:scale-105"
         title="Ajuda e feedback"
       >
         <MessageCircleQuestionIcon className="h-6 w-6" />

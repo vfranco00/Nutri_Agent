@@ -1,0 +1,31 @@
+/* Folha de Registrar (F4): sobe de baixo no celular (320 ms, curva de gaveta) e
+   abre um painel à direita no computador. Trocar de rota não tem transição. */
+.registrar-sheet {
+  animation: registrar-sobe 320ms var(--ease-drawer) both;
+}
+@keyframes registrar-sobe {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+.registrar-fundo {
+  animation: registrar-fundo 320ms var(--ease-out) both;
+}
+@keyframes registrar-fundo {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (min-width: 768px) {
+  .registrar-sheet {
+    animation-name: registrar-entra;
+  }
+  @keyframes registrar-entra {
+    from { transform: translateX(100%); }
+    to { transform: none; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .registrar-sheet {
+    animation-name: registrar-fundo;
+    animation-duration: 200ms;
+  }
+}

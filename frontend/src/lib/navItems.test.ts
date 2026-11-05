@@ -1,44 +1,62 @@
 import { describe, it, expect } from "vitest";
-import { getNavItems, sectionTitleForPath } from "./navItems";
+import { getNavGroups, getNavItems, sectionTitleForPath } from "./navItems";
+
+describe("getNavGroups", () => {
+  it("tem os 4 grupos na ordem da spec", () => {
+    expect(getNavGroups(false).map((g) => g.title)).toEqual(["Acompanhar", "Planejar", "Cozinhar", "Conta"]);
+  });
+
+  it("o Agente abre o grupo Acompanhar", () => {
+    const g = getNavGroups(false)[0];
+    expect(g.items[0].path).toBe("/agente");
+    expect(g.items.map((i) => i.path)).toEqual(["/agente", "/hoje", "/diario", "/progresso"]);
+  });
+
+  it("agrupa o resto como na spec", () => {
+    const [, planejar, cozinhar, conta] = getNavGroups(false);
+    expect(planejar.items.map((i) => i.path)).toEqual(["/cardapios", "/cardapios/gerar", "/compras"]);
+    expect(cozinhar.items.map((i) => i.path)).toEqual(["/receitas", "/alimentos", "/chef", "/comunidade"]);
+    expect(conta.items.map((i) => i.path)).toEqual(["/perfil", "/perfil/lembretes", "/assinatura"]);
+  });
+});
 
 describe("getNavItems", () => {
-  it("does not include Admin for regular users", () => {
-    const items = getNavItems(false);
-    expect(items.some((i) => i.path === "/admin")).toBe(false);
+  it("não inclui Admin para usuário comum", () => {
+    expect(getNavItems(false).some((i) => i.path === "/admin")).toBe(false);
   });
 
-  it("includes Admin for superusers", () => {
-    const items = getNavItems(true);
-    expect(items.some((i) => i.path === "/admin")).toBe(true);
+  it("inclui Admin para superusuário", () => {
+    expect(getNavItems(true).some((i) => i.path === "/admin")).toBe(true);
   });
 
-  it("always includes the core sections", () => {
+  it("sempre inclui as seções principais", () => {
     const paths = getNavItems(false).map((i) => i.path);
     expect(paths).toEqual(
-      expect.arrayContaining(["/dashboard", "/profile", "/recipes", "/ai-plan", "/ai-chef", "/shopping", "/meal-plans", "/planos"]),
+      expect.arrayContaining(["/hoje", "/perfil", "/receitas", "/cardapios/gerar", "/chef", "/compras", "/cardapios", "/assinatura"]),
     );
   });
 });
 
 describe("sectionTitleForPath", () => {
-  it("maps exact routes to their section name", () => {
-    expect(sectionTitleForPath("/dashboard")).toBe("Início");
-    expect(sectionTitleForPath("/ai-chef")).toBe("Chef IA");
-    expect(sectionTitleForPath("/profile")).toBe("Meu Perfil");
+  it("casa rotas exatas", () => {
+    expect(sectionTitleForPath("/hoje")).toBe("Hoje");
+    expect(sectionTitleForPath("/chef")).toBe("Chef");
+    expect(sectionTitleForPath("/perfil")).toBe("Perfil e metas");
   });
 
-  it("maps subroutes to the parent section (most specific prefix)", () => {
-    expect(sectionTitleForPath("/recipes/new")).toBe("Minhas Receitas");
-    expect(sectionTitleForPath("/meal-plans/123")).toBe("Planos Alimentares");
+  it("usa o prefixo mais específico", () => {
+    expect(sectionTitleForPath("/receitas/nova")).toBe("Minhas receitas");
+    expect(sectionTitleForPath("/cardapios/123")).toBe("Cardápios");
+    expect(sectionTitleForPath("/cardapios/gerar")).toBe("Gerar cardápio");
+    expect(sectionTitleForPath("/perfil/lembretes")).toBe("Lembretes");
   });
 
-  it("labels every admin route as the admin panel", () => {
+  it("rotula todas as rotas admin como painel", () => {
     expect(sectionTitleForPath("/admin")).toBe("Painel Admin");
     expect(sectionTitleForPath("/admin/users")).toBe("Painel Admin");
-    expect(sectionTitleForPath("/admin/finance")).toBe("Painel Admin");
   });
 
-  it("falls back to the brand name for unknown routes", () => {
+  it("volta ao nome da marca em rota desconhecida", () => {
     expect(sectionTitleForPath("/rota-inexistente")).toBe("Nuvi");
   });
 });
