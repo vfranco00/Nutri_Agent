@@ -12,7 +12,7 @@ Este módulo NÃO importa `FoodCache` e NÃO importa nada de `services/ai.py`: a
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
@@ -22,6 +22,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.diary import FoodOption, FoodResolveRequest, FoodSearchResponse
 from app.services import diary_foods as svc
+from app.services import openfoodfacts
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -127,5 +128,45 @@ def resolver_alimento(
         current_user.id,
         opcao.source,
         consumiu_caminho_pago,
+    )
+    return opcao
+
+
+@router.get("/barcode/{code}", response_model=FoodOption)
+@limiter.limit("30/minute")
+def buscar_por_codigo_de_barras(
+    request: Request,
+    # Só dígitos, de 8 a 14 (EAN-8, UPC-A, EAN-13, GTIN-14): a URL da Open Food Facts
+    # nunca é montada a partir de texto livre.
+    code: str = Path(pattern=openfoodfacts.CODIGO_VALIDO.pattern),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Código de barras: grátis em todos os planos (Frente B da Fase 1).
+
+    Sem `check_quota` e sem `log_usage` de propósito: não chama o LLM, e a Open Food Facts
+    não custa nada. A lógica e o acesso a `food_cache` moram no serviço, para que este
+    router continue sem importar `FoodCache` (RS-13).
+    """
+    try:
+        opcao = openfoodfacts.buscar_por_codigo(db, current_user.id, code)
+    except openfoodfacts.BarcodeUnavailable:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "BARCODE_UNAVAILABLE",
+                "message": "Não deu para consultar o produto agora. Tente de novo ou digite os dados.",
+            },
+        )
+    except openfoodfacts.BarcodeNotFound:
+        # RS-27: a mensagem não repete o código lido.
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "FOOD_NOT_FOUND", "message": "Produto não encontrado."},
+        )
+
+    # RS-26: nem o código nem o nome do produto entram no log.
+    logger.info(
+        "diary_barcode_found user_id=%s source=%s", current_user.id, opcao.source
     )
     return opcao
