@@ -53,6 +53,14 @@ class Settings(BaseSettings):
     # valor correto é de deploy — ver core/limiter.py.
     TRUSTED_PROXY_COUNT: int = 0
 
+    # --- Lembretes (push Web) ---
+    # Vazias = a API sobe, mas push responde 503 e o dispatch fica fechado.
+    VAPID_PUBLIC_KEY: str = ""
+    VAPID_PRIVATE_KEY: str = ""
+    VAPID_SUBJECT: str = ""
+    # Segredo do cron externo (GitHub Actions) que chama /internal/reminders/dispatch.
+    CRON_SECRET: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
