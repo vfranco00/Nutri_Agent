@@ -8,8 +8,11 @@ RS-26: nenhum log daqui recebe nome de alimento, código de barras ou quantidade
 
 from typing import Optional
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.models.ingredient import Ingredient
+from app.models.recipe import Recipe
 from app.models.user_food import UserFood
 from app.schemas.diary import FoodOption
 from app.services import diary_math
@@ -80,3 +83,50 @@ def opcao_do_mine_por_barcode(
     """Assinatura exata do gancho `openfoodfacts.buscar_no_mine` da Frente B."""
     linha = buscar_mine_por_barcode(db, user_id, barcode)
     return None if linha is None else opcao_do_mine(linha)
+
+
+# --------------------------------------------------------------------------------------
+# Receita (`recipe:<id>`)
+# --------------------------------------------------------------------------------------
+
+
+def recipe_ref(recipe_id: int) -> str:
+    return f"recipe:{recipe_id}"
+
+
+def opcao_da_receita(db: Session, user_id: int, recipe_id: int) -> Optional[FoodOption]:
+    """FoodOption de UMA PORÇÃO da receita (a receita não tem rendimento).
+
+    Escopo no WHERE: receita própria ou pública. Privada alheia e inexistente dão o mesmo
+    None. Sem kcal > 0 (nem `calories`, nem soma dos ingredientes) não resolve: gravar
+    "0 kcal" seria uma afirmação nutricional falsa. Macros ficam None (desconhecidos).
+    """
+    receita = (
+        db.query(Recipe)
+        .filter(
+            Recipe.id == recipe_id,
+            (Recipe.user_id == user_id) | (Recipe.is_public.is_(True)),
+        )
+        .first()
+    )
+    if receita is None:
+        return None
+    kcal = receita.calories
+    if kcal is None:
+        kcal = (
+            db.query(func.sum(Ingredient.calories))
+            .filter(Ingredient.recipe_id == receita.id)
+            .scalar()
+        )
+    if kcal is None or kcal <= 0:
+        return None
+    return FoodOption(
+        food_ref=recipe_ref(receita.id),
+        name=receita.title[:120],
+        base_unit="un",
+        kcal_per_base_unit=float(kcal),
+        allowed_units=diary_math.allowed_units("un"),
+        source="recipe",
+        is_estimate=False,
+        portion_label="porção",
+    )

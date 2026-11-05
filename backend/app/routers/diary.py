@@ -155,6 +155,10 @@ def _resolver_food_ref(db: Session, food_ref: str, user_id: int):
         pessoal = diary_registro.buscar_mine(db, user_id, int(bruto))
         return None if pessoal is None else diary_registro.opcao_do_mine(pessoal)
 
+    if namespace == "recipe":
+        # Porção de receita: própria ou pública. Privada alheia dá o mesmo None.
+        return diary_registro.opcao_da_receita(db, user_id, int(bruto))
+
     if namespace != "cache":
         return None
 
