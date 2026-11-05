@@ -23,6 +23,9 @@ export const ROUTES = {
   comunidade: "/comunidade",
   perfil: "/perfil",
   lembretes: "/perfil/lembretes",
+  privacidadePerfil: "/perfil/privacidade",
+  politica: "/privacidade",
+  termos: "/termos",
   assinatura: "/assinatura",
 } as const;
 

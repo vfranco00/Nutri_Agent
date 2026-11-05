@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Register } from "./Register";
 import { api } from "../lib/api";
+import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../lib/api", () => ({
   api: { post: vi.fn() },
@@ -10,13 +11,17 @@ vi.mock("../lib/api", () => ({
 
 async function fillForm(
   user: ReturnType<typeof userEvent.setup>,
-  { password, confirmPassword }: { password: string; confirmPassword: string },
+  { password, confirmPassword, aceites = true }: { password: string; confirmPassword: string; aceites?: boolean },
 ) {
   await user.type(screen.getByPlaceholderText("Seu Nome"), "Franco Teste");
   await user.type(screen.getByPlaceholderText("seu@email.com"), "franco@example.com");
   const [passwordInput, confirmInput] = screen.getAllByPlaceholderText("••••••••");
   await user.type(passwordInput, password);
   await user.type(confirmInput, confirmPassword);
+  if (aceites) {
+    await user.click(screen.getByRole("checkbox", { name: /Li e aceito a Política de Privacidade e os Termos de Uso/ }));
+    await user.click(screen.getByRole("checkbox", { name: /dados de saúde/ }));
+  }
   await user.click(screen.getByRole("button", { name: /cadastrar/i }));
 }
 
@@ -27,7 +32,7 @@ beforeEach(() => {
 describe("Register", () => {
   it("blocks submit when passwords don't match", async () => {
     const user = userEvent.setup();
-    render(<Register />);
+    render(<MemoryRouter><Register /></MemoryRouter>);
 
     await fillForm(user, { password: "strongpassword123", confirmPassword: "outrasenha" });
 
@@ -38,7 +43,7 @@ describe("Register", () => {
   it("shows the success panel after registering", async () => {
     vi.mocked(api.post).mockResolvedValue({ data: {} });
     const user = userEvent.setup();
-    render(<Register />);
+    render(<MemoryRouter><Register /></MemoryRouter>);
 
     await fillForm(user, { password: "strongpassword123", confirmPassword: "strongpassword123" });
 
@@ -57,7 +62,7 @@ describe("Register", () => {
       },
     });
     const user = userEvent.setup();
-    render(<Register />);
+    render(<MemoryRouter><Register /></MemoryRouter>);
 
     await fillForm(user, { password: "123456", confirmPassword: "123456" });
 
@@ -65,5 +70,37 @@ describe("Register", () => {
     expect(screen.queryByText("Quase lá!")).not.toBeInTheDocument();
     // ...e deve mostrar uma mensagem de texto legível, não um objeto/erro não tratado
     expect(await screen.findByText("String should have at least 8 characters")).toBeInTheDocument();
+  });
+
+  it("sem as duas caixas de aceite não envia", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter><Register /></MemoryRouter>);
+
+    await fillForm(user, { password: "strongpassword123", confirmPassword: "strongpassword123", aceites: false });
+
+    expect(api.post).not.toHaveBeenCalled();
+    expect(await screen.findByText(/aceite a Política e autorize/i)).toBeInTheDocument();
+  });
+
+  it("só a caixa de saúde marcada também não envia", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter><Register /></MemoryRouter>);
+    await user.click(screen.getByRole("checkbox", { name: /dados de saúde/ }));
+    await fillForm(user, { password: "strongpassword123", confirmPassword: "strongpassword123", aceites: false });
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it("informa que é para maiores de 18 anos e envia a versão e o consentimento de saúde", async () => {
+    vi.mocked(api.post).mockResolvedValue({ data: {} });
+    const user = userEvent.setup();
+    render(<MemoryRouter><Register /></MemoryRouter>);
+    expect(screen.getByText(/maiores de 18 anos/)).toBeInTheDocument();
+
+    await fillForm(user, { password: "strongpassword123", confirmPassword: "strongpassword123" });
+
+    expect(api.post).toHaveBeenCalledWith("/users/", expect.objectContaining({
+      accepted_policy_version: "2026-11-v1",
+      consent_saude: true,
+    }));
   });
 });

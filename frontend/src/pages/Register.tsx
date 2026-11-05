@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../lib/api";
+import { POLICY_VERSION_ACEITA } from "../lib/consents";
 import {
   User,
   Mail,
@@ -34,6 +36,8 @@ export function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState(""); // Novo estado
+  const [aceitaPolitica, setAceitaPolitica] = useState(false);
+  const [consenteSaude, setConsenteSaude] = useState(false);
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
@@ -47,11 +51,19 @@ export function Register() {
       return;
     }
 
+    if (!aceitaPolitica || !consenteSaude) {
+      setError("Para criar a conta, aceite a Política e autorize o uso dos dados de saúde.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await api.post("/users/", {
         full_name: name,
         email: email,
         password: password,
+        accepted_policy_version: POLICY_VERSION_ACEITA,
+        consent_saude: true,
       });
 
       setRegistered(true);
@@ -167,6 +179,21 @@ export function Register() {
               </p>
             )}
           </div>
+
+          <p className="text-xs text-zinc-400 ml-1">Para maiores de 18 anos.</p>
+
+          <label className="flex items-start gap-3 text-sm text-zinc-300">
+            <input type="checkbox" checked={aceitaPolitica} onChange={(e) => setAceitaPolitica(e.target.checked)} className="mt-0.5 h-5 w-5 accent-green-600" />
+            <span>
+              Li e aceito a <Link to="/privacidade" target="_blank" className="underline text-green-400">Política de Privacidade</Link> e os{" "}
+              <Link to="/termos" target="_blank" className="underline text-green-400">Termos de Uso</Link>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-3 rounded-lg border border-green-600/50 bg-green-600/10 p-3 text-sm font-medium text-zinc-100">
+            <input type="checkbox" checked={consenteSaude} onChange={(e) => setConsenteSaude(e.target.checked)} className="mt-0.5 h-5 w-5 accent-green-600" />
+            <span>Autorizo o tratamento dos meus dados de saúde (peso, medidas, diário) para calcular metas e registrar refeições</span>
+          </label>
 
           {error && (
             <div className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-md border border-red-400/20">

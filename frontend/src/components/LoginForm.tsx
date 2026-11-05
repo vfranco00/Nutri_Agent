@@ -143,6 +143,11 @@ export function LoginForm() {
         <a href="/register" className="text-green-500 hover:text-green-400 hover:underline">
           Crie agora
         </a>
+        <p className="mt-3 text-xs">
+          <a href="/privacidade" className="hover:text-zinc-300 hover:underline">Política de Privacidade</a>
+          {" · "}
+          <a href="/termos" className="hover:text-zinc-300 hover:underline">Termos de Uso</a>
+        </p>
       </div>
     </>
   );

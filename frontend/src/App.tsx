@@ -36,6 +36,11 @@ import { RegistrarOutlet } from './components/shell/RegistrarOutlet';
 import { Toaster } from './components/ui/Toast';
 import { SplashGate } from './components/brand/Splash';
 import { EmBreve } from './components/shell/EmBreve';
+import { Politica } from './pages/legal/Politica';
+import { Termos } from './pages/legal/Termos';
+import { Privacidade } from './pages/perfil/Privacidade';
+import { ConsentGate } from './components/consent/ConsentGate';
+import './lib/consents';
 import type { JSX } from 'react';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
@@ -71,6 +76,8 @@ function AppRoutes() {
         {/* Login não tem tela própria: a caixa vem no modal da home. */}
         <Route path="/login" element={<Navigate to="/?login=1" replace />} />
         <Route path="/register" element={<Register />} />
+        <Route path={ROUTES.politica} element={<Politica />} />
+        <Route path={ROUTES.termos} element={<Termos />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -87,6 +94,7 @@ function AppRoutes() {
           <Route path={ROUTES.agente} element={<EmBreve titulo="Agente Nuvi" />} />
           <Route path={ROUTES.progresso} element={<EmBreve titulo="Progresso" />} />
           <Route path={ROUTES.perfil} element={<Profile />} />
+          <Route path={ROUTES.privacidadePerfil} element={<Privacidade />} />
           <Route path={ROUTES.lembretes} element={<EmBreve titulo="Lembretes" />} />
           <Route path={ROUTES.assinatura} element={<Plans />} />
           <Route path={ROUTES.alimentos} element={<EmBreve titulo="Meus alimentos" />} />
@@ -129,6 +137,7 @@ function App() {
               <AppRoutes />
               <SplashGate />
               <Toaster />
+              <ConsentGate />
               <FeedbackWidget />
             </BrowserRouter>
           </FeedbackProvider>

@@ -451,6 +451,10 @@ export function Landing() {
           </div>
           <div>
             <p className="text-xs font-bold uppercase text-zinc-500 mb-3">Nuvi</p>
+            <ul className="space-y-2 text-sm text-zinc-400 mb-3">
+              <li><a href="/privacidade" className="hover:text-white">Política de Privacidade</a></li>
+              <li><a href="/termos" className="hover:text-white">Termos de Uso</a></li>
+            </ul>
             <p className="text-sm text-zinc-500">© {new Date().getFullYear()} Nuvi</p>
           </div>
         </div>

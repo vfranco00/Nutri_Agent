@@ -195,9 +195,12 @@ export function Profile() {
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-6">
+      <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-2">
         Meu Perfil Nutricional
       </h1>
+      <a href="/perfil/privacidade" className="mb-6 inline-block text-sm font-semibold text-green-600 dark:text-green-500 underline">
+        Privacidade e meus dados
+      </a>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* COLUNA 1: Formulário (Esquerda) */}
