@@ -2,18 +2,16 @@ import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 import { ROUTES } from "../../routes";
-
-const NOMES: Record<string, string> = { cafe: "café", almoco: "almoço", lanche: "lanche", jantar: "jantar" };
+import { Registrar } from "../../pages/registrar/Registrar";
 
 /**
  * Folha de Registrar por cima da tela de fundo. Celular: sobe de baixo; computador:
- * painel à direita. O conteúdo real (abas Buscar, Recentes…) vem da Frente R.
+ * painel à direita. O conteúdo (abas Buscar, Recentes…, carrinho) é o `Registrar`.
  */
 export function RegistrarOutlet() {
   const navigate = useNavigate();
   const location = useLocation();
   const fecharRef = useRef<HTMLButtonElement>(null);
-  const refeicao = new URLSearchParams(location.search).get("refeicao") ?? "";
   const veioDeFundo = !!(location.state as { background?: unknown } | null)?.background;
 
   function fechar() {
@@ -55,9 +53,7 @@ export function RegistrarOutlet() {
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </header>
-        <div className="flex-1 overflow-y-auto px-5 pb-8 text-sm text-mut">
-          {refeicao in NOMES ? <p>Registrando no {NOMES[refeicao]}.</p> : null}
-        </div>
+        <Registrar onClose={fechar} />
       </section>
     </div>
   );

@@ -3,6 +3,9 @@ import { api } from "./api";
 import { extractDiaryErrorMessage, isDayEmpty, shiftIsoDate, toIsoDate } from "./diary";
 import type { DiaryDay, DiaryEntryCreate, DiaryEntryUpdate } from "../types";
 
+/** Mesmo nome de `lib/registro.ts` (EVENTO_DIARIO); repetido aqui para não criar ciclo de import. */
+const EVENTO_DIARIO = "nuvi:diario";
+
 export type DiaryStatus = "loading" | "ready" | "error";
 
 export interface UseDiaryDayResult {
@@ -96,6 +99,22 @@ export function useDiaryDay(dataInicial?: string): UseDiaryDayResult {
       ativo = false;
     };
   }, [date, nonce]);
+
+  // A folha Registrar (e os menus de copiar) mudam o dia por fora deste hook e anunciam o
+  // DiaryDay pronto. Se for o dia em foco, a resposta vira estado (D-6): sem refetch.
+  useEffect(() => {
+    function aoMudar(ev: Event) {
+      const novo = (ev as CustomEvent<DiaryDay>).detail;
+      if (!novo || novo.date !== date) return;
+      requisicaoAtual.current += 1;
+      dataJaSatisfeita.current = novo.date;
+      setDay(novo);
+      setStatus("ready");
+      setError(null);
+    }
+    window.addEventListener(EVENTO_DIARIO, aoMudar);
+    return () => window.removeEventListener(EVENTO_DIARIO, aoMudar);
+  }, [date]);
 
   // Recarregar é pedido explícito do usuário: invalida a marca para que o GET aconteça
   // mesmo que a data já esteja satisfeita.

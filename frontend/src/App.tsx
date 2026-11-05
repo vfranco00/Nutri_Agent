@@ -37,6 +37,8 @@ import { LegacyRedirect } from './components/shell/LegacyRedirect';
 import { RegistrarOutlet } from './components/shell/RegistrarOutlet';
 import { Toaster } from './components/ui/Toast';
 import { SplashGate } from './components/brand/Splash';
+import { MeusAlimentos } from './pages/alimentos/MeusAlimentos';
+import { AlimentoForm } from './pages/alimentos/AlimentoForm';
 import { EmBreve } from './components/shell/EmBreve';
 import { Politica } from './pages/legal/Politica';
 import { Termos } from './pages/legal/Termos';
@@ -102,8 +104,9 @@ function AppRoutes() {
           <Route path={ROUTES.privacidadePerfil} element={<Privacidade />} />
           <Route path={ROUTES.lembretes} element={<Lembretes />} />
           <Route path={ROUTES.assinatura} element={<Plans />} />
-          <Route path={ROUTES.alimentos} element={<EmBreve titulo="Meus alimentos" />} />
-          <Route path={ROUTES.alimentoNovo} element={<EmBreve titulo="Novo alimento" />} />
+          <Route path={ROUTES.alimentos} element={<MeusAlimentos />} />
+          <Route path={ROUTES.alimentoNovo} element={<AlimentoForm />} />
+          <Route path={`${ROUTES.alimentos}/:id`} element={<AlimentoForm />} />
           <Route path={ROUTES.receitas} element={<Recipes />} />
           <Route path={ROUTES.receitaNova} element={<NewRecipe />} />
           <Route path="/receitas/:id" element={<RecipeDetail />} />

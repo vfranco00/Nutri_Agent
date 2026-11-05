@@ -193,6 +193,8 @@ export interface MealPlan {
   days: MealPlanDay[];
 }
 
+// =====================================================================}
+
 // ============================================================================
 // DIÁRIO ALIMENTAR — contrato do ADR-0001 (docs/adr/0001-diario-alimentar.md).
 // Espelha os schemas Pydantic de backend/app/schemas/diary.py.
@@ -255,7 +257,7 @@ export type FoodBaseUnit = 'g' | 'ml' | 'un';
 
 /** Procedência do dado nutricional. 'taco'/'curated' são curados e compartilhados;
  *  'openfoodfacts'/'llm' são estimativas isoladas por usuário (RS-17). */
-export type FoodSource = 'taco' | 'curated' | 'openfoodfacts' | 'llm';
+export type FoodSource = 'taco' | 'curated' | 'openfoodfacts' | 'llm' | 'user' | 'recipe';
 
 /** Alimento pronto para virar entrada. Mesmo formato na busca e no resolve. */
 export interface FoodOption {
@@ -273,6 +275,8 @@ export interface FoodOption {
   source: FoodSource;
   /** true => a interface marca como estimativa. Já calculado no servidor. */
   is_estimate: boolean;
+  /** Só `mine:` e `recipe:`: nome da porção ("1 fatia", "porção"). */
+  portion_label?: string | null;
 }
 
 /** GET /diary/foods/search */
@@ -467,4 +471,77 @@ export interface AgentParseResponse {
   date: string;
   meal_slot: MealSlot | null;
   items: AgentParsedItem[];
+=======
+// Registro rápido (Frente R): alimento pessoal, recentes, cópia, lote e
+// refeição pronta. Espelha `backend/app/schemas/diary_registro.py`.
+// ============================================================================
+
+export interface UserFood {
+  id: number;
+  /** `mine:<id>` */
+  food_ref: string;
+  name: string;
+  portion_label: string;
+  portion_grams: number | null;
+  kcal: number;
+  protein_g: number | null;
+  carbs_g: number | null;
+  fat_g: number | null;
+  barcode: string | null;
+  created_at: string;
+}
+
+export interface UserFoodCreate {
+  name: string;
+  portion_label?: string;
+  portion_grams?: number | null;
+  kcal: number;
+  protein_g?: number | null;
+  carbs_g?: number | null;
+  fat_g?: number | null;
+  barcode?: string | null;
+}
+
+export type UserFoodUpdate = Partial<UserFoodCreate>;
+
+export interface QuickFood {
+  food: FoodOption;
+  quantity: number;
+  unit: DiaryUnit;
+  meal_slot: MealSlot;
+  count: number;
+}
+
+export interface DiaryCopyRequest {
+  from_date: string;
+  to_date: string;
+  meal_slot?: MealSlot;
+}
+
+export interface DiaryBatchItem {
+  food_ref: string;
+  quantity: number;
+  unit: DiaryUnit;
+}
+
+export interface DiaryBatchRequest {
+  entry_date: string;
+  meal_slot: MealSlot;
+  items: DiaryBatchItem[];
+}
+
+export interface SavedMealItem {
+  food_ref: string;
+  food_name: string;
+  quantity: number;
+  unit: DiaryUnit;
+  calories: number;
+}
+
+export interface SavedMeal {
+  id: number;
+  name: string;
+  calories: number;
+  items: SavedMealItem[];
+  created_at: string;
 }
