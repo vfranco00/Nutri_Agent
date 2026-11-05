@@ -1,1 +1,33 @@
-/* Peças de movimento da marca (Tarefa F3). */
+/* Peças de movimento da marca (Tarefa F3). Só CSS; o movimento reduzido fica só com opacidade. */
+.nuvi-gomo {
+  transform-box: view-box;
+  transform-origin: 50px 50px;
+}
+
+.nuvi-wave .nuvi-gomo {
+  animation: nuvi-gomo 960ms var(--ease-in-out) infinite;
+  animation-delay: calc(var(--i) * 120ms);
+}
+
+/* Uma volta só: o último gomo (i=7) termina em 7*120 + 960 ms. */
+.nuvi-wave-once .nuvi-gomo {
+  animation: nuvi-gomo 960ms var(--ease-in-out) 1;
+  animation-delay: calc(var(--i) * 120ms);
+}
+
+@keyframes nuvi-gomo {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  40% { opacity: 0.35; transform: scale(0.84); }
+}
+
+@keyframes nuvi-gomo-rm {
+  0%, 100% { opacity: 1; }
+  40% { opacity: 0.4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nuvi-wave .nuvi-gomo,
+  .nuvi-wave-once .nuvi-gomo {
+    animation-name: nuvi-gomo-rm;
+  }
+}

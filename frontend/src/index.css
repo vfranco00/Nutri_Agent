@@ -162,7 +162,7 @@
    As peças da marca (brand.css) e a WAAPI trazem a própria versão reduzida,
    só com opacidade. */
 @media (prefers-reduced-motion: reduce) {
-  *,
+  *:not(.nuvi-gomo),
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
