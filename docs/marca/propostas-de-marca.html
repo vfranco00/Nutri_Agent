@@ -1,0 +1,347 @@
+<title>Marca do app Tempero</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&family=Fredoka:wght@600&family=Lilita+One&family=Grandstander:wght@800&display=swap" rel="stylesheet">
+<style>
+/* Layout: quadro de comparação — faixa com as 5 marcas lado a lado, depois uma seção por direção com logo, paleta, mascote e 4 telas aplicadas. */
+:root{
+  --bg:#ECE7E1; --panel:#FFFFFF; --ink:#1C1712; --mut:#6E6152; --line:#DDD4CA; --soft:#F4EFEA;
+  --pass:#2F7A00; --passS:#E3F3D6; --warn:#8A5A00; --warnS:#FBEBC7; --fail:#B42318; --failS:#FBE1DD;
+  --focus:#FF6A2B;
+  --f-ui:'Nunito',ui-rounded,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141210; --panel:#1E1B18; --ink:#F3EFE9; --mut:#A99C8E; --line:#2F2A26; --soft:#26221E;
+  --pass:#7FD94A; --passS:#1E2E14; --warn:#F2C14E; --warnS:#33280F; --fail:#FF8A7A; --failS:#3A1A16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141210; --panel:#1E1B18; --ink:#F3EFE9; --mut:#A99C8E; --line:#2F2A26; --soft:#26221E;
+  --pass:#7FD94A; --passS:#1E2E14; --warn:#F2C14E; --warnS:#33280F; --fail:#FF8A7A; --failS:#3A1A16; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:500 15px/1.5 var(--f-ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em}
+h1{font-size:clamp(28px,4vw,40px);font-weight:900;line-height:1.05}
+h2{font-size:26px;font-weight:900}
+h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+p{margin:0;max-width:68ch}
+.lead{color:var(--mut);font-size:16px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+
+/* faixa de comparação */
+.strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.pick{background:var(--panel);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;text-decoration:none;border:2px solid transparent}
+.pick:hover{border-color:var(--line)}
+.pick .ic{width:64px;height:64px}
+.pick .wm{font-size:26px;line-height:1}
+.pick small{color:var(--mut);font-size:13px;line-height:1.35}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;width:max-content}
+.r-alto{background:var(--failS);color:var(--fail)} .r-medio{background:var(--warnS);color:var(--warn)} .r-baixo{background:var(--passS);color:var(--pass)}
+.rec{background:var(--panel);border-radius:22px;padding:18px 20px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.rec .ic{width:56px;height:56px}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{background:var(--panel);border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.note ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+
+/* seção de direção */
+.dir{background:var(--panel);border-radius:30px;padding:24px;display:flex;flex-direction:column;gap:22px;scroll-margin-top:16px}
+.dhead{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:baseline}
+.dhead .num{font-weight:900;color:var(--mut);font-size:14px}
+.dhead .tag{color:var(--mut);font-weight:700}
+.grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px}
+.block{display:flex;flex-direction:column;gap:10px;min-width:0}
+.lock{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border-radius:20px;padding:22px 16px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:120px}
+.tile svg{width:48px;height:48px;flex:none}
+.tile .wm{font-size:34px;line-height:1}
+.sw{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.sw div{border-radius:14px;overflow:hidden;background:var(--soft);font-size:12px}
+.sw i{display:block;height:54px}
+.sw b{display:block;padding:6px 8px 0;font-size:12px}
+.sw code{display:block;padding:0 8px 7px;font:700 11.5px ui-monospace,Menlo,monospace;color:var(--mut)}
+.ctr{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.ctr div{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.ctr div:last-child{border-bottom:0}
+.ctr .pair{width:44px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+.ctr .ratio{font-variant-numeric:tabular-nums;font-weight:800}
+.ok{background:var(--passS);color:var(--pass)} .lg{background:var(--warnS);color:var(--warn)} .no{background:var(--failS);color:var(--fail)}
+.ctr .badge{border-radius:6px;padding:1px 7px;font-size:11px;font-weight:900}
+.masc{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;background:var(--soft);border-radius:20px;padding:14px}
+.masc svg{width:110px;height:110px}
+.check{background:var(--soft);border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.apps{display:flex;flex-wrap:wrap;gap:16px 14px;align-items:flex-start}
+.app{display:flex;flex-direction:column;gap:8px;width:168px}
+.app figcaption{font-size:12.5px;font-weight:800;color:var(--mut)}
+figure{margin:0}
+
+/* celular */
+.ph{width:168px;height:350px;border-radius:30px;border:6px solid #0E0D0C;overflow:hidden;position:relative;font-family:var(--f-ui);flex:none}
+.sb{height:22px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:9px;font-weight:900}
+.sb .r{display:flex;gap:3px}.sb .r i{display:block;width:9px;height:6px;border-radius:2px;background:currentColor;opacity:.9}
+.hb{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:56px;height:3.5px;border-radius:2px;background:currentColor;opacity:.5}
+.home{background:#3A332D;color:#fff}
+.home .g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 6px;padding:14px 10px}
+.home .a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:7px;font-weight:700;color:#F3EFE9;text-align:center;white-space:nowrap}
+.home .a span{display:block;width:30px;height:30px;border-radius:7px}
+.home .a svg{width:30px;height:30px}
+.home .dock{position:absolute;left:8px;right:8px;bottom:14px;height:46px;border-radius:16px;background:#4A423B;display:flex;justify-content:space-around;align-items:center}
+.home .dock span{width:30px;height:30px;border-radius:7px;display:block}
+.splash{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.splash svg{width:76px;height:76px}
+.splash .wm{font-size:30px;line-height:1}
+.splash .foot{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-size:9.5px;font-weight:800;opacity:.85}
+.appv{color:#1C1712}
+.appv .hd{display:flex;align-items:center;gap:6px;padding:6px 12px 4px}
+.appv .hd svg{width:22px;height:22px}
+.appv .hd .wm{font-size:17px;line-height:1;flex:1}
+.appv .bell{width:24px;height:24px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center}
+.appv .av{width:24px;height:24px;border-radius:50%;background:#E8C9AD;color:#7A5136;font-weight:900;font-size:10px;display:flex;align-items:center;justify-content:center}
+.appv .hi{padding:6px 12px 2px;font-size:15px;font-weight:900;letter-spacing:-.02em}
+.appv .hi small{display:block;font-size:9px;font-weight:700;color:#7A6A58;letter-spacing:0}
+.appv .card{background:#fff;border-radius:16px;margin:6px 10px;padding:8px 10px}
+.appv .card svg{display:block;width:100%;height:62px}
+.appv .row{white-space:nowrap;font-size:8.5px!important;display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:800}
+.appv .pos{background:#E3F3D6;color:#2F7A00;border-radius:999px;padding:2px 7px;font-size:8.5px;font-weight:900}
+.appv .btn{display:flex;align-items:center;justify-content:center;gap:4px;margin:6px 10px;border-radius:12px;padding:8px;background:#FF6A2B;color:#1C1712;font-weight:900;font-size:10.5px}
+.appv .say{display:flex;gap:6px;align-items:flex-start;margin:6px 10px;background:#fff;border-radius:14px;padding:7px 8px;font-size:8.5px;font-weight:700;line-height:1.35}
+.appv .say svg{width:26px;height:26px;flex:none}
+.lockv{background:#2B2622;color:#fff}
+.lockv .t{text-align:center;font-weight:800;font-size:44px;line-height:1;margin-top:28px;letter-spacing:-.03em}
+.lockv .d{text-align:center;font-size:9.5px;font-weight:700;opacity:.8;margin-top:4px}
+.nt{position:absolute;left:8px;right:8px;top:136px;background:#F2EEEA;color:#1C1712;border-radius:16px;padding:8px 9px;display:grid;grid-template-columns:24px 1fr;gap:7px}
+.nt svg{width:24px;height:24px}
+.nt .top{display:flex;justify-content:space-between;font-size:7.5px;font-weight:800;color:#6E6152;text-transform:uppercase;letter-spacing:.04em}
+.nt b{display:block;font-size:10px;margin-top:1px}
+.nt p{font-size:9px;line-height:1.3;font-weight:600}
+.mask{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:168px}
+.mask div{display:flex;flex-direction:column;gap:4px;align-items:center;font-size:10px;font-weight:700;color:var(--mut);text-align:center}
+.mask .m{width:50px;height:50px;overflow:hidden}
+.mask .m svg{width:100%;height:100%;display:block}
+.mask .big{grid-column:1/-1;width:168px;height:168px;position:relative}
+.mask .big svg{width:100%;height:100%;display:block}
+@media (max-width:980px){.strip{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2,.notes{grid-template-columns:1fr}}
+@media (max-width:620px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.sw{grid-template-columns:repeat(3,minmax(0,1fr))}.lock{grid-template-columns:1fr}.dir{padding:18px 14px}.apps{justify-content:center}.rec{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h3>NutriAgent · redesign Tempero · identidade visual</h3>
+    <h1>Cinco caminhos de marca para o app novo</h1>
+    <p class="lead">Cada direção traz nome, logo, paleta, mascote do Agente e a marca aplicada no ícone do PWA, na abertura, no topo do app e numa notificação. As cinco mantêm o que já foi decidido no Tempero: laranja nas ações, verde no que é positivo, fonte Nunito, cores sólidas. O que muda é o nome, o símbolo e a cor da marca.</p>
+  </header>
+
+  <nav class="strip" id="strip" aria-label="As cinco direções"></nav>
+
+  <section class="rec" aria-label="Recomendação">
+    <div id="recIcon"></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <h3>Recomendação</h3>
+      <p><b>Pitada.</b> É o nome que mais conversa com o Tempero (tempero se põe aos poucos, uma pitada por dia), é curto, fácil de falar e de escrever, e a busca não achou nenhum app de nutrição com ele. A pimenta-biquinho dá um mascote brasileiro que ninguém no setor usa, e o vermelho de pimenta separa a marca do laranja das ações sem brigar com ele. A escolha é sua: as outras quatro estão completas abaixo.</p>
+    </div>
+  </section>
+
+  <div class="notes">
+    <section class="note">
+      <h3>Checagem dos nomes (busca na web, 05/11/2026)</h3>
+      <ul id="checks"></ul>
+      <p style="font-size:13px;color:var(--mut)">A busca não substitui a consulta de marca no INPI (classes 9 e 42) nem a de domínio. Vale fazer as duas antes de decidir.</p>
+    </section>
+    <section class="note">
+      <h3>Achado de contraste no Tempero</h3>
+      <p style="font-size:14px">Texto branco sobre o laranja <code>#FF6A2B</code> tem contraste 2,86:1 e não passa no AA nem como texto grande. O verde <code>#52CC02</code> e o cinza <code>#9A8B7A</code> também não servem como texto sobre o creme. Nas cinco paletas abaixo as cores ficam, com estas regras:</p>
+      <ul style="font-size:14px">
+        <li>Botão laranja com texto escuro <code>#1C1712</code> (6,22:1).</li>
+        <li>Palavra laranja sobre fundo claro em <code>#C2410C</code> (4,55:1 no creme).</li>
+        <li>Texto positivo em <code>#2F7A00</code> (4,72:1 no creme); o <code>#52CC02</code> fica para barras, anéis e selos.</li>
+        <li>Texto secundário em <code>#7A6A58</code> (4,58:1 no creme).</li>
+      </ul>
+    </section>
+  </div>
+
+  <main id="dirs" style="display:flex;flex-direction:column;gap:28px"></main>
+</div>
+
+<script>
+const INK='#1C1712', ACT='#FF6A2B', POS='#52CC02', ACT_T='#C2410C', POS_T='#2F7A00', MUT_T='#7A6A58';
+const D=[
+ {id:'nutriagent',n:'01',name:'NutriAgent',word:'NutriAgent',font:"'Nunito'",fw:900,ls:'-.03em',
+  tag:'Seu agente de nutrição',
+  idea:'Mantém o nome e a recordação do ícone atual. A folha vira um balão de conversa (o rabinho do balão é o talo) e a linha que sobe no gráfico antigo virou a nervura da folha, terminando num ponto verde: o Agente conversa e mostra progresso.',
+  pr:'#2F7A00',prN:'verde-folha',light:'#F7EFE6',dark:'#0C0A09',
+  iconBg:'#2F7A00',iconFg:'#FFFFFF',iconAc:'#52CC02',lightFg:'#2F7A00',lightAc:'#52CC02',darkFg:'#6AD11F',darkAc:'#FF6A2B',
+  wmLight:INK,wmDark:'#F3EFE9',splashBg:'#2F7A00',splashFg:'#FFFFFF',onPr:'#FFFFFF',
+  mName:'Folhinha',mBody:'#52CC02',mFace:INK,
+  mText:'A folha-balão com olhos. Fala no chat, anota a comida e comemora em verde quando a meta fecha. Simpática, mas é a mais genérica das cinco: folha é o símbolo mais usado em apps de nutrição.',
+  notif:'Folhinha aqui: já almoçou? Me conta o que comeu que eu anoto.',
+  risk:'alto',check:'Conflito direto: <b>NutriAgent AI</b> está na App Store dos EUA desde abril de 2026 (DealFlip, Inc.), coach de nutrição por IA com registro por foto, voz ou texto, e site em nutriagent.app.'},
+ {id:'pitada',n:'02',name:'Pitada',word:'pitada',font:"'Baloo 2'",fw:800,ls:'-.02em',
+  tag:'Uma pitada de cuidado por dia',
+  idea:'Tempero se põe aos poucos. O nome fala de mudança pequena e diária, sem dieta de culpa. O símbolo é uma pimenta-biquinho (a pimenta doce e redonda da cozinha brasileira) com três grãos caindo, o gesto de temperar.',
+  pr:'#C8281E',prN:'pimenta',light:'#FBF0E6',dark:'#120A08',
+  iconBg:'#FBF0E6',iconFg:'#C8281E',iconAc:'#FF6A2B',lightFg:'#C8281E',lightAc:'#FF6A2B',darkFg:'#FF5A47',darkAc:'#FFC233',
+  wmLight:INK,wmDark:'#F3EFE9',splashBg:'#FBF0E6',splashFg:'#C8281E',splashSym:['#C8281E','#FF6A2B'],onPr:'#FFFFFF',
+  mName:'Biquinho',mBody:'#E0362A',mFace:'#FFFFFF',
+  mText:'A pimenta-biquinho que dá a sua pitada de incentivo. Tom brincalhão e nunca ardido: não dá bronca, sugere. O biquinho da pimenta funciona como boca quando ele fala, e dá para animar ele "sacudindo" os grãos ao registrar uma refeição.',
+  notif:'Biquinho aqui: já almoçou? Me conta o que comeu que eu anoto.',
+  risk:'baixo',check:'Nenhum app de nutrição com o nome. Existe um <b>Pitada</b> pequeno na App Store (Rafael Longhi, 2025) para salvar receitas do Reels, sem avaliações ainda. Mesma categoria Comida e Bebida, então vale registrar a marca cedo.'},
+ {id:'cumbuca',n:'03',name:'Cumbuca',word:'cumbuca',font:"'Fredoka'",fw:600,ls:'-.01em',
+  tag:'Tudo o que você come, num lugar só',
+  idea:'A cumbuca é a tigela de cabaça ou barro da mesa brasileira, onde cabe de tudo. O app vira a cumbuca onde você joga o que comeu e o Agente organiza. Símbolo: a tigela com a faixa pintada de bolinhas e o vapor subindo.',
+  pr:'#7A4521',prN:'cabaça',light:'#F5ECDF',dark:'#110C08',
+  iconBg:'#7A4521',iconFg:'#F5ECDF',iconAc:'#FF6A2B',lightFg:'#7A4521',lightAc:'#FF6A2B',darkFg:'#D9A066',darkAc:'#FF6A2B',
+  wmLight:INK,wmDark:'#F3EFE9',splashBg:'#7A4521',splashFg:'#F5ECDF',onPr:'#FFFFFF',
+  mName:'Cumbi',mBody:'#A0612F',mFace:'#FFFFFF',
+  mText:'Uma cumbuca com rosto que "recebe" a comida: você fala, ela guarda. O vapor muda com o humor (vira um coraçãozinho quando a meta fecha). Calma e acolhedora, boa para quem quer menos pressão.',
+  notif:'Cumbi aqui: já almoçou? Me conta o que comeu que eu guardo.',
+  risk:'medio',check:'Nenhum app de nutrição com o nome. Mas <b>Cumbuca</b> é uma fintech brasileira conhecida (acelerada pela Y Combinator) para dividir despesas. Categoria diferente, nome já forte no Brasil, domínio provavelmente ocupado.'},
+ {id:'rango',n:'04',name:'Rango',word:'Rango',font:"'Lilita One'",fw:400,ls:'.005em',
+  tag:'Bora falar de rango?',
+  idea:'A gíria mais curta para comida. Tom jovem e direto, com o Agente no centro: o símbolo é um balão de conversa com um garfo dentro. A cor de marca é o roxo do açaí, que destaca bem o laranja e o verde do app.',
+  pr:'#3B1748',prN:'açaí',light:'#F7EFE6',dark:'#110A14',
+  iconBg:'#3B1748',iconFg:'#FFFFFF',iconAc:'#FF6A2B',lightFg:'#3B1748',lightAc:'#FF6A2B',darkFg:'#C99BDB',darkAc:'#FF6A2B',
+  wmLight:'#3B1748',wmDark:'#F3EFE9',splashBg:'#3B1748',splashFg:'#FFFFFF',onPr:'#FFFFFF',
+  mName:'Papo',mBody:'#5A2A6E',mFace:'#FFFFFF',
+  mText:'O balão que fala, com o garfo de antena. É o Agente mais falante das cinco: gíria leve, resposta curta, emoji só quando o usuário usa. Combina com quem registra comida conversando.',
+  notif:'Papo aqui: e aí, já rangou? Me conta o que foi que eu anoto.',
+  risk:'alto',check:'Nenhum app de nutrição com o nome, mas o espaço de comida está cheio: <b>Rango Fácil Delivery</b>, <b>RanGo</b> (retirada em restaurantes) e <b>UaiRango</b> (delivery em mais de 150 cidades). Confusão provável na loja e na busca.'},
+ {id:'bocado',n:'05',name:'Bocado',word:'bocado',font:"'Grandstander'",fw:800,ls:'-.02em',
+  tag:'Um bocado de cada vez',
+  idea:'"Um bocado" é um pedaço e também "bastante". O símbolo é um pão de queijo com uma mordida: a refeição registrada, mordida a mordida. Amarelo de queijo como cor de marca, com o desenho escuro para ler bem pequeno.',
+  pr:'#FFC233',prN:'queijo',light:'#FAF3E3',dark:'#0F0C07',
+  iconBg:'#FFC233',iconFg:'#1C1712',iconAc:'#1C1712',lightFg:'#1C1712',lightAc:'#FF6A2B',darkFg:'#FFC233',darkAc:'#FF6A2B',
+  wmLight:INK,wmDark:'#F3EFE9',splashBg:'#FFC233',splashFg:'#1C1712',onPr:INK,
+  mName:'Queijinho',mBody:'#FFC233',mFace:INK,
+  mText:'Um pão de queijo mordido no topo da cabeça, mineirinho e tranquilo ("uai, anotei"). O amarelo funciona bem no tema escuro. No claro, precisa do contorno escuro para não sumir no creme.',
+  notif:'Queijinho aqui: uai, já almoçou? Me conta o que comeu que eu anoto.',
+  risk:'baixo',check:'Nenhum app de nutrição com o nome. Existe um <b>Bocado</b> na App Store da Argentina para avaliar pratos de restaurante, e restaurantes chamados Bocado. Pouca sobreposição no Brasil.'}
+];
+
+let U=0;
+function sym(d,fg,ac,cut){
+  switch(d.id){
+  case 'nutriagent': return `<path d="M24 84 L31 68 C19 54 20 30 40 21 C54 15 70 17 84 15 C85 30 86 46 80 59 C72 76 52 85 34 77 Z" fill="${fg}"/><path d="M38 66 C47 55 56 46 64 39" fill="none" stroke="${cut}" stroke-width="6.5" stroke-linecap="round"/><circle cx="67" cy="36" r="7" fill="${ac}"/>`;
+  case 'pitada': return `<circle cx="20" cy="33" r="4.6" fill="${ac}"/><circle cx="31" cy="20" r="4.2" fill="${ac}"/><circle cx="15" cy="48" r="3.6" fill="${ac}"/><path d="M56 32 C73 32 83 45 81 60 C79 73 68 81 60 86 C58 88 56 91 54 95 C52 91 51 88 49 86 C37 80 29 70 29 58 C29 43 39 32 56 32 Z" fill="${fg}"/><path d="M56 33 C56 24 60 17 68 13" fill="none" stroke="${fg==='#FBF0E6'?fg:'#3F9E00'}" stroke-width="6" stroke-linecap="round"/><ellipse cx="56" cy="33" rx="13" ry="5.5" fill="${fg==='#FBF0E6'?fg:'#3F9E00'}"/><path d="M41 52 C41 46 45 42 50 41" fill="none" stroke="${cut}" stroke-width="5" stroke-linecap="round"/>`;
+  case 'cumbuca': return `<g fill="none" stroke="${ac}" stroke-width="6" stroke-linecap="round"><path d="M35 38 C29 31 41 27 35 19"/><path d="M50 38 C44 30 56 25 50 15"/><path d="M65 38 C59 31 71 27 65 19"/></g><rect x="8" y="44" width="84" height="9" rx="4.5" fill="${fg}"/><path d="M13 50 H87 C87 73 71 88 50 88 C29 88 13 73 13 50 Z" fill="${fg}"/><g fill="${cut}"><circle cx="26" cy="63" r="3.4"/><circle cx="38" cy="67" r="3.4"/><circle cx="50" cy="68.5" r="3.4"/><circle cx="62" cy="67" r="3.4"/><circle cx="74" cy="63" r="3.4"/></g>`;
+  case 'rango': return `<path d="M22 16 H78 Q90 16 90 28 V60 Q90 72 78 72 H46 L28 87 L31 72 H22 Q10 72 10 60 V28 Q10 16 22 16 Z" fill="${fg}"/><g fill="${cut}"><rect x="38" y="25" width="5.5" height="17" rx="2.75"/><rect x="47.25" y="25" width="5.5" height="17" rx="2.75"/><rect x="56.5" y="25" width="5.5" height="17" rx="2.75"/><path d="M38 38 H62 V42 C62 48.5 57 52 50 52 C43 52 38 48.5 38 42 Z"/><rect x="47.25" y="48" width="5.5" height="16" rx="2.75"/></g><circle cx="78" cy="28" r="5" fill="${ac}"/>`;
+  case 'bocado': {const id='bm'+(U++);return `<defs><mask id="${id}"><rect width="100" height="100" fill="#fff"/><circle cx="79" cy="27" r="11" fill="#000"/><circle cx="88" cy="43" r="9.5" fill="#000"/><circle cx="64" cy="15" r="9.5" fill="#000"/></mask></defs><g mask="url(#${id})" fill="${fg}"><circle cx="50" cy="55" r="35"/><circle cx="24" cy="38" r="11"/><circle cx="18" cy="60" r="10"/><circle cx="30" cy="82" r="10"/><circle cx="54" cy="89" r="10"/><circle cx="77" cy="78" r="10"/><circle cx="40" cy="22" r="11"/></g><g fill="${cut}"><ellipse cx="38" cy="50" rx="4.5" ry="3.5"/><ellipse cx="58" cy="62" rx="3.6" ry="3"/><ellipse cx="42" cy="70" rx="4" ry="3.2"/><ellipse cx="62" cy="44" rx="3.2" ry="2.6"/></g><circle cx="92" cy="18" r="3.2" fill="${ac}"/><circle cx="84" cy="8" r="2.4" fill="${ac}"/>`;}
+  }
+}
+function eyes(x1,y1,x2,y2,ink,sm){return `<g><circle cx="${x1}" cy="${y1}" r="7" fill="#fff"/><circle cx="${x2}" cy="${y2}" r="7" fill="#fff"/><circle cx="${x1+1.5}" cy="${y1+1}" r="3.6" fill="${INK}"/><circle cx="${x2+1.5}" cy="${y2+1}" r="3.6" fill="${INK}"/><path d="${sm}" fill="none" stroke="${ink}" stroke-width="4" stroke-linecap="round"/></g>`}
+function mascot(d){
+  const b=d.mBody,f=d.mFace;let s='';
+  switch(d.id){
+  case 'nutriagent': s=`<path d="M24 84 L31 68 C19 54 20 30 40 21 C54 15 70 17 84 15 C85 30 86 46 80 59 C72 76 52 85 34 77 Z" fill="${b}"/>`+eyes(45,46,63,41,f,'M46 60 Q56 67 66 56')+`<circle cx="40" cy="57" r="4" fill="#FF8A6B" opacity=".9"/>`;break;
+  case 'pitada': s=`<path d="M56 32 C73 32 83 45 81 60 C79 73 68 81 60 86 C58 88 56 91 54 95 C52 91 51 88 49 86 C37 80 29 70 29 58 C29 43 39 32 56 32 Z" fill="${b}"/><path d="M56 33 C56 24 60 17 68 13" fill="none" stroke="#3F9E00" stroke-width="6" stroke-linecap="round"/><ellipse cx="56" cy="33" rx="13" ry="5.5" fill="#3F9E00"/>`+eyes(46,55,64,55,f,'M48 67 Q55 73 62 67')+`<circle cx="20" cy="33" r="4.6" fill="#FFC233"/><circle cx="31" cy="20" r="4.2" fill="#FFC233"/>`;break;
+  case 'cumbuca': s=`<path d="M50 38 C44 30 52 26 46 20 M50 38 C56 30 48 26 54 20" fill="none" stroke="#FF6A2B" stroke-width="5" stroke-linecap="round"/><path d="M42 18 C42 12 50 12 50 18 C50 12 58 12 58 18 C58 24 50 28 50 30 C50 28 42 24 42 18 Z" fill="#FF6A2B"/><rect x="8" y="44" width="84" height="9" rx="4.5" fill="${b}"/><path d="M13 50 H87 C87 73 71 88 50 88 C29 88 13 73 13 50 Z" fill="${b}"/>`+eyes(38,62,60,62,f,'M43 74 Q49 79 55 74');break;
+  case 'rango': s=`<g fill="${b}"><rect x="34" y="4" width="4.5" height="13" rx="2.25"/><rect x="41.5" y="4" width="4.5" height="13" rx="2.25"/><rect x="49" y="4" width="4.5" height="13" rx="2.25"/><path d="M34 13 H53.5 V16 C53.5 20 50 22 43.75 22 C37.5 22 34 20 34 16 Z"/></g><path d="M22 20 H78 Q90 20 90 32 V62 Q90 74 78 74 H46 L28 89 L31 74 H22 Q10 74 10 62 V32 Q10 20 22 20 Z" fill="${b}"/>`+eyes(38,44,62,44,f,'M41 57 Q50 65 59 57');break;
+  case 'bocado': {const id='bm'+(U++);s=`<defs><mask id="${id}"><rect width="100" height="100" fill="#fff"/><circle cx="79" cy="27" r="11" fill="#000"/><circle cx="88" cy="43" r="9.5" fill="#000"/><circle cx="64" cy="15" r="9.5" fill="#000"/></mask></defs><g mask="url(#${id})" fill="${b}" stroke="${INK}" stroke-width="0"><circle cx="50" cy="55" r="35"/><circle cx="24" cy="38" r="11"/><circle cx="18" cy="60" r="10"/><circle cx="30" cy="82" r="10"/><circle cx="54" cy="89" r="10"/><circle cx="77" cy="78" r="10"/><circle cx="40" cy="22" r="11"/></g><g fill="#E0A21A"><ellipse cx="66" cy="72" rx="3.6" ry="3"/><ellipse cx="28" cy="72" rx="3" ry="2.5"/></g>`+eyes(38,56,58,56,f,'M42 67 Q48 72 54 67')+`<circle cx="30" cy="64" r="4" fill="#FF8A6B" opacity=".8"/>`;}break;
+  }
+  return `<svg viewBox="0 0 100 100" role="img" aria-label="Mascote ${d.mName}">${s}</svg>`;
+}
+function icon(d,mode){
+  // mode: ios (cantos 22%), full (arte maskable sangrando), circle, squircle
+  const s=mode==='full'||mode==='circle'||mode==='squircle'?.56:.64, o=(100-100*s)/2;
+  const rx=mode==='ios'?22.5:0;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="${rx}" fill="${d.iconBg}"/><g transform="translate(${o} ${o}) scale(${s})">${sym(d,d.iconFg,d.iconAc,d.iconBg)}</g></svg>`;
+}
+function bare(d,fg,ac,cut){return `<svg viewBox="0 0 100 100" aria-hidden="true">${sym(d,fg,ac,cut)}</svg>`}
+function wm(d,color,size){return `<span class="wm" style="font-family:${d.font},var(--f-ui);font-weight:${d.fw};letter-spacing:${d.ls};color:${color};${size?'font-size:'+size+'px':''}">${d.word}</span>`}
+
+// contraste
+function lum(h){return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:((v+.055)/1.055)**2.4).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0)}
+function ratio(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+function crow(label,fg,bg){const r=ratio(fg,bg);const [c,t]=r>=4.5?['ok','AA']:r>=3?['lg','só grande']:['no','falha'];
+  return `<div><span class="pair" style="background:${bg};color:${fg};box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)">Aa</span><span>${label}</span><span class="ratio">${r.toFixed(2).replace('.',',')}:1</span><span class="badge ${c}">${t}</span></div>`}
+
+function phoneHome(d){
+  const fills=['#6E8FA8','#C9B79C','#7FA07A','#B07A6A','#8C83B0','#D6C46A','#9AA3A8','#6F9C9A','#A88C6E','#7A8FA0','#B59A8A'];
+  let g='',k=0;
+  for(let i=0;i<12;i++){ if(i===5){g+=`<div class="a">${icon(d,'ios')}${d.name}</div>`;continue;}
+    const n=['Fotos','Câmera','Mapas','Banco','Música','Notas','Relógio','Clima','Agenda','Mensagens','Ajustes'][k];
+    g+=`<div class="a"><span style="background:${fills[k++]}"></span>${n}</div>`;}
+  return `<div class="ph home"><div class="sb"><span>12:48</span><span class="r"><i></i><i></i><i></i></span></div><div class="g">${g}</div><div class="dock"><span style="background:#7FA07A"></span><span style="background:#6E8FA8"></span><span style="background:#C9B79C"></span><span style="background:#B07A6A"></span></div><div class="hb"></div></div>`;
+}
+function phoneSplash(d){
+  return `<div class="ph splash" style="background:${d.splashBg};color:${d.splashFg}">${bare(d,(d.splashSym||[d.splashFg])[0],(d.splashSym||[0,d.iconAc])[1],d.splashBg)}${wm(d,d.splashFg)}<div class="foot">${d.tag}</div><div class="hb"></div></div>`;
+}
+function phoneApp(d){
+  // anel de calorias: 1.240 de 1.900
+  const p=1240/1900, a=Math.PI*(1-p), x=80+60*Math.cos(Math.PI-Math.PI*p), y=70-60*Math.sin(Math.PI*p);
+  return `<div class="ph appv" style="background:${d.light}"><div class="sb"><span>12:48</span><span class="r"><i></i><i></i><i></i></span></div>
+  <div class="hd">${bare(d,d.lightFg,d.lightAc,d.light)}${wm(d,d.wmLight)}<span class="bell"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span class="av">F</span></div>
+  <div class="hi"><small>Quarta, 5 de novembro</small>Boa tarde, Franco</div>
+  <div class="card"><svg viewBox="0 0 160 78"><path d="M20 70 A60 60 0 0 1 140 70" fill="none" stroke="#EFE4D8" stroke-width="12" stroke-linecap="round"/><path d="M20 70 A60 60 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${ACT}" stroke-width="12" stroke-linecap="round"/><text x="80" y="58" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="20" fill="${INK}">1.240</text><text x="80" y="72" text-anchor="middle" font-family="Nunito" font-weight="700" font-size="9" fill="${MUT_T}">de 1.900 kcal</text></svg>
+   <div class="row"><span style="color:${MUT_T}">3 refeições</span><span class="pos">no plano</span></div></div>
+  <div class="say">${mascot(d)}<span><b>${d.mName}:</b> faltam 660 kcal. Que tal um jantar leve hoje?</span></div>
+  <div class="btn">+ Registrar refeição</div><div class="hb"></div></div>`;
+}
+function phoneLock(d){
+  return `<div class="ph lockv"><div class="sb"><span></span><span class="r"><i></i><i></i><i></i></span></div><div class="t">12:30</div><div class="d">quarta-feira, 5 de novembro</div>
+  <div class="nt">${icon(d,'ios')}<div><div class="top"><span>${d.name}</span><span>agora</span></div><b>Hora do almoço</b><p>${d.notif}</p></div></div><div class="hb"></div></div>`;
+}
+function maskable(d){
+  return `<div class="mask"><div class="big">${icon(d,'full')}<svg viewBox="0 0 100 100" style="position:absolute;inset:0" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="#fff" stroke-width=".8" stroke-dasharray="2.5 2" opacity=".9"/></svg></div>
+   <div><span class="m" style="border-radius:50%">${icon(d,'circle')}</span>círculo</div>
+   <div><span class="m" style="border-radius:34%">${icon(d,'squircle')}</span>squircle</div>
+   <div><span class="m" style="border-radius:50% 50% 50% 14%">${icon(d,'squircle')}</span>gota</div></div>`;
+}
+
+const riskTxt={alto:'risco alto',medio:'risco médio',baixo:'risco baixo'};
+document.getElementById('strip').innerHTML=D.map(d=>`<a class="pick" href="#${d.id}"><span class="ic">${icon(d,'ios')}</span>${wm(d,'var(--ink)')}<small>${d.tag}</small><span class="chip r-${d.risk}">nome: ${riskTxt[d.risk]}</span></a>`).join('');
+document.getElementById('recIcon').innerHTML=`<span class="ic" style="display:block;width:56px;height:56px">${icon(D[1],'ios')}</span>`;
+document.getElementById('checks').innerHTML=D.map(d=>`<li><b>${d.name}</b> <span class="chip r-${d.risk}">${riskTxt[d.risk]}</span><br><span style="font-size:13.5px">${d.check}</span></li>`).join('');
+
+document.getElementById('dirs').innerHTML=D.map(d=>`
+<section class="dir" id="${d.id}" aria-labelledby="h-${d.id}">
+  <div class="dhead"><span class="num">${d.n}</span><h2 id="h-${d.id}" style="font-family:${d.font},var(--f-ui);font-weight:${d.fw};letter-spacing:${d.ls}">${d.name}</h2><span class="tag">${d.tag}</span><span class="chip r-${d.risk}">nome: ${riskTxt[d.risk]}</span></div>
+  <p>${d.idea}</p>
+  <div class="grid2">
+    <div class="block">
+      <h3>Logo</h3>
+      <div class="lock">
+        <div class="tile" style="background:${d.light}">${bare(d,d.lightFg,d.lightAc,d.light)}${wm(d,d.wmLight)}</div>
+        <div class="tile" style="background:${d.dark}">${bare(d,d.darkFg,d.darkAc,d.dark)}${wm(d,d.wmDark)}</div>
+      </div>
+      <p style="font-size:13px;color:var(--mut)">Logotipo em ${d.font.replace(/'/g,'')}${d.font.includes('Nunito')?' Black':''}, que tem o mesmo desenho arredondado da Nunito do app. Na versão final, as letras viram contorno.</p>
+      <h3 style="margin-top:6px">Paleta</h3>
+      <div class="sw">
+        <div><i style="background:${d.pr}"></i><b>Marca · ${d.prN}</b><code>${d.pr}</code></div>
+        <div><i style="background:${ACT}"></i><b>Ação</b><code>${ACT}</code></div>
+        <div><i style="background:${POS}"></i><b>Positivo</b><code>${POS}</code></div>
+        <div><i style="background:${d.light};box-shadow:inset 0 0 0 1px var(--line)"></i><b>Claro</b><code>${d.light}</code></div>
+        <div><i style="background:${d.dark}"></i><b>Escuro</b><code>${d.dark}</code></div>
+      </div>
+      <div class="ctr">
+        ${crow('Texto no fundo claro',INK,d.light)}
+        ${crow('Texto no fundo escuro','#F3EFE9',d.dark)}
+        ${crow('Texto sobre a cor da marca',d.onPr,d.pr)}
+        ${crow('Texto escuro no botão laranja',INK,ACT)}
+        ${crow('Branco no botão laranja (evitar)','#FFFFFF',ACT)}
+        ${crow('Palavra laranja no claro',ACT_T,d.light)}
+        ${crow('Texto positivo no claro',POS_T,d.light)}
+        ${crow('Texto secundário no claro',MUT_T,d.light)}
+        ${crow('Laranja no fundo escuro',ACT,d.dark)}
+      </div>
+    </div>
+    <div class="block">
+      <h3>Mascote do Agente</h3>
+      <div class="masc">${mascot(d)}<div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:18px">${d.mName}</b><span style="font-size:14px">${d.mText}</span></div></div>
+      <h3 style="margin-top:6px">Checagem do nome</h3>
+      <div class="check"><span class="chip r-${d.risk}">${riskTxt[d.risk]}</span><span>${d.check}</span></div>
+      <h3 style="margin-top:6px">Ícone maskable (Android)</h3>
+      ${maskable(d)}
+      <p style="font-size:13px;color:var(--mut)">A arte sangra até a borda. O símbolo fica dentro do círculo tracejado (zona segura de 80%), então nenhum recorte do Android corta o desenho.</p>
+    </div>
+  </div>
+  <div class="block">
+    <h3>Aplicada</h3>
+    <div class="apps">
+      <figure class="app">${phoneHome(d)}<figcaption>Ícone na tela de início</figcaption></figure>
+      <figure class="app">${phoneSplash(d)}<figcaption>Tela de abertura</figcaption></figure>
+      <figure class="app">${phoneApp(d)}<figcaption>Cabeçalho do app (Hoje)</figcaption></figure>
+      <figure class="app">${phoneLock(d)}<figcaption>Notificação</figcaption></figure>
+    </div>
+  </div>
+</section>`).join('');
+</script>

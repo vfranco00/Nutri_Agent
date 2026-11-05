@@ -1,0 +1,182 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+.phones{display:flex;gap:20px;flex-wrap:wrap;margin:14px 0 6px}
+.wrap{position:relative;padding-top:20px;width:250px}
+.cap{position:absolute;top:0;left:4px;font-size:11px;opacity:.65}
+.desc{font-size:11.5px;line-height:1.45;opacity:.8;margin-top:8px}
+.ph{width:250px;height:530px;border:9px solid #0d0d0d;border-radius:38px;overflow:hidden;position:relative;font-family:'Plus Jakarta Sans',sans-serif;background:#f7efe6;color:#1c1712;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.ph *{box-sizing:border-box}
+.sb{display:flex;justify-content:space-between;padding:9px 18px 0;font-size:10px;font-weight:600;position:relative;z-index:2}
+.serif{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;letter-spacing:-.035em;font-size:.86em}.serif i{font-style:normal}
+.or{color:#ff6a2b}.gr{color:#3f9e00}
+.img{background-size:cover;background-position:center}
+.tc{background:#fff;border-radius:20px;margin:7px 12px;padding:10px 12px}
+.mut{color:#9a8b7a;font-size:10px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 2px}
+.ttl{font-size:15px;font-weight:800}
+.chip{display:inline-block;border-radius:999px;padding:5px 10px;font-size:10px;font-weight:600;background:#fff;white-space:nowrap}
+.chip.on{background:#1c1712;color:#f7efe6}
+.chips{display:flex;gap:5px;padding:6px 12px;overflow:hidden}
+.search{margin:6px 12px;background:#fff;border-radius:16px;padding:9px 12px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;border:2px solid #ff6a2b}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #f2e8dc;background:#fff}
+.row:first-child{border-radius:16px 16px 0 0}.row:last-child{border-radius:0 0 16px 16px;border-bottom:0}
+.list{margin:4px 12px}
+.row b{font-size:11px}.row small{display:block;color:#9a8b7a;font-size:9.5px}
+.add{width:24px;height:24px;border-radius:9px;background:#ff6a2b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
+.src{display:inline-block;border-radius:6px;padding:1px 5px;font-size:8px;font-weight:700;margin-left:4px;vertical-align:1px}
+.taco{background:#e6f6dc;color:#3f9e00}.off{background:#e8eefc;color:#3554b8}.ia{background:#ffe6d8;color:#d9520e}.meu{background:#f1e6ff;color:#7a3fc4}
+.bar{position:absolute;bottom:12px;left:12px;right:12px;background:#1c1712;color:#fff;border-radius:18px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:700}
+.btn{background:#ff6a2b;color:#fff;border-radius:14px;padding:6px 11px;font-size:11px;font-weight:700}
+.cta{position:absolute;bottom:14px;left:12px;right:12px;background:#ff6a2b;color:#fff;border-radius:16px;padding:12px;text-align:center;font-weight:700;font-size:12.5px}
+.field{background:#fff;border-radius:14px;padding:8px 11px;margin:5px 12px;font-size:11px}
+.field small{display:block;color:#9a8b7a;font-size:9px;margin-bottom:1px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 12px}
+.grid2 .field{margin:0}
+.mac{display:flex;gap:6px;margin:6px 12px}
+.mac div{flex:1;background:#fff;border-radius:14px;padding:7px;text-align:center;font-size:9px}
+.mac b{display:block;font-size:13px}
+.mac i{display:block;height:4px;border-radius:2px;background:#f4e3d3;margin-top:4px;overflow:hidden}.mac i em{display:block;height:100%}
+.step{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:6px;justify-content:space-between}
+.step span{width:30px;height:30px;border-radius:11px;background:#f4e3d3;display:flex;align-items:center;justify-content:center;font-weight:800}
+.sect{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 2px;font-size:12px}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;margin:8px 0 2px}
+.flow span{border:1px solid rgba(127,127,127,.35);border-radius:999px;padding:4px 10px}
+</style>
+
+<h2>5 · Fase 1 — o fluxo de registrar</h2>
+<p class="subtitle">Tema claro do “Tempero”, botões sólidos. É o que a Fase 1 entrega: buscar, código de barras, porção, meus alimentos, receita como porção, recentes/frequentes e copiar refeição ou dia. Foto e fala ficam marcadas como Fase 2.</p>
+
+<div class="flow"><b>Caminho:</b><span>“+” (ou “+” numa refeição)</span>→<span>Buscar</span>→<span>toque no item = adiciona com a porção de sempre</span>→<span>toque longo / nome = escolher porção</span>→<span>Salvar</span></div>
+
+<div class="phones">
+
+ <!-- 1 BUSCAR -->
+ <div class="wrap"><span class="cap">1 · Registrar (abre aqui)</span><div class="ph">
+  <div class="sb"><span>12:48</span><span>●●● ▮</span></div>
+  <div class="top"><span class="mut" style="font-size:13px">✕</span><div style="text-align:center"><div class="ttl">Almoço ▾</div><div class="mut">hoje, 5 nov</div></div><span style="font-size:13px">▥</span></div>
+  <div class="search"><span>arroz<span style="color:#ff6a2b">|</span></span><span class="mut">✕</span></div>
+  <div class="list">
+   <div class="row"><div><b>Arroz branco cozido<span class="src taco">TACO</span></b><small>4 col. sopa · 164 kcal</small></div><div class="add">+</div></div>
+   <div class="row"><div><b>Arroz integral cozido<span class="src taco">TACO</span></b><small>4 col. sopa · 149 kcal</small></div><div class="add">+</div></div>
+   <div class="row"><div><b>Arroz carreteiro<span class="src meu">MEU</span></b><small>1 prato · 480 kcal</small></div><div class="add">+</div></div>
+   <div class="row"><div><b>Arroz Tio João Parboilizado<span class="src off">CÓDIGO</span></b><small>50 g cru · 177 kcal</small></div><div class="add">+</div></div>
+  </div>
+  <div class="tc" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px"><span style="font-size:10.5px">Não achou? <b class="or">Pedir ao Agente</b></span><span class="src ia">IA</span></div>
+  <div class="bar"><span>3 itens · 461 kcal</span><span class="btn">Salvar</span></div>
+ </div>
+ <p class="desc">Abre na refeição pela hora (13h = almoço). Busca na TACO, nos seus alimentos e nos códigos já lidos. Cada resultado mostra de onde veio. O que não achar vai para o Agente (cota de IA), marcado como estimativa.</p></div>
+
+ <!-- 2 VAZIO: RECENTES -->
+ <div class="wrap"><span class="cap">1b · Antes de digitar</span><div class="ph">
+  <div class="sb"><span>12:48</span><span>●●● ▮</span></div>
+  <div class="top"><span class="mut" style="font-size:13px">✕</span><div style="text-align:center"><div class="ttl">Almoço ▾</div><div class="mut">hoje, 5 nov</div></div><span style="font-size:13px">▥</span></div>
+  <div class="search" style="border-color:#efe3d6;color:#9a8b7a"><span>⌕ Buscar alimento</span><span>▥</span></div>
+  <div class="tc" style="background:#1c1712;color:#fff;display:flex;justify-content:space-between;align-items:center"><div><b style="font-size:11px">↺ Repetir almoço de ontem</b><div style="font-size:9.5px;color:#c9c1b8">arroz, feijão, frango · 461 kcal</div></div><span class="btn">Repetir</span></div>
+  <div class="chips"><span class="chip on">Recentes</span><span class="chip">Frequentes</span><span class="chip">Meus</span><span class="chip">Receitas</span></div>
+  <div class="list">
+   <div class="row"><div><b>Feijão carioca</b><small>1 concha · 106 kcal</small></div><div class="add">+</div></div>
+   <div class="row"><div><b>Frango grelhado</b><small>120 g · 191 kcal</small></div><div class="add">+</div></div>
+   <div class="row"><div><b>Pão de queijo</b><small>2 un · 160 kcal</small></div><div class="add">+</div></div>
+   <div class="row"><div><b>Banana prata</b><small>1 un · 98 kcal</small></div><div class="add">+</div></div>
+   <div class="row"><div><b>Café com leite</b><small>200 ml · 81 kcal</small></div><div class="add">+</div></div>
+  </div>
+ </div>
+ <p class="desc"><b>Recentes</b> = últimos usados nesta refeição. <b>Frequentes</b> = mais usados em 30 dias. O “+” adiciona com a última porção usada; tocar no nome abre a porção.</p></div>
+
+ <!-- 3 CODIGO DE BARRAS -->
+ <div class="wrap"><span class="cap">2 · Código de barras</span><div class="ph" style="background:#1c1712">
+  <div class="img" style="position:absolute;inset:0;background:linear-gradient(#3a332b,#1c1712)"></div>
+  <div class="sb" style="color:#fff"><span>12:48</span><span>●●● ▮</span></div>
+  <div style="position:relative;display:flex;justify-content:space-between;padding:8px 14px;color:#fff;font-size:12px"><span>✕</span><b>Código de barras</b><span>⚡</span></div>
+  <div style="position:absolute;left:30px;right:30px;top:96px;height:110px;border-radius:16px;border:3px solid #ff6a2b"><div style="position:absolute;left:10px;right:10px;top:52px;height:2px;background:#ff6a2b"></div></div>
+  <div style="position:absolute;top:216px;left:0;right:0;text-align:center;color:#c9c1b8;font-size:10px">aponte para o código da embalagem</div>
+  <div style="position:absolute;left:0;right:0;bottom:0;background:#f7efe6;border-radius:26px 26px 0 0;padding:12px">
+   <div style="display:flex;gap:10px;align-items:center"><div style="width:44px;height:44px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px">🥛</div><div style="flex:1"><b style="font-size:12px">Iogurte natural integral</b><div class="mut">Batavo · 170 g · 7891097000…</div></div></div>
+   <div class="mac"><div><b>102</b>kcal</div><div><b>6g</b>prot</div><div><b>8g</b>carbo</div><div><b>5g</b>gord</div></div>
+   <div style="font-size:9.5px;color:#3554b8;background:#e8eefc;border-radius:10px;padding:6px 8px;margin:0 0 8px">Dados da Open Food Facts (base colaborativa). Confira com o rótulo — só você vê este item.</div>
+   <div style="display:flex;gap:6px"><div style="flex:1;border:1px solid #efe3d6;border-radius:14px;text-align:center;padding:9px;font-size:11px;background:#fff">Corrigir</div><div style="flex:2;background:#ff6a2b;color:#fff;border-radius:14px;text-align:center;padding:9px;font-weight:700;font-size:11px">Adicionar 1 pote</div></div>
+  </div>
+ </div>
+ <p class="desc">Câmera do navegador lendo o código. Achou na Open Food Facts: mostra com o aviso de base colaborativa (só para você, como no ADR-0001). Não achou: abre “Criar alimento” com o código já preenchido.</p></div>
+
+ <!-- 4 PORCAO -->
+ <div class="wrap"><span class="cap">3 · Porção</span><div class="ph">
+  <div class="sb"><span>12:48</span><span>●●● ▮</span></div>
+  <div class="top"><span>‹</span><span>♡</span></div>
+  <div style="padding:2px 14px"><div class="serif" style="font-size:26px;line-height:1">Frango <i class="or">grelhado</i></div><div class="mut" style="margin-top:3px">peito sem pele · <span class="src taco" style="margin:0">TACO</span></div></div>
+  <div style="display:flex;gap:6px;margin:10px 12px 4px"><div class="step" style="flex:1"><span>−</span><b style="font-size:16px">120</b><span>+</span></div><div style="flex:1;background:#fff;border-radius:16px;padding:12px;font-size:11.5px;font-weight:700;display:flex;justify-content:space-between">gramas<span>▾</span></div></div>
+  <div class="chips"><span class="chip">1 filé (100 g)</span><span class="chip on">120 g</span><span class="chip">1 col. servir</span></div>
+  <div style="text-align:center;margin:8px 0 2px"><b style="font-size:30px">191</b> <span class="mut">kcal</span></div>
+  <div class="mac"><div><b>38g</b>proteína<i><em style="width:80%;background:#1c1712"></em></i></div><div><b>0g</b>carbo<i><em style="width:0;background:#ff6a2b"></em></i></div><div><b>3g</b>gordura<i><em style="width:15%;background:#ffb36b"></em></i></div></div>
+  <div class="tc" style="font-size:10px;line-height:1.7"><b style="font-size:10.5px">Detalhes</b> <span class="mut">(Fase 2 completa)</span><div style="display:flex;justify-content:space-between"><span>Fibra</span><span>0 g</span></div><div style="display:flex;justify-content:space-between"><span>Sódio</span><span>62 mg</span></div></div>
+  <div style="padding:0 14px;font-size:10px" class="mut">Refeição: <b style="color:#1c1712">Almoço ▾</b> · Hoje ▾</div>
+  <div class="cta">Adicionar ao almoço</div>
+ </div>
+ <p class="desc">Quantidade com −/+ e campo digitável; unidade em lista (g, ml, un, colher, concha, fatia…) só com as que fazem sentido para o alimento. Atalhos de medida caseira. Dá para mudar refeição e dia aqui.</p></div>
+
+ <!-- 5 MEUS ALIMENTOS / CRIAR -->
+ <div class="wrap"><span class="cap">4 · Criar alimento</span><div class="ph">
+  <div class="sb"><span>12:48</span><span>●●● ▮</span></div>
+  <div class="top"><span class="mut">Cancelar</span><b style="font-size:13px">Novo alimento</b><span class="or" style="font-weight:700;font-size:11px">Salvar</span></div>
+  <div class="field"><small>Nome</small><b>Pão de mel da padaria</b></div>
+  <div class="field"><small>Marca (opcional)</small>Padaria Estrela</div>
+  <div class="grid2" style="margin-top:5px"><div class="field"><small>Porção</small><b>1 un</b></div><div class="field"><small>equivale a</small><b>45 g</b></div></div>
+  <div style="padding:8px 14px 2px;font-size:10.5px;font-weight:700">Por porção</div>
+  <div class="grid2"><div class="field"><small>Calorias</small><b>180 kcal</b></div><div class="field"><small>Proteína</small><b>3 g</b></div><div class="field"><small>Carboidrato</small><b>29 g</b></div><div class="field"><small>Gordura</small><b>6 g</b></div></div>
+  <div class="field" style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span>▥ Código de barras</span><span class="mut">7894…  vincular</span></div>
+  <div class="field" style="display:flex;justify-content:space-between;align-items:center;border:1.5px dashed #efe3d6;background:transparent"><span>📷 Ler da embalagem</span><span class="src ia">FASE 2</span></div>
+  <div class="cta">Salvar e adicionar ao lanche</div>
+ </div>
+ <p class="desc">Fica em <b>Meus alimentos</b> (/alimentos) e aparece na busca com a etiqueta MEU. Só você vê. Pode ter código de barras vinculado: na próxima leitura, cai direto nele.</p></div>
+
+ <!-- 6 RECEITA COMO PORCAO -->
+ <div class="wrap"><span class="cap">5 · Receita como porção</span><div class="ph">
+  <div class="img" style="height:150px;background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=70');position:relative"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,0) 40%,#f7efe6)"></div></div>
+  <div class="sb" style="position:absolute;top:0;left:0;right:0;color:#fff"><span>19:30</span><span>●●● ▮</span></div>
+  <div style="padding:0 14px;margin-top:-8px;position:relative"><span class="src meu" style="margin:0">MINHA RECEITA</span><div class="serif" style="font-size:24px;line-height:1;margin-top:4px">Escondidinho <i class="or">de frango</i></div><div class="mut" style="margin-top:3px">rende 6 porções · 420 kcal cada</div></div>
+  <div style="margin:12px 12px 4px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:11px;font-weight:700">Quanto você comeu?</span></div>
+  <div style="margin:0 12px" class="step"><span>−</span><b style="font-size:15px">1½ porção</b><span>+</span></div>
+  <div class="chips" style="margin-top:2px"><span class="chip">½</span><span class="chip">1</span><span class="chip on">1½</span><span class="chip">2</span><span class="chip">em gramas</span></div>
+  <div class="mac"><div><b>630</b>kcal</div><div><b>48g</b>prot</div><div><b>51g</b>carbo</div><div><b>24g</b>gord</div></div>
+  <div class="cta">Adicionar ao jantar</div>
+ </div>
+ <p class="desc">Receitas suas e salvas da comunidade entram no diário em porções (o número de porções vem da receita) ou em gramas. Mudou a receita depois? O que já foi registrado não muda.</p></div>
+
+ <!-- 7 DIARIO CLARO com copiar -->
+ <div class="wrap"><span class="cap">6 · Diário com copiar</span><div class="ph">
+  <div class="sb"><span>21:12</span><span>●●● ▮</span></div>
+  <div class="top" style="padding-top:6px"><div class="serif" style="font-size:24px">Diário</div><span class="mut" style="font-size:11px">‹ qui, 5 nov ›</span></div>
+  <div class="tc" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px"><span style="font-size:10.5px"><b>1.840</b> de 2.000 kcal · <span class="gr">no plano</span></span><span style="font-size:10px;font-weight:700" class="or">⋯</span></div>
+  <div class="sect"><b>Café da manhã · 466</b><span class="mut">⋯</span></div>
+  <div class="list"><div class="row"><div><b>Ovo mexido</b><small>2 un</small></div><span style="font-size:10.5px">196</span></div><div class="row"><div><b>Pão francês</b><small>1 un</small></div><span style="font-size:10.5px">135</span></div></div>
+  <div class="sect"><b>Almoço · 640</b><span class="mut">⋯</span></div>
+  <div style="margin:4px 12px;background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:6px;font-size:11px">
+   <div style="padding:7px 9px">↺ Copiar para amanhã</div><div style="padding:7px 9px">📅 Copiar para outro dia…</div><div style="padding:7px 9px">⭐ Salvar como refeição</div><div style="padding:7px 9px;color:#d93a1e">Apagar refeição</div></div>
+  <div class="sect"><b>Jantar</b><span class="add" style="width:22px;height:22px">+</span></div>
+ </div>
+ <p class="desc">Menu “⋯” de cada refeição: copiar para amanhã ou outro dia, salvar como refeição pronta (aparece em Meus). O “⋯” do topo copia o dia inteiro. Arrastar item para o lado apaga, com desfazer.</p></div>
+
+ <!-- 8 AGUA -->
+ <div class="wrap"><span class="cap">7 · Água (toque no cartão)</span><div class="ph">
+  <div class="sb"><span>15:02</span><span>●●● ▮</span></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;top:120px;background:#fff;border-radius:26px 26px 0 0;padding:14px">
+   <div style="width:36px;height:4px;border-radius:2px;background:#efe3d6;margin:0 auto 10px"></div>
+   <div class="serif" style="font-size:24px;line-height:1">Água <i style="color:#1f9ad6">de hoje</i></div>
+   <div style="display:flex;align-items:flex-end;gap:10px;margin:14px 0"><b style="font-size:34px">1,25</b><span class="mut" style="font-size:12px;margin-bottom:6px">de 2,5 L · meta pelo seu peso</span></div>
+   <div style="display:flex;gap:4px"><i style="flex:1;height:34px;border-radius:8px;background:#38bdf8"></i><i style="flex:1;height:34px;border-radius:8px;background:#38bdf8"></i><i style="flex:1;height:34px;border-radius:8px;background:#38bdf8"></i><i style="flex:1;height:34px;border-radius:8px;background:#38bdf8"></i><i style="flex:1;height:34px;border-radius:8px;background:#f4e3d3"></i><i style="flex:1;height:34px;border-radius:8px;background:#f4e3d3"></i><i style="flex:1;height:34px;border-radius:8px;background:#f4e3d3"></i><i style="flex:1;height:34px;border-radius:8px;background:#f4e3d3"></i></div>
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px">
+    <div style="background:#e6f5fd;color:#1f7fb0;border-radius:14px;padding:10px 0;text-align:center;font-weight:700;font-size:12px">+150 ml<div style="font-size:9px;font-weight:500">copo</div></div>
+    <div style="background:#38bdf8;color:#fff;border-radius:14px;padding:10px 0;text-align:center;font-weight:700;font-size:12px">+250 ml<div style="font-size:9px;font-weight:500">copo grande</div></div>
+    <div style="background:#e6f5fd;color:#1f7fb0;border-radius:14px;padding:10px 0;text-align:center;font-weight:700;font-size:12px">+500 ml<div style="font-size:9px;font-weight:500">garrafa</div></div></div>
+   <div style="margin-top:12px;font-size:10.5px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>14:40 · 250 ml</span><span class="mut">desfazer</span></div><div style="display:flex;justify-content:space-between"><span>11:15 · 500 ml</span><span class="mut">✕</span></div><div style="display:flex;justify-content:space-between"><span>08:02 · 500 ml</span><span class="mut">✕</span></div></div>
+   <div style="margin-top:8px;font-size:10px" class="mut">🔔 Lembrar a cada 2 h, das 8h às 20h · <b class="or">mudar</b></div>
+  </div>
+ </div>
+ <p class="desc">Meta padrão de 35 ml por kg (editável no perfil). Botões de copo configuráveis. Também dá para marcar água pela notificação do lembrete, sem abrir o app.</p></div>
+
+</div>
+
+<div class="section" style="margin-top:16px">
+<h3>Etiquetas de origem (aparecem em toda busca e no diário)</h3>
+<p class="subtitle"><span class="src taco">TACO</span> tabela brasileira, confiável · <span class="src off">CÓDIGO</span> lido de código de barras (Open Food Facts), só seu · <span class="src meu">MEU</span> criado por você · <span class="src ia">IA</span> estimativa do Agente, cota diária. É a mesma regra de procedência do ADR-0001, agora visível para a pessoa.</p>
+</div>

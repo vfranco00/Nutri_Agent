@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nuvi · Animações</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..900&family=Nunito:wght@900&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* tokens de movimento (vão para o app) */
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --ease-in-out:cubic-bezier(0.77,0,0.175,1);
+  --ease-drawer:cubic-bezier(0.32,0.72,0,1);
+  --spd:1;
+  /* marca Nuvi */
+  --or:#E8590C; --gomo:#FF9A52; --cream:#FFF6EC; --dark:#1A120B; --ink:#1C1712; --mut:#7A6A58;
+  --pos:#3FA34D; --posT:#2F7A33; --orT:#C2410C; --track:#F3E4D4;
+  /* página */
+  --bg:#EFE8E0; --panel:#fff; --line:#E2D8CD;
+  --ff:"DM Sans",system-ui,sans-serif; --wm:"Nunito",var(--ff);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141010;--panel:#1F1915;--line:#30281F;--ink2:#F3EFE9}}
+:root[data-theme="dark"]{--bg:#141010;--panel:#1F1915;--line:#30281F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.5 var(--ff);padding:28px max(16px,env(safe-area-inset-left)) 80px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{color:#F3EFE9}}
+:root[data-theme="dark"] body{color:#F3EFE9}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1{font-size:30px;font-weight:800;letter-spacing:-.03em;margin:0;line-height:1.1}
+h1 b{color:var(--or)}
+h2{font-size:21px;font-weight:800;letter-spacing:-.02em;margin:0}
+.lead{color:var(--mut);margin:6px 0 0;max-width:760px}
+.bar{position:sticky;top:0;z-index:20;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--bg);padding:10px 0}
+.seg{display:inline-flex;background:var(--panel);border-radius:999px;padding:4px;gap:2px;border:1px solid var(--line)}
+.seg button{font:700 13px var(--ff);border:0;background:none;color:inherit;padding:7px 12px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--or);color:var(--ink)}
+.sec{background:var(--panel);border-radius:28px;padding:22px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+.sec.one{grid-template-columns:1fr}
+@media (max-width:820px){.sec{grid-template-columns:1fr}}
+.txt{display:flex;flex-direction:column;gap:10px;min-width:0}
+.txt p{margin:0;color:var(--mut)}
+.tag{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--orT);background:#FDE9DB;border-radius:999px;padding:3px 10px;width:max-content}
+.spec{border-top:1px solid var(--line);font-size:13px}
+.spec div{display:grid;grid-template-columns:120px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.spec dt{font-weight:800}.spec dd{margin:0;color:var(--mut)}
+.play{font:800 14px var(--ff);background:var(--or);color:var(--ink);border:0;border-radius:14px;padding:11px 16px;cursor:pointer;width:max-content;
+  transition:transform calc(140ms*var(--spd)) var(--ease-out)}
+.play:active{transform:scale(.97)}
+.play.ghost{background:transparent;border:2px solid var(--line);color:inherit}
+.stage{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+.cap{font-size:12px;font-weight:800;color:var(--mut);text-align:center;margin-top:8px}
+
+/* ---------- celular ---------- */
+.phone{width:290px;height:600px;border:9px solid #0E0C0B;border-radius:44px;overflow:hidden;position:relative;background:var(--cream);color:var(--ink);font-family:var(--ff);flex:none;isolation:isolate}
+.sbar{position:absolute;top:0;left:0;right:0;height:34px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:12px;font-weight:700;z-index:50}
+.app{position:absolute;inset:0;padding:40px 14px 0;display:flex;flex-direction:column;gap:10px}
+.hd{display:flex;align-items:center;gap:7px}
+.hd .logo{width:26px;height:26px}
+.wm{font-family:var(--wm);font-weight:900;letter-spacing:-.04em}
+.hd .wm{font-size:22px;line-height:1}
+.hd .av{margin-left:auto;width:30px;height:30px;border-radius:50%;background:#EBCDB1;display:grid;place-items:center;font-weight:800;font-size:13px}
+.hi{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.hi b{color:var(--orT)}
+.mut{color:var(--mut);font-size:12px}
+.card{background:#fff;border-radius:22px;padding:12px 14px}
+.gauge{width:100%;display:block}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.meal{display:flex;align-items:center;gap:10px}
+.meal i{width:36px;height:36px;border-radius:12px;background:#FBE3D0;flex:none}
+.meal b{font-size:13.5px}
+.tabbar{position:absolute;left:10px;right:10px;bottom:12px;height:58px;background:var(--ink);border-radius:22px;display:flex;justify-content:space-around;align-items:center;color:#CFC3B6;font-size:10px;font-weight:700;z-index:5}
+.tabbar span{display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabbar .plus{width:44px;height:44px;border-radius:16px;background:var(--or);color:var(--ink);display:grid;place-items:center;font-size:24px;font-weight:800}
+.tabbar .on{color:#fff}
+
+/* abertura */
+.splash{position:absolute;inset:0;background:var(--or);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.splash .big{width:104px;height:104px}
+.splash .wm{color:var(--cream);font-size:44px;line-height:1}
+.st{opacity:1}
+.hidden .st{opacity:0;transform:translateY(8px)}
+
+/* gomos: escala em direção ao centro da fatia */
+.gomo{transform-box:view-box;transform-origin:50px 50px}
+.wave .gomo{animation:gomo calc(960ms*var(--spd)) var(--ease-in-out) infinite;animation-delay:calc(var(--i)*120ms*var(--spd))}
+.wave.once .gomo{animation-iteration-count:1}
+@keyframes gomo{0%,100%{opacity:1;transform:scale(1)}40%{opacity:.35;transform:scale(.84)}}
+.rm .wave .gomo{animation-name:gomoRm}
+@keyframes gomoRm{0%,100%{opacity:1}40%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.wave .gomo{animation-name:gomoRm}}
+
+/* ---------- web ---------- */
+.browser{width:100%;max-width:760px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--cream);color:var(--ink);margin:0 auto}
+.chrome{height:34px;background:#E9DED2;display:flex;align-items:center;gap:6px;padding:0 12px}
+.chrome i{width:10px;height:10px;border-radius:50%;background:#CDBFB0}
+.chrome span{margin-left:12px;background:#F6EEE5;border-radius:8px;font-size:11.5px;padding:3px 12px;color:var(--mut)}
+.web{display:grid;grid-template-columns:170px 1fr;min-height:330px}
+.side{background:#fff;padding:16px 12px;display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}
+.side .hd{margin-bottom:10px}
+.side a{padding:7px 10px;border-radius:10px;color:var(--mut)}
+.side a.on{background:#FDE9DB;color:var(--orT)}
+.main{padding:18px;display:grid;grid-template-columns:1.2fr 1fr;gap:12px;align-content:start;position:relative}
+.main .card{border:1px solid #F1E6DA}
+.sk{position:absolute;inset:18px;display:grid;grid-template-columns:1.2fr 1fr;gap:12px;align-content:start;transition:opacity calc(200ms*var(--spd)) var(--ease-out)}
+.sk div{background:#F1E6DA;border-radius:18px;height:120px}
+.sk div:nth-child(1){grid-row:span 2;height:252px}
+.main .st{transition:opacity calc(240ms*var(--spd)) var(--ease-out),transform calc(240ms*var(--spd)) var(--ease-out);transition-delay:calc(var(--i)*50ms*var(--spd))}
+@media (max-width:600px){.web{grid-template-columns:1fr}.side{display:none}.main,.sk{grid-template-columns:1fr}.sk div:nth-child(1){grid-row:auto;height:120px}}
+
+/* ---------- carregando ---------- */
+.loaders{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.lbox{background:var(--cream);color:var(--ink);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;min-height:190px}
+.btnl{display:flex;align-items:center;gap:9px;background:var(--or);color:var(--ink);border-radius:16px;padding:12px 18px;font-weight:800;font-size:14px}
+.btnl svg{width:22px;height:22px}
+.bub{display:flex;gap:10px;align-items:center;background:#fff;border-radius:20px 20px 20px 6px;padding:10px 14px;font-weight:600;font-size:13.5px}
+.bub svg{width:38px;height:38px}
+.full svg{width:64px;height:64px}
+
+/* pull to refresh */
+.ptr{position:absolute;top:34px;left:0;right:0;height:0;display:flex;justify-content:center;align-items:flex-end;z-index:4;pointer-events:none}
+.ptr svg{width:34px;height:34px;margin-bottom:6px}
+.ptr .gomo{transition:opacity calc(120ms*var(--spd)) linear}
+.pull .app{transition:transform calc(320ms*var(--spd)) var(--ease-out)}
+.pull.drag .app{transition:none}
+.pull .app{cursor:grab;touch-action:none;user-select:none}
+
+/* medidor */
+.arc{transition:stroke-dashoffset calc(450ms*var(--spd)) var(--ease-in-out)}
+.rm .arc{transition-duration:0ms}
+@media (prefers-reduced-motion:reduce){.arc{transition-duration:0ms}}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:800;background:#E3F3E1;color:var(--posT);
+  opacity:0;transform:translateY(6px);transition:opacity calc(220ms*var(--spd)) var(--ease-out),transform calc(220ms*var(--spd)) var(--ease-out)}
+.chip.show{opacity:1;transform:none}
+.rm .chip{transform:none}
+
+/* folha e aviso */
+.backdrop{position:absolute;inset:0;background:rgba(28,23,18,.38);opacity:0;pointer-events:none;z-index:30;transition:opacity calc(320ms*var(--spd)) var(--ease-drawer)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:28px 28px 0 0;padding:10px 16px 26px;z-index:31;transform:translateY(100%);transition:transform calc(320ms*var(--spd)) var(--ease-drawer)}
+.sheet .grab{width:38px;height:5px;border-radius:9px;background:#E3D6C8;margin:0 auto 12px}
+.open .backdrop{opacity:1;pointer-events:auto}
+.open .sheet{transform:none}
+.rm .sheet{transition-property:transform;transition-duration:0ms}
+.rm.open .sheet,.rm .sheet{transition:opacity calc(200ms*var(--spd)) ease}
+.toast{position:absolute;left:14px;right:14px;bottom:82px;background:var(--ink);color:#fff;border-radius:16px;padding:11px 14px;font-size:13px;font-weight:700;z-index:35;display:flex;justify-content:space-between;
+  transform:translateY(calc(100% + 90px));transition:transform calc(260ms*var(--spd)) var(--ease-out)}
+.toast.show{transform:none}
+.toast u{color:var(--gomo);text-decoration:none}
+.rm .toast{transform:none;opacity:0;transition:opacity calc(200ms*var(--spd)) ease}
+.rm .toast.show{opacity:1}
+.press{transition:transform calc(140ms*var(--spd)) var(--ease-out)}
+.press:active{transform:scale(.97)}
+.opt{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #F1E6DA;font-weight:700;font-size:14px}
+.opt i{width:30px;height:30px;border-radius:10px;background:#FBE3D0}
+
+.no{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.no div{background:var(--bg);border-radius:18px;padding:14px 16px}
+.no b{display:block;margin-bottom:2px}
+.no span{color:var(--mut);font-size:13.5px}
+pre{margin:0;background:var(--dark);color:#F6E6D6;border-radius:18px;padding:16px;font:500 12.5px/1.55 ui-monospace,Menlo,monospace;overflow:auto}
+:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Animações do <b>nuvi</b> · PWA e Web</h1>
+    <p class="lead">Toda a animação nasce da fatia: os <b>oito gomos</b> respiram em sequência, como uma onda. A mesma onda é a abertura, o carregamento, o puxar para atualizar e o Agente pensando. Fora isso, quase nada se mexe: o app é aberto muitas vezes por dia, então o movimento fica só onde ajuda a entender o que aconteceu.</p>
+  </header>
+
+  <div class="bar" role="toolbar" aria-label="Controles da demonstração">
+    <div class="seg" id="spd" aria-label="Velocidade">
+      <button aria-pressed="true" data-v="1">Velocidade real</button>
+      <button aria-pressed="false" data-v="3">3× mais lento</button>
+    </div>
+    <div class="seg" id="rmv" aria-label="Movimento">
+      <button aria-pressed="true" data-v="0">Movimento normal</button>
+      <button aria-pressed="false" data-v="1">Movimento reduzido</button>
+    </div>
+  </div>
+
+  <!-- 1 · Abertura do PWA -->
+  <section class="sec">
+    <div class="txt">
+      <span class="tag">1 · Abertura do PWA</span>
+      <h2>A fatia respira e vira o logo do topo</h2>
+      <p>O celular mostra a tela de abertura do sistema (fixa: laranja com a fatia creme, vinda do manifesto). O app desenha por cima <b>exatamente a mesma imagem</b>, então não há piscada. Enquanto os dados chegam, os gomos fazem a onda. Quando chegam, a fatia encolhe e voa até o canto do topo, o laranja some, e a tela Hoje entra em cascata.</p>
+      <p>Se o app já estiver pronto, não espera nada: a onda só aparece se houver espera de verdade.</p>
+      <dl class="spec">
+        <div><dt>Onda</dt><dd>gomo a gomo, 120 ms entre eles; ciclo de 960 ms; opacidade 1 → 0,35 e escala 1 → 0,84 para o centro</dd></div>
+        <div><dt>Fatia ao topo</dt><dd>420 ms, ease-in-out forte (é movimento na tela); só transform</dd></div>
+        <div><dt>Fundo</dt><dd>some em 280 ms, ease-out</dd></div>
+        <div><dt>Conteúdo</dt><dd>sobe 8 px e aparece, 260 ms ease-out, 40 ms de cascata</dd></div>
+        <div><dt>Reduzido</dt><dd>sem onda de escala nem voo: a abertura se dissolve em 200 ms</dd></div>
+      </dl>
+      <div class="seg" id="load" aria-label="Tempo de carregamento simulado">
+        <button aria-pressed="false" data-v="150">Carrega rápido</button>
+        <button aria-pressed="true" data-v="1400">Normal</button>
+        <button aria-pressed="false" data-v="3200">Rede lenta</button>
+      </div>
+      <button class="play" id="playSplash">Abrir o app de novo</button>
+    </div>
+    <div class="stage"><div><div class="phone" id="ph1"></div><div class="cap">PWA instalado · abrindo do zero</div></div></div>
+  </section>
+
+  <!-- 2 · Web -->
+  <section class="sec one">
+    <div class="txt">
+      <span class="tag">2 · Abertura na Web</span>
+      <h2>No navegador, sem tela de abertura</h2>
+      <p>Na Web uma tela laranja a cada visita cansaria. A página já abre com o esqueleto das caixas no lugar (nada pula depois). O logo do topo faz <b>uma onda só</b>, e cada caixa troca o esqueleto pelo conteúdo, em cascata. Só na primeira página da visita: trocar de seção dentro do app é instantâneo.</p>
+      <dl class="spec">
+        <div><dt>Logo</dt><dd>uma onda (960 ms), uma vez por visita</dd></div>
+        <div><dt>Esqueleto → conteúdo</dt><dd>esqueleto some em 200 ms; caixas entram em 240 ms ease-out, 50 ms de cascata</dd></div>
+        <div><dt>Reduzido</dt><dd>logo parado; o conteúdo só se dissolve, sem subir</dd></div>
+      </dl>
+      <button class="play" id="playWeb">Recarregar a página</button>
+    </div>
+    <div id="web"></div>
+  </section>
+
+  <!-- 3 · Carregando -->
+  <section class="sec one">
+    <div class="txt">
+      <span class="tag">3 · Carregando</span>
+      <h2>A mesma onda em três tamanhos</h2>
+      <p>Aparece só se a espera passar de <b>300 ms</b>; o que é mais rápido que isso não mostra nada (evita o pisca-pisca). Serve para o que demora de verdade: gerar cardápio, o Chef, o Agente lendo uma foto, a busca no Open Food Facts.</p>
+    </div>
+    <div class="loaders" id="loaders"></div>
+  </section>
+
+  <!-- 4 · Puxar para atualizar -->
+  <section class="sec">
+    <div class="txt">
+      <span class="tag">4 · Puxar para atualizar</span>
+      <h2>Os gomos aparecem conforme você puxa</h2>
+      <p>Arraste a tela para baixo. Cada pedaço do puxão acende um gomo; com os oito acesos, soltar atualiza e a fatia faz a onda até terminar. Soltar antes volta tudo ao lugar. O movimento segue o dedo, sem curva, e a volta é ease-out em 320 ms.</p>
+      <dl class="spec">
+        <div><dt>Durante</dt><dd>segue o dedo com resistência (metade da distância); gomos só por opacidade</dd></div>
+        <div><dt>Soltou</dt><dd>volta em 320 ms ease-out; atualizando, a fatia fica a 56 px até acabar</dd></div>
+        <div><dt>Reduzido</dt><dd>igual: o movimento é do próprio dedo</dd></div>
+      </dl>
+    </div>
+    <div class="stage"><div><div class="phone pull" id="ph2"></div><div class="cap">arraste para baixo (mouse ou dedo)</div></div></div>
+  </section>
+
+  <!-- 5 · Medidor e meta -->
+  <section class="sec">
+    <div class="txt">
+      <span class="tag">5 · Registrar e bater a meta</span>
+      <h2>O medidor anda; a fatia comemora</h2>
+      <p><b>Ao registrar</b>, o arco anda até o novo valor e o número conta junto (450 ms, ease-in-out). É a confirmação de que entrou no dia, então vale o movimento.</p>
+      <p><b>Ao bater uma meta</b> (no máximo uma vez por meta por dia), a fatia do Agente gira um gomo, com um leve passo além e volta, e sorri. Como a fatia tem oito gomos iguais, girar 45° termina no mesmo desenho: dá para repetir sem salto.</p>
+      <dl class="spec">
+        <div><dt>Arco</dt><dd>stroke-dashoffset, 450 ms ease-in-out forte</dd></div>
+        <div><dt>Comemoração</dt><dd>gira 0 → 52° → 45° em 640 ms, ease-out; olhos viram sorriso por 900 ms</dd></div>
+        <div><dt>Aviso de meta</dt><dd>sobe 6 px e aparece, 220 ms ease-out</dd></div>
+        <div><dt>Reduzido</dt><dd>arco e número mudam na hora; sem giro, só o sorriso e o aviso</dd></div>
+      </dl>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="play" id="addFood">Registrar pão de queijo · 320 kcal</button>
+        <button class="play ghost" id="undoFood">Desfazer</button>
+        <button class="play ghost" id="celebrate">Bater a meta de proteína</button>
+      </div>
+    </div>
+    <div class="stage"><div><div class="phone" id="ph3"></div><div class="cap">tela Hoje</div></div></div>
+  </section>
+
+  <!-- 6 · Toque, folhas e avisos -->
+  <section class="sec">
+    <div class="txt">
+      <span class="tag">6 · Toque, folhas e avisos</span>
+      <h2>Rápido e sempre pelo mesmo caminho</h2>
+      <p><b>Botões</b> afundam um pouco ao toque (escala 0,97 em 140 ms). <b>Folhas</b> (adicionar, água, porção) sobem de baixo com a curva de gaveta do iOS e descem pelo mesmo caminho, inclusive arrastando. <b>Avisos</b> ("Almoço salvo · Desfazer") sobem de baixo por transição, não por animação fixa, para que tocar duas vezes não reinicie do zero.</p>
+      <dl class="spec">
+        <div><dt>Botão</dt><dd>scale(.97), 140 ms ease-out</dd></div>
+        <div><dt>Folha</dt><dd>translateY(100%) → 0, 320 ms, curva de gaveta; fundo escurece junto</dd></div>
+        <div><dt>Aviso</dt><dd>260 ms ease-out, sai por baixo depois de 4 s</dd></div>
+        <div><dt>Reduzido</dt><dd>folha e aviso só se dissolvem (200 ms)</dd></div>
+      </dl>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="play" id="openSheet">Abrir “Adicionar”</button>
+        <button class="play ghost" id="showToast">Salvar almoço</button>
+      </div>
+    </div>
+    <div class="stage"><div><div class="phone" id="ph4"></div><div class="cap">toque no + ou nos botões ao lado</div></div></div>
+  </section>
+
+  <!-- 7 · O que fica parado -->
+  <section class="sec one">
+    <div class="txt">
+      <span class="tag">7 · O que fica parado, de propósito</span>
+      <h2>Sem animação, porque é usado o tempo todo</h2>
+    </div>
+    <div class="no">
+      <div><b>Trocar de aba</b><span>Hoje, Diário, Cardápio, Agente: troca instantânea. Dezenas de vezes por dia, e qualquer espera ali vira lentidão.</span></div>
+      <div><b>Digitar na busca</b><span>os resultados trocam na hora, sem cascata a cada letra.</span></div>
+      <div><b>Passar de dia no Diário</b><span>as setas trocam o conteúdo direto; só o número do dia muda.</span></div>
+      <div><b>Passar o mouse em cartões</b><span>na Web, só uma troca de cor de fundo em 150 ms, e só onde há mouse (no toque não existe “passar por cima”).</span></div>
+      <div><b>Números do resumo</b><span>só o medidor conta ao registrar. Proteína, carbo e gordura trocam na hora: são para ler, não para assistir.</span></div>
+      <div><b>Mudar de página na Web</b><span>sem transição de página; o esqueleto só aparece na primeira carga.</span></div>
+    </div>
+  </section>
+
+  <!-- 8 · Tokens -->
+  <section class="sec one">
+    <div class="txt">
+      <span class="tag">8 · Para o desenvolvimento</span>
+      <h2>As curvas e tempos que vão para o código</h2>
+      <p>Tudo em CSS (transição ou animação) e, onde precisa medir posição, a Web Animations API do próprio navegador. Nenhuma biblioteca de animação. A onda é uma animação CSS, que continua lisa mesmo com o app ocupado carregando.</p>
+    </div>
+<pre>:root {
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);    /* entrar e sair */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);   /* mover na tela: medidor, fatia ao topo */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);    /* folhas de baixo */
+
+  --dur-press: 140ms;   --dur-chip: 220ms;   --dur-toast: 260ms;
+  --dur-sheet: 320ms;   --dur-gauge: 450ms;  --dur-wave: 960ms;  /* 8 gomos × 120ms */
+}
+
+/* manifest.webmanifest: a abertura do sistema igual à do app */
+"background_color": "#E8590C", "theme_color": "#E8590C"
+
+@media (prefers-reduced-motion: reduce) { /* só opacidade e cor, sem escala nem deslocamento */ }
+@media (hover: hover) and (pointer: fine) { /* efeitos de passar o mouse */ }</pre>
+  </section>
+</div>
+
+<script>
+const R=Math.PI/180;
+const EO='cubic-bezier(0.23,1,0.32,1)', EIO='cubic-bezier(0.77,0,0.175,1)';
+let SPD=1, RM=false, LOAD=1400;
+const sysRM=matchMedia('(prefers-reduced-motion: reduce)');
+const reduced=()=>RM||sysRM.matches;
+const ms=v=>v*SPD;
+
+function wedge(cx,cy,ri,ro,a0,a1){const p=(rr,a)=>`${(cx+rr*Math.cos(a*R)).toFixed(2)} ${(cy+rr*Math.sin(a*R)).toFixed(2)}`;return `M${p(ri,a0)} L${p(ro,a0)} A${ro} ${ro} 0 0 1 ${p(ro,a1)} L${p(ri,a1)} A${ri} ${ri} 0 0 0 ${p(ri,a0)} Z`}
+/* fatia oficial: casca, parte branca (cut) e oito gomos iguais */
+function slice({rind='#E8590C',cut='#FFF6EC',gomo='#FF9A52',cls='',face=false,label}={}){
+  let g='';for(let i=0;i<8;i++){const a=i*45-90;g+=`<path class="gomo" style="--i:${i}" d="${wedge(50,50,6,31,a+5,a+40)}" fill="${gomo}"/>`}
+  const eyes=face?`<g class="face"><g class="open"><circle cx="42" cy="48" r="5.5" fill="#fff"/><circle cx="58" cy="48" r="5.5" fill="#fff"/><circle cx="43.1" cy="48.8" r="2.9" fill="#1C1712"/><circle cx="59.1" cy="48.8" r="2.9" fill="#1C1712"/></g><g class="happy" opacity="0"><path d="M37.5 49 Q42 43.5 46.5 49" fill="none" stroke="#1C1712" stroke-width="3" stroke-linecap="round"/><path d="M53.5 49 Q58 43.5 62.5 49" fill="none" stroke="#1C1712" stroke-width="3" stroke-linecap="round"/></g><path d="M43 60 Q50 66 57 60" fill="none" stroke="#1C1712" stroke-width="3.6" stroke-linecap="round"/></g>`:'';
+  return `<svg viewBox="0 0 100 100" class="${cls}" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}><circle cx="50" cy="50" r="41" fill="${rind}"/><circle cx="50" cy="50" r="35" fill="${cut}"/><g class="gomos">${g}</g>${eyes}</svg>`;
+}
+const C={cream:'#FFF6EC',or:'#E8590C'};
+const sbar=`<div class="sbar"><span>9:41</span><span>●●● ▮</span></div>`;
+const tabbar=`<div class="tabbar"><span class="on">●<br>Hoje</span><span>▤<br>Diário</span><b class="plus press" role="button" tabindex="0" aria-label="Adicionar">+</b><span>▦<br>Cardápio</span><span>◔<br>Agente</span></div>`;
+function gaugeSVG(left,pct){return `<svg class="gauge" viewBox="0 0 200 106"><path d="M22 94 A78 78 0 0 1 178 94" fill="none" stroke="var(--track)" stroke-width="16" stroke-linecap="round"/><path class="arc" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100-pct}" d="M22 94 A78 78 0 0 1 178 94" fill="none" stroke="#E8590C" stroke-width="16" stroke-linecap="round"/><text class="num" x="100" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#1C1712" font-family="DM Sans">${fmt(left)}</text><text x="100" y="99" text-anchor="middle" font-size="9.5" font-weight="700" fill="#7A6A58" font-family="DM Sans">kcal que ainda cabem</text></svg>`}
+const fmt=n=>Math.round(n).toLocaleString('pt-BR');
+function hoje(extra=''){return `<div class="app">
+  <div class="hd st" style="--i:0">${slice({cls:'logo'})}<span class="wm">nuvi</span><span class="av">F</span></div>
+  <div class="st" style="--i:1"><div class="hi">Boa tarde, <b>Franco</b>.</div><div class="mut">quinta, 5 de novembro</div></div>
+  <div class="card st" style="--i:2"><div class="row"><b style="font-size:13px">Seu dia</b><span class="mut kc">1.258 / 2.000 kcal</span></div>${gaugeSVG(742,63)}
+    <div class="row" style="font-size:11px;text-align:center;gap:6px"><div style="flex:1;background:#FBEDE1;border-radius:12px;padding:6px"><b>82/120 g</b><br>Proteína</div><div style="flex:1;background:#FBEDE1;border-radius:12px;padding:6px"><b>140/220 g</b><br>Carbo</div><div style="flex:1;background:#FBEDE1;border-radius:12px;padding:6px"><b>38/60 g</b><br>Gordura</div></div></div>
+  <div class="card meal st" style="--i:3"><i></i><div style="flex:1"><b>Almoço</b><div class="mut">arroz, feijão, frango</div></div><b>640</b></div>
+  <div class="card meal st" style="--i:4"><i></i><div style="flex:1"><b>Café da manhã</b><div class="mut">pão, ovo, café</div></div><b>418</b></div>
+  ${extra}</div>${tabbar}`}
+
+/* ---------- 1 · abertura do PWA ---------- */
+const ph1=document.getElementById('ph1');
+let splashRun=0;
+function playSplash(){
+  const run=++splashRun;
+  ph1.innerHTML=sbar+hoje()+`<div class="splash">${slice({rind:C.cream,cut:C.or,gomo:C.cream,cls:'big'})}<span class="wm">nuvi</span></div>`;
+  ph1.querySelector('.sbar').style.color=C.cream;
+  const app=ph1.querySelector('.app'), sp=ph1.querySelector('.splash'), big=sp.querySelector('.big'), wmS=sp.querySelector('.wm');
+  const logo=app.querySelector('.logo'), wmH=app.querySelector('.hd .wm');
+  app.classList.add('hidden'); logo.style.opacity=0;
+  const t0=performance.now();
+  // a onda só começa se houver espera de verdade (300 ms)
+  const waveT=setTimeout(()=>{if(run===splashRun)big.classList.add('wave')},ms(300));
+  setTimeout(()=>{ if(run!==splashRun)return; clearTimeout(waveT); finish(); }, ms(LOAD));
+  function settleGomos(){
+    big.querySelectorAll('.gomo').forEach(g=>{const cs=getComputedStyle(g);const o=cs.opacity,t=cs.transform;big.classList.remove('wave');
+      g.animate([{opacity:o,transform:t==='none'?'none':t},{opacity:1,transform:'none'}],{duration:ms(160),easing:EO});});
+    big.classList.remove('wave');
+  }
+  function finish(){
+    settleGomos();
+    const st=[...app.querySelectorAll('.st')];
+    if(reduced()){
+      ph1.querySelector('.sbar').style.color='';
+      logo.style.opacity=1;
+      st.forEach(e=>{e.style.transition=`opacity ${ms(200)}ms ease`;});
+      requestAnimationFrame(()=>{app.classList.remove('hidden');st.forEach(e=>e.style.transform='none');});
+      sp.animate([{opacity:1},{opacity:0}],{duration:ms(200),easing:'ease',fill:'forwards'}).finished.then(()=>sp.remove());
+      return;
+    }
+    const d=ms(160);
+    setTimeout(()=>{ if(run!==splashRun)return;
+      const a=big.getBoundingClientRect(), b=logo.getBoundingClientRect();
+      const dx=(b.left+b.width/2)-(a.left+a.width/2), dy=(b.top+b.height/2)-(a.top+a.height/2), s=b.width/a.width;
+      wmS.animate([{opacity:1},{opacity:0}],{duration:ms(150),easing:EO,fill:'forwards'});
+      // a fatia troca as cores para as do topo enquanto voa
+      const fly=big.animate([{transform:'none'},{transform:`translate(${dx}px,${dy}px) scale(${s})`}],{duration:ms(420),easing:EIO,fill:'forwards'});
+      const [rind,cut]=big.querySelectorAll('circle');
+      rind.animate([{fill:C.cream},{fill:C.or}],{duration:ms(420),easing:EIO,fill:'forwards'});
+      cut.animate([{fill:C.or},{fill:C.cream}],{duration:ms(420),easing:EIO,fill:'forwards'});
+      big.querySelectorAll('.gomo').forEach(g=>g.animate([{fill:C.cream},{fill:'#FF9A52'}],{duration:ms(420),easing:EIO,fill:'forwards'}));
+      sp.animate([{backgroundColor:C.or},{backgroundColor:'rgba(232,89,12,0)'}],{duration:ms(280),delay:ms(140),easing:EO,fill:'forwards'});
+      setTimeout(()=>ph1.querySelector('.sbar').style.color='',ms(200));
+      // conteúdo em cascata, começando junto do fim do voo
+      st.forEach((e,i)=>{ if(i===0){e.style.opacity=1;e.style.transform='none';return;}
+        e.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:ms(260),delay:ms(260+i*40),easing:EO,fill:'backwards'});
+        e.style.opacity=1;e.style.transform='none';});
+      wmH.animate([{opacity:0},{opacity:1}],{duration:ms(200),delay:ms(260),easing:EO,fill:'backwards'});
+      fly.finished.then(()=>{ if(run!==splashRun)return; logo.style.opacity=1; sp.remove(); app.classList.remove('hidden'); });
+    },d);
+  }
+}
+
+/* ---------- 2 · web ---------- */
+const web=document.getElementById('web');
+function playWeb(){
+  web.innerHTML=`<div class="browser"><div class="chrome"><i></i><i></i><i></i><span>nuvi.app/hoje</span></div><div class="web">
+   <nav class="side"><div class="hd">${slice({cls:'logo'})}<span class="wm">nuvi</span></div><a class="on">Hoje</a><a>Diário</a><a>Cardápio</a><a>Receitas</a><a>Compras</a><a>Agente</a></nav>
+   <div class="main hidden">
+     <div class="card st" style="--i:0;grid-row:span 2"><div class="row"><b style="font-size:14px">Seu dia</b><span class="mut">1.258 / 2.000 kcal</span></div>${gaugeSVG(742,63)}<div class="mut" style="text-align:center">faltam 38 g de proteína</div></div>
+     <div class="card st" style="--i:1;min-height:120px"><b style="font-size:14px">Almoço</b><div class="mut">arroz, feijão, frango · 640 kcal</div></div>
+     <div class="card st" style="--i:2;min-height:120px"><b style="font-size:14px">Água</b><div class="mut">1,2 de 2,5 L</div></div>
+     <div class="sk" aria-hidden="true"><div></div><div></div><div></div></div>
+   </div></div></div>`;
+  const main=web.querySelector('.main'), sk=web.querySelector('.sk'), logo=web.querySelector('.logo');
+  if(!reduced()) logo.classList.add('wave','once');
+  if(reduced()) main.querySelectorAll('.st').forEach(e=>e.style.transform='none');
+  setTimeout(()=>{ sk.style.opacity=0; main.classList.remove('hidden'); setTimeout(()=>sk.remove(),ms(220)); },ms(900));
+}
+
+/* ---------- 3 · carregando ---------- */
+document.getElementById('loaders').innerHTML=`
+ <div class="lbox"><div class="btnl">${slice({rind:'#1C1712',cut:'#E8590C',gomo:'#1C1712',cls:'wave'})}Gerando cardápio…</div><div class="cap">dentro do botão</div></div>
+ <div class="lbox"><div class="bub">${slice({cls:'wave',face:true,label:'Agente pensando'})}Lendo a foto do seu prato…</div><div class="cap">Agente pensando</div></div>
+ <div class="lbox full">${slice({cls:'wave',label:'Carregando'})}<div class="cap">tela inteira (Chef, receita)</div></div>`;
+
+/* ---------- 4 · puxar para atualizar ---------- */
+const ph2=document.getElementById('ph2');
+ph2.innerHTML=sbar+`<div class="ptr">${slice({cls:'p'})}</div>`+hoje()+'';
+(function(){
+  const app=ph2.querySelector('.app'), ptr=ph2.querySelector('.ptr'), sv=ptr.querySelector('svg'), gs=[...sv.querySelectorAll('.gomo')];
+  const MAX=112, FULL=96; let y0=null, cur=0, busy=false;
+  const paint=d=>{const n=Math.min(8,Math.floor(d/FULL*8.999));gs.forEach((g,i)=>g.style.opacity=i<n?1:.12);sv.style.opacity=Math.min(1,d/30);
+    ptr.style.height=Math.max(0,d)+'px';};
+  paint(0);
+  app.addEventListener('pointerdown',e=>{if(busy)return;y0=e.clientY;app.setPointerCapture(e.pointerId);ph2.classList.add('drag');});
+  app.addEventListener('pointermove',e=>{if(y0===null)return;cur=Math.max(0,Math.min(MAX,(e.clientY-y0)*.5));app.style.transform=`translateY(${cur}px)`;paint(cur);});
+  const up=()=>{if(y0===null)return;y0=null;ph2.classList.remove('drag');
+    if(cur>=FULL){busy=true;app.style.transform='translateY(56px)';ptr.style.transition=`height ${ms(320)}ms ${EO}`;paint(56);gs.forEach(g=>g.style.opacity='');sv.classList.add('wave');
+      setTimeout(()=>{sv.classList.remove('wave');app.style.transform='';ptr.style.height='0px';sv.style.opacity=0;setTimeout(()=>{ptr.style.transition='';busy=false;paint(0)},ms(320));},ms(1920));}
+    else{app.style.transform='';ptr.style.transition=`height ${ms(320)}ms ${EO}`;ptr.style.height='0px';sv.style.opacity=0;setTimeout(()=>{ptr.style.transition='';paint(0)},ms(320));}
+    cur=0;};
+  app.addEventListener('pointerup',up);app.addEventListener('pointercancel',up);
+})();
+
+/* ---------- 5 · medidor e meta ---------- */
+const ph3=document.getElementById('ph3');
+ph3.innerHTML=sbar+hoje(`<div class="card st" style="display:flex;gap:10px;align-items:center"><div style="width:52px;height:52px;flex:none" id="masc">${slice({face:true,label:'Agente Nuvi'})}</div><div style="flex:1"><b style="font-size:13px">Agente</b><div class="mut" id="say">faltam 38 g de proteína hoje</div><span class="chip" id="chip">✓ Meta de proteína batida</span></div></div>`);
+let eaten=1258, numAnim=null;
+function setGauge(next){
+  const svg=ph3.querySelector('.gauge'), arc=svg.querySelector('.arc'), num=svg.querySelector('.num');
+  const from=eaten; eaten=next; const pct=Math.min(100,eaten/2000*100);
+  arc.style.strokeDashoffset=100-pct;
+  ph3.querySelector('.kc').textContent=`${fmt(eaten)} / 2.000 kcal`;
+  cancelAnimationFrame(numAnim);
+  if(reduced()){num.textContent=fmt(2000-eaten);return;}
+  const t0=performance.now(), D=ms(450);
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  const step=now=>{const t=Math.min(1,(now-t0)/D);num.textContent=fmt(2000-(from+(eaten-from)*ease(t)));if(t<1)numAnim=requestAnimationFrame(step)};
+  numAnim=requestAnimationFrame(step);
+}
+document.getElementById('addFood').onclick=()=>setGauge(eaten+320);
+document.getElementById('undoFood').onclick=()=>setGauge(Math.max(1258,eaten-320));
+let celebT;
+document.getElementById('celebrate').onclick=()=>{
+  const m=ph3.querySelector('#masc svg'), g=m.querySelector('.gomos'), open=m.querySelector('.open'), happy=m.querySelector('.happy'), chip=ph3.querySelector('#chip');
+  g.style.transformBox='view-box';g.style.transformOrigin='50px 50px';
+  if(!reduced()) g.animate([{transform:'rotate(0deg)'},{transform:'rotate(52deg)',offset:.7},{transform:'rotate(45deg)'}],{duration:ms(640),easing:EO});
+  open.setAttribute('opacity',0);happy.setAttribute('opacity',1);
+  ph3.querySelector('#say').textContent='mandou bem! 120 g de proteína';
+  chip.classList.add('show');
+  clearTimeout(celebT);celebT=setTimeout(()=>{open.setAttribute('opacity',1);happy.setAttribute('opacity',0);},ms(900));
+};
+
+/* ---------- 6 · toque, folhas e avisos ---------- */
+const ph4=document.getElementById('ph4');
+ph4.innerHTML=sbar+hoje()+`<div class="backdrop"></div><div class="sheet" role="dialog" aria-label="Adicionar"><div class="grab"></div><b style="font-size:17px">Adicionar ao almoço</b>
+ <div class="opt press"><i></i>Buscar alimento</div><div class="opt press"><i></i>Código de barras</div><div class="opt press"><i></i>Foto para o Agente</div><div class="opt press"><i></i>Repetir ontem</div></div>
+ <div class="toast" role="status"><span>Almoço salvo</span><u>Desfazer</u></div>`;
+const openSheet=()=>ph4.classList.add('open'), closeSheet=()=>ph4.classList.remove('open');
+ph4.querySelector('.plus').onclick=openSheet;
+ph4.querySelector('.backdrop').onclick=closeSheet;
+ph4.querySelectorAll('.opt').forEach(o=>o.onclick=closeSheet);
+document.getElementById('openSheet').onclick=()=>ph4.classList.contains('open')?closeSheet():openSheet();
+let toastT;
+document.getElementById('showToast').onclick=()=>{const t=ph4.querySelector('.toast');closeSheet();t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),4000*SPD);};
+
+/* ---------- controles ---------- */
+function seg(id,fn){const el=document.getElementById(id);el.querySelectorAll('button').forEach(b=>b.onclick=()=>{el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(+b.dataset.v)})}
+seg('spd',v=>{SPD=v;document.documentElement.style.setProperty('--spd',v)});
+seg('rmv',v=>{RM=!!v;document.body.classList.toggle('rm',RM);[ph1,ph2,ph3,ph4].forEach(p=>p.classList.toggle('rm',RM));});
+seg('load',v=>{LOAD=v;playSplash()});
+document.getElementById('playSplash').onclick=playSplash;
+document.getElementById('playWeb').onclick=playWeb;
+document.fonts.ready.then(()=>{playSplash();playWeb();});
+</script>
+</body>
+</html>

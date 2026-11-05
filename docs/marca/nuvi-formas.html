@@ -1,0 +1,303 @@
+<title>Nuvi Formas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Comfortaa:wght@700&family=Fredoka:wght@600&family=Quicksand:wght@700&family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<style>
+/* Layout: o mesmo quadro da primeira rodada — faixa com os 5 símbolos lado a lado, depois uma seção por símbolo com logo, paleta, mascote e 4 telas aplicadas. */
+:root{
+  --bg:#ECE7E1; --panel:#FFFFFF; --ink:#1C1712; --mut:#6E6152; --line:#DDD4CA; --soft:#F4EFEA;
+  --pass:#2F7A00; --passS:#E3F3D6; --warn:#8A5A00; --warnS:#FBEBC7; --fail:#B42318; --failS:#FBE1DD;
+  --focus:#FF6A2B;
+  --f-ui:'Nunito',ui-rounded,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141210; --panel:#1E1B18; --ink:#F3EFE9; --mut:#A99C8E; --line:#2F2A26; --soft:#26221E;
+  --pass:#7FD94A; --passS:#1E2E14; --warn:#F2C14E; --warnS:#33280F; --fail:#FF8A7A; --failS:#3A1A16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141210; --panel:#1E1B18; --ink:#F3EFE9; --mut:#A99C8E; --line:#2F2A26; --soft:#26221E;
+  --pass:#7FD94A; --passS:#1E2E14; --warn:#F2C14E; --warnS:#33280F; --fail:#FF8A7A; --failS:#3A1A16; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:500 15px/1.5 var(--f-ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em}
+h1{font-size:clamp(28px,4vw,40px);font-weight:900;line-height:1.05}
+h2{font-size:24px;font-weight:900}
+h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+p{margin:0;max-width:68ch}
+.lead{color:var(--mut);font-size:16px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.pick{background:var(--panel);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;border:2px solid transparent}
+.pick:hover{border-color:var(--line)}
+.pick .ic{width:72px;height:72px}
+.pick b{font-size:16px}
+.pick small{color:var(--mut);font-size:13px;line-height:1.35}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;width:max-content}
+.r-medio{background:var(--warnS);color:var(--warn)}
+.notes{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+.note{background:var(--panel);border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.note ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.rec{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.rec .ic{width:56px;height:56px}
+.dir{background:var(--panel);border-radius:30px;padding:24px;display:flex;flex-direction:column;gap:22px;scroll-margin-top:16px}
+.dhead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.dhead .num{font-weight:900;color:var(--mut);font-size:14px}
+.dhead .tag{color:var(--mut);font-weight:700}
+.grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px}
+.block{display:flex;flex-direction:column;gap:10px;min-width:0}
+.lock{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border-radius:20px;padding:22px 16px;display:flex;align-items:center;justify-content:center;gap:12px;min-height:120px}
+.tile svg{width:50px;height:50px;flex:none}
+.tile .wm{font-size:40px;line-height:1}
+.sw{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.sw div{border-radius:14px;overflow:hidden;background:var(--soft)}
+.sw i{display:block;height:54px}
+.sw b{display:block;padding:6px 8px 0;font-size:12px}
+.sw code{display:block;padding:0 8px 7px;font:700 11.5px ui-monospace,Menlo,monospace;color:var(--mut)}
+.ctr{display:flex;flex-direction:column;font-size:13px}
+.ctr div{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.ctr div:last-child{border-bottom:0}
+.ctr .pair{width:44px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+.ctr .ratio{font-variant-numeric:tabular-nums;font-weight:800}
+.ok{background:var(--passS);color:var(--pass)} .lg{background:var(--warnS);color:var(--warn)} .no{background:var(--failS);color:var(--fail)}
+.ctr .badge{border-radius:6px;padding:1px 7px;font-size:11px;font-weight:900}
+.masc{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;background:var(--soft);border-radius:20px;padding:14px}
+.masc svg{width:110px;height:110px}
+.sizes{display:flex;align-items:flex-end;gap:14px;background:var(--soft);border-radius:20px;padding:14px;flex-wrap:wrap}
+.sizes span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--mut)}
+.apps{display:flex;flex-wrap:wrap;gap:16px 14px;align-items:flex-start}
+.app{display:flex;flex-direction:column;gap:8px;width:168px;margin:0}
+.app figcaption{font-size:12.5px;font-weight:800;color:var(--mut)}
+.ph{width:168px;height:350px;border-radius:30px;border:6px solid #0E0D0C;overflow:hidden;position:relative;font-family:var(--f-ui);flex:none}
+.sb{height:22px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:9px;font-weight:900}
+.sb .r{display:flex;gap:3px}.sb .r i{display:block;width:9px;height:6px;border-radius:2px;background:currentColor;opacity:.9}
+.hb{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:56px;height:3.5px;border-radius:2px;background:currentColor;opacity:.5}
+.home{background:#3A332D;color:#fff}
+.home .g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 6px;padding:14px 10px}
+.home .a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:7px;font-weight:700;color:#F3EFE9;white-space:nowrap}
+.home .a span{display:block;width:30px;height:30px;border-radius:7px}
+.home .a svg{width:30px;height:30px}
+.home .dock{position:absolute;left:8px;right:8px;bottom:14px;height:46px;border-radius:16px;background:#4A423B;display:flex;justify-content:space-around;align-items:center}
+.home .dock span{width:30px;height:30px;border-radius:7px;display:block}
+.splash{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.splash svg{width:76px;height:76px}
+.splash .wm{font-size:34px;line-height:1}
+.splash .foot{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-size:9.5px;font-weight:800;opacity:.85}
+.appv{color:#1C1712}
+.appv .hd{display:flex;align-items:center;gap:6px;padding:6px 12px 4px}
+.appv .hd svg{width:22px;height:22px}
+.appv .hd .wm{font-size:19px;line-height:1;flex:1}
+.appv .bell{width:24px;height:24px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center}
+.appv .av{width:24px;height:24px;border-radius:50%;background:#E8C9AD;color:#7A5136;font-weight:900;font-size:10px;display:flex;align-items:center;justify-content:center}
+.appv .hi{padding:6px 12px 2px;font-size:15px;font-weight:900;letter-spacing:-.02em}
+.appv .hi small{display:block;font-size:9px;font-weight:700;color:#7A6A58;letter-spacing:0}
+.appv .card{background:#fff;border-radius:16px;margin:6px 10px;padding:8px 10px}
+.appv .card svg{display:block;width:100%;height:62px}
+.appv .row{display:flex;justify-content:space-between;align-items:center;font-size:8.5px;font-weight:800;white-space:nowrap}
+.appv .pos{background:#E3F3D6;color:#2F7A00;border-radius:999px;padding:2px 7px;font-weight:900}
+.appv .btn{display:flex;align-items:center;justify-content:center;margin:6px 10px;border-radius:12px;padding:8px;background:#FF6A2B;color:#1C1712;font-weight:900;font-size:10.5px}
+.appv .say{display:flex;gap:6px;align-items:flex-start;margin:6px 10px;background:#fff;border-radius:14px;padding:7px 8px;font-size:8.5px;font-weight:700;line-height:1.35}
+.appv .say svg{width:26px;height:26px;flex:none}
+.lockv{background:#2B2622;color:#fff}
+.lockv .t{text-align:center;font-weight:800;font-size:44px;line-height:1;margin-top:28px;letter-spacing:-.03em}
+.lockv .d{text-align:center;font-size:9.5px;font-weight:700;opacity:.8;margin-top:4px}
+.nt{position:absolute;left:8px;right:8px;top:136px;background:#F2EEEA;color:#1C1712;border-radius:16px;padding:8px 9px;display:grid;grid-template-columns:24px 1fr;gap:7px}
+.nt svg{width:24px;height:24px}
+.nt .top{display:flex;justify-content:space-between;font-size:7.5px;font-weight:800;color:#6E6152;text-transform:uppercase;letter-spacing:.04em}
+.nt b{display:block;font-size:10px;margin-top:1px}
+.nt p{font-size:9px;line-height:1.3;font-weight:600}
+.mask{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:168px}
+.mask div{display:flex;flex-direction:column;gap:4px;align-items:center;font-size:10px;font-weight:700;color:var(--mut)}
+.mask .m{width:50px;height:50px;overflow:hidden}
+.mask .m svg{width:100%;height:100%;display:block}
+.mask .big{grid-column:1/-1;width:168px;height:168px;position:relative}
+.mask .big svg{width:100%;height:100%;display:block}
+@media (max-width:980px){.strip{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2,.notes{grid-template-columns:1fr}}
+@media (max-width:620px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.sw{grid-template-columns:repeat(3,minmax(0,1fr))}.lock{grid-template-columns:1fr}.dir{padding:18px 14px}.apps{justify-content:center}.rec{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h3>Nuvi · identidade visual · rodada 4</h3>
+    <h1>Dez formas abstratas para o Nuvi</h1>
+    <p class="lead">Dez desenhos geométricos novos, sem o círculo com ponto. Para comparar só a forma, todos usam as mesmas cores (fundo carvão, laranja das ações e verde do positivo) e o mesmo logotipo em Nunito Black. As cores ainda podem mudar depois que você escolher a forma.</p>
+  </header>
+
+  <nav class="strip" id="strip" aria-label="As dez formas"></nav>
+
+  <div class="notes">
+    <section class="note rec">
+      <div id="recIcon"></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <h3>Recomendação</h3>
+        <p style="font-size:14.5px"><b>Dobra (01).</b> É a mais diferente do que já existe em apps de nutrição (folhas, pratos e maçãs) e a única que junta numa peça só o laranja das ações e o verde do positivo. É sólida o bastante para ler em 16 pixels e simples de desenhar de memória. A escolha é sua.</p>
+      </div>
+    </section>
+    <section class="note">
+      <h3>O nome Nuvi (busca na web, 05/11/2026)</h3>
+      <span class="chip r-medio">risco médio</span>
+      <ul>
+        <li><b>NUVI Lifestyles</b>: app americano de treinos, na categoria Saúde e Fitness. Não é de nutrição.</li>
+        <li><b>Nouvi</b>: app na App Store com o mesmo som.</li>
+        <li><b>Garmin nüvi</b>: linha de GPS da Garmin. Saiu de linha, mas o registro da marca pode continuar ativo.</li>
+      </ul>
+      <p style="font-size:13px;color:var(--mut)">Antes de investir na marca, vale consultar o INPI (classes 9 e 42) e os domínios nuvi.app e nuvi.com.br.</p>
+    </section>
+  </div>
+
+  <main id="dirs" style="display:flex;flex-direction:column;gap:28px"></main>
+</div>
+
+<script>
+const INK='#1C1712', CREAM='#F7EFE6', ACT='#FF6A2B', POS='#52CC02', ACT_T='#C2410C', POS_T='#2F7A00', MUT_T='#7A6A58';
+const BASE={font:"'Nunito'",fw:900,ls:'-.04em',pr:'#1C1712',prN:'carvão',light:CREAM,dark:'#0C0A09',
+  iconBg:'#1C1712',iconFg:ACT,iconAc:POS,lightFg:ACT,lightAc:POS,darkFg:ACT,darkAc:POS,
+  wmLight:INK,wmDark:'#F3EFE9',splashBg:'#1C1712',splashSym:[ACT,POS],splashWm:CREAM,onPr:CREAM};
+const D=[
+ {...BASE,id:'dobra',n:'01',name:'Dobra',short:'Quadrado dividido na diagonal, meio laranja e meio verde.',
+  idea:'Um quadrado de cantos redondos dividido na diagonal: metade laranja, metade verde, as duas cores do app numa peça só. Lembra uma folha dobrada ou um guardanapo, sem desenhar nenhum dos dois. É a forma mais sólida das cinco e fica forte em qualquer tamanho.',
+  mText:'Os olhos ficam na metade laranja. Quando a meta fecha, a metade verde "sobe" e o quadrado fica todo verde por um instante.',eyes:[32,38,48,38,5.5,'']},
+ {...BASE,id:'blocos',n:'02',name:'N de blocos',short:'Duas hastes e uma diagonal formando o N.',
+  idea:'Duas hastes laranja e uma diagonal verde formam o N de Nuvi, como um monograma de produto. A diagonal corta as hastes com uma folga, o que dá ritmo ao desenho. Serve de carimbo, de botão e de marca em embalagem.',
+  mText:'Cada haste ganha um olho, e a diagonal verde vira um sorriso torto. Dá para animar as hastes como se ele pulasse.',eyes:[27,30,73,30,5.5,'']},
+ {...BASE,id:'petalas',n:'03',name:'Pétalas',short:'Quatro pétalas iguais saindo do centro.',
+  idea:'Quatro pétalas iguais saindo do centro: crescimento e equilíbrio, e também as quatro partes de um prato bem montado. A pétala verde marca o que já está em dia. É a forma mais orgânica, mas continua só com curvas geométricas.',
+  mText:'O rosto fica no miolo, entre as pétalas. Elas abrem e fecham devagar enquanto ele pensa, como uma flor.',eyes:[42,50,58,50,5,''],ink:CREAM},
+ {...BASE,id:'formas',n:'04',name:'Quatro formas',short:'Quadrado, círculo, quarto de círculo e triângulo.',
+  idea:'Um quadrado, um círculo, um quarto de círculo e um triângulo numa grade 2×2: comida variada vira formas variadas. É a mais brincalhona e a que mais rende fora do app, como padrão para site, embalagem e redes sociais.',
+  mText:'O círculo verde vira a cabeça, e as outras três formas são as peças que ele vai encaixando ao longo do dia.',eyes:[61,33,73,33,4.5,'']},
+ {...BASE,id:'visto',n:'05',name:'Visto',short:'O v de nuvi desenhado como um visto.',
+  idea:'O v de nuVi desenhado como um sinal de visto: refeição anotada, meta cumprida. A perna curta em verde é o positivo do app. É o que diz mais rápido o que o app faz, mas lembra apps de tarefas.',
+  mText:'Dois olhos em cima do visto. A cada registro ele "assina" com o traço, e na meta batida o traço inteiro fica verde.',eyes:[36,30,52,30,5.5,'']},
+ {...BASE,id:'ondas',n:'06',name:'Ondas',short:'Duas ondas paralelas, laranja e verde.',
+  idea:'Duas ondas paralelas, uma laranja e uma verde: ritmo, fluxo e constância, sem nenhum objeto reconhecível. Passa calma e combina com um app que acompanha o dia sem cobrar.',
+  mText:'Os olhos ficam em cima das ondas, que balançam devagar quando ele fala.',eyes:[40,20,58,20,5,'']},
+ {...BASE,id:'losangos',n:'07',name:'Losangos',short:'Dois losangos encaixados.',
+  idea:'Dois losangos de cantos redondos encaixados, um laranja e um verde: você e o Agente lado a lado, ou duas escolhas que se equilibram. É geométrico e firme, com cara de marca de tecnologia.',
+  mText:'O losango verde tem os olhos e se inclina para o laranja quando quer chamar atenção.',eyes:[56,48,68,48,4.5,'']},
+ {...BASE,id:'arcos',n:'08',name:'Arcos',short:'Arcos um dentro do outro, como um nascer do sol.',
+  idea:'Dois arcos e um meio círculo um dentro do outro, como um nascer do sol: energia, começo do dia e camadas de hábito. Funciona bem animado, com os arcos aparecendo um de cada vez na abertura.',
+  mText:'O rosto fica entre os arcos, e o sol verde do meio sobe quando a meta fecha.',eyes:[42,60,58,60,4,'']},
+ {...BASE,id:'pulso',n:'09',name:'Pulso',short:'Um zigue-zague subindo, como um gráfico.',
+  idea:'Um traço em zigue-zague que sobe e termina em verde, como um gráfico de progresso. É o herdeiro abstrato do ícone atual do NutriAgent (a linha subindo), mas sem a folha.',
+  mText:'Dois olhos acima do traço, que vira uma linha de batimento quando ele está animado.',eyes:[28,26,42,26,5,'']},
+ {...BASE,id:'degraus',n:'10',name:'Degraus',short:'Três barras subindo; a mais alta é verde.',
+  idea:'Três barras de cantos redondos subindo como degraus; a mais alta é verde. É progresso dia a dia, sem promessa milagrosa. Lê muito bem pequeno, mas lembra apps de finanças.',
+  mText:'A barra verde tem os olhos e "sobe um degrau" a cada dia no plano.',eyes:[68,34,78,34,4,'']}
+];
+let U=0;
+function sym(d,fg,ac,cut){
+  switch(d.id){
+  case 'dobra': {const id='dc'+(U++);return `<defs><clipPath id="${id}"><rect x="16" y="16" width="68" height="68" rx="20"/></clipPath></defs><g clip-path="url(#${id})"><polygon points="16,16 80,16 16,80" fill="${fg}"/><polygon points="84,20 84,84 20,84" fill="${ac}"/></g>`;}
+  case 'blocos': return `<rect x="18" y="16" width="18" height="68" rx="9" fill="${fg}"/><rect x="64" y="16" width="18" height="68" rx="9" fill="${fg}"/><path d="M27 25 L73 75" stroke="${cut}" stroke-width="28" stroke-linecap="round"/><path d="M27 25 L73 75" stroke="${ac}" stroke-width="18" stroke-linecap="round"/>`;
+  case 'petalas': {const p=`M50 50 C50 32 64 18 84 16 C82 36 68 50 50 50 Z`;return `<g transform="translate(50 50) scale(1.08) translate(-50 -50)"><path d="${p}" fill="${ac}"/><path d="${p}" fill="${fg}" transform="rotate(90 50 50)"/><path d="${p}" fill="${fg}" transform="rotate(180 50 50)"/><path d="${p}" fill="${fg}" transform="rotate(270 50 50)"/></g>`;}
+  case 'formas': return `<rect x="17" y="17" width="31" height="31" rx="8" fill="${fg}"/><circle cx="67.5" cy="32.5" r="15.5" fill="${ac}"/><path d="M17 83 V52 A31 31 0 0 1 48 83 Z" fill="${fg}"/><path d="M55 80 L80 80 L67.5 56 Z" fill="${fg}" stroke="${fg}" stroke-width="6" stroke-linejoin="round"/>`;
+  case 'visto': return `<path d="M42 74 L80 28" fill="none" stroke="${fg}" stroke-width="16" stroke-linecap="round"/><path d="M20 52 L42 74" fill="none" stroke="${ac}" stroke-width="16" stroke-linecap="round"/>`;
+  case 'ondas': return `<path d="M14 42 C26 26 38 26 50 42 S74 58 86 42" fill="none" stroke="${fg}" stroke-width="13" stroke-linecap="round"/><path d="M14 66 C26 50 38 50 50 66 S74 82 86 66" fill="none" stroke="${ac}" stroke-width="13" stroke-linecap="round"/>`;
+  case 'losangos': return `<rect x="20" y="31" width="38" height="38" rx="9" transform="rotate(45 39 50)" fill="${fg}"/><rect x="43" y="31" width="38" height="38" rx="9" transform="rotate(45 62 50)" fill="${ac}" stroke="${cut}" stroke-width="7"/>`;
+  case 'arcos': return `<path d="M16 72 A34 34 0 0 1 84 72" fill="none" stroke="${fg}" stroke-width="11" stroke-linecap="round"/><path d="M31 72 A19 19 0 0 1 69 72" fill="none" stroke="${fg}" stroke-width="11" stroke-linecap="round"/><path d="M42 74 A8 8 0 0 1 58 74 Z" fill="${ac}"/>`;
+  case 'pulso': return `<path d="M14 68 L32 40 L50 64 L66 36" fill="none" stroke="${fg}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 36 L86 36" fill="none" stroke="${ac}" stroke-width="13" stroke-linecap="round"/>`;
+  case 'degraus': return `<rect x="15" y="60" width="21" height="24" rx="7" fill="${fg}"/><rect x="39.5" y="40" width="21" height="44" rx="7" fill="${fg}"/><rect x="64" y="18" width="21" height="66" rx="7" fill="${ac}"/>`;
+  }
+}
+function eyes(x1,y1,x2,y2,r,ink,sm){return `<circle cx="${x1}" cy="${y1}" r="${r}" fill="#fff"/><circle cx="${x2}" cy="${y2}" r="${r}" fill="#fff"/><circle cx="${x1+r*.2}" cy="${y1+r*.15}" r="${r*.52}" fill="${INK}"/><circle cx="${x2+r*.2}" cy="${y2+r*.15}" r="${r*.52}" fill="${INK}"/>${sm?`<path d="${sm}" fill="none" stroke="${ink}" stroke-width="3.6" stroke-linecap="round"/>`:''}`}
+function mascot(d){
+  const e=d.eyes;
+  return `<svg viewBox="0 0 100 100" role="img" aria-label="Mascote Nuvi, versão ${d.name}"><rect width="100" height="100" rx="26" fill="${d.iconBg}"/><g transform="translate(9 9) scale(.82)">${sym(d,ACT,POS,d.iconBg)}${eyes(e[0],e[1],e[2],e[3],e[4],d.ink||CREAM,e[5])}</g></svg>`;
+}
+function icon(d,mode){
+  const s=mode==='ios'?.64:.56, o=(100-100*s)/2, rx=mode==='ios'?22.5:0;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="${rx}" fill="${d.iconBg}"/><g transform="translate(${o} ${o}) scale(${s})">${sym(d,d.iconFg,d.iconAc,d.iconBg)}</g></svg>`;
+}
+function bare(d,fg,ac,cut){return `<svg viewBox="0 0 100 100" aria-hidden="true">${sym(d,fg,ac,cut)}</svg>`}
+function wm(d,color){return `<span class="wm" style="font-family:${d.font},var(--f-ui);font-weight:${d.fw};letter-spacing:${d.ls};color:${color}">nuvi</span>`}
+function lum(h){return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:((v+.055)/1.055)**2.4).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0)}
+function ratio(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+function crow(label,fg,bg){const r=ratio(fg,bg);const [c,t]=r>=4.5?['ok','AA']:r>=3?['lg','só grande']:['no','falha'];
+  return `<div><span class="pair" style="background:${bg};color:${fg};box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)">Aa</span><span>${label}</span><span class="ratio">${r.toFixed(2).replace('.',',')}:1</span><span class="badge ${c}">${t}</span></div>`}
+function phoneHome(d){
+  const fills=['#6E8FA8','#C9B79C','#7FA07A','#B07A6A','#8C83B0','#D6C46A','#9AA3A8','#6F9C9A','#A88C6E','#7A8FA0','#B59A8A'];
+  const names=['Fotos','Câmera','Mapas','Banco','Música','Notas','Relógio','Clima','Agenda','Mensagens','Ajustes'];
+  let g='',k=0;
+  for(let i=0;i<12;i++){ if(i===5){g+=`<div class="a">${icon(d,'ios')}Nuvi</div>`;continue;}
+    g+=`<div class="a"><span style="background:${fills[k]}"></span>${names[k++]}</div>`;}
+  return `<div class="ph home"><div class="sb"><span>12:48</span><span class="r"><i></i><i></i><i></i></span></div><div class="g">${g}</div><div class="dock"><span style="background:#7FA07A"></span><span style="background:#6E8FA8"></span><span style="background:#C9B79C"></span><span style="background:#B07A6A"></span></div><div class="hb"></div></div>`;
+}
+function phoneSplash(d){
+  return `<div class="ph splash" style="background:${d.splashBg};color:${d.splashWm}">${bare(d,d.splashSym[0],d.splashSym[1],d.splashBg)}${wm(d,d.splashWm)}<div class="foot">seu agente de nutrição</div><div class="hb"></div></div>`;
+}
+function phoneApp(d){
+  const p=1240/1900, x=80+60*Math.cos(Math.PI-Math.PI*p), y=70-60*Math.sin(Math.PI*p);
+  return `<div class="ph appv" style="background:${d.light}"><div class="sb"><span>12:48</span><span class="r"><i></i><i></i><i></i></span></div>
+  <div class="hd">${bare(d,d.lightFg,d.lightAc,d.light)}${wm(d,d.wmLight)}<span class="bell"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span class="av">F</span></div>
+  <div class="hi"><small>Quarta, 5 de novembro</small>Boa tarde, Franco</div>
+  <div class="card"><svg viewBox="0 0 160 78"><path d="M20 70 A60 60 0 0 1 140 70" fill="none" stroke="#EFE4D8" stroke-width="12" stroke-linecap="round"/><path d="M20 70 A60 60 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${ACT}" stroke-width="12" stroke-linecap="round"/><text x="80" y="58" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="20" fill="${INK}">1.240</text><text x="80" y="72" text-anchor="middle" font-family="Nunito" font-weight="700" font-size="9" fill="${MUT_T}">de 1.900 kcal</text></svg>
+   <div class="row"><span style="color:${MUT_T}">3 refeições</span><span class="pos">no plano</span></div></div>
+  <div class="say">${mascot(d)}<span><b>Nuvi:</b> faltam 660 kcal. Que tal um jantar leve hoje?</span></div>
+  <div class="btn">+ Registrar refeição</div><div class="hb"></div></div>`;
+}
+function phoneLock(d){
+  return `<div class="ph lockv"><div class="sb"><span></span><span class="r"><i></i><i></i><i></i></span></div><div class="t">12:30</div><div class="d">quarta-feira, 5 de novembro</div>
+  <div class="nt">${icon(d,'ios')}<div><div class="top"><span>Nuvi</span><span>agora</span></div><b>Hora do almoço</b><p>Já almoçou? Me conta o que comeu que eu anoto.</p></div></div><div class="hb"></div></div>`;
+}
+function maskable(d){
+  return `<div class="mask"><div class="big">${icon(d,'full')}<svg viewBox="0 0 100 100" style="position:absolute;inset:0" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="${d.iconFg}" stroke-width=".8" stroke-dasharray="2.5 2" opacity=".7"/></svg></div>
+   <div><span class="m" style="border-radius:50%">${icon(d,'full')}</span>círculo</div>
+   <div><span class="m" style="border-radius:34%">${icon(d,'full')}</span>squircle</div>
+   <div><span class="m" style="border-radius:50% 50% 50% 14%">${icon(d,'full')}</span>gota</div></div>`;
+}
+function sizes(d){return `<div class="sizes">${[64,40,24,16].map(s=>`<span><span style="display:block;width:${s}px;height:${s}px">${icon(d,'ios')}</span>${s}px</span>`).join('')}<span style="margin-left:auto"><span style="display:block;width:32px;height:32px;background:${d.dark};border-radius:8px;padding:5px">${bare(d,d.darkFg,d.darkAc,d.dark)}</span>favicon escuro</span></div>`}
+
+document.getElementById('strip').innerHTML=D.map(d=>`<a class="pick" href="#${d.id}"><span class="ic">${icon(d,'ios')}</span><b>${d.n} · ${d.name}</b><small>${d.short}</small></a>`).join('');
+document.getElementById('recIcon').innerHTML=`<span class="ic" style="display:block;width:56px;height:56px">${icon(D[0],'ios')}</span>`;
+document.getElementById('dirs').innerHTML=D.map(d=>`
+<section class="dir" id="${d.id}" aria-labelledby="h-${d.id}">
+  <div class="dhead"><span class="num">${d.n}</span><h2 id="h-${d.id}">${d.name}</h2><span class="tag">${d.short}</span></div>
+  <p>${d.idea}</p>
+  <div class="grid2">
+    <div class="block">
+      <h3>Logo</h3>
+      <div class="lock">
+        <div class="tile" style="background:${d.light}">${bare(d,d.lightFg,d.lightAc,d.light)}${wm(d,d.wmLight)}</div>
+        <div class="tile" style="background:${d.dark}">${bare(d,d.darkFg,d.darkAc,d.dark)}${wm(d,d.wmDark)}</div>
+      </div>
+      
+      <h3 style="margin-top:6px">Paleta</h3>
+      <div class="sw">
+        <div><i style="background:${d.pr}"></i><b>Marca · ${d.prN}</b><code>${d.pr}</code></div>
+        <div><i style="background:${ACT}"></i><b>Ação</b><code>${ACT}</code></div>
+        <div><i style="background:${POS}"></i><b>Positivo</b><code>${POS}</code></div>
+        <div><i style="background:${d.light};box-shadow:inset 0 0 0 1px var(--line)"></i><b>Claro</b><code>${d.light}</code></div>
+        <div><i style="background:${d.dark}"></i><b>Escuro</b><code>${d.dark}</code></div>
+      </div>
+      <div class="ctr">
+        ${crow('Texto no fundo claro',INK,d.light)}
+        ${crow('Texto no fundo escuro','#F3EFE9',d.dark)}
+        ${crow('Texto sobre a cor da marca',d.onPr,d.pr)}
+        ${crow('Cor da marca como texto no claro',d.pr===INK?INK:d.pr===ACT?ACT_T:d.pr,d.light)}
+        ${crow('Texto escuro no botão laranja',INK,ACT)}
+        ${crow('Texto positivo no claro',POS_T,d.light)}
+        ${crow('Texto secundário no claro',MUT_T,d.light)}
+      </div>
+    </div>
+    <div class="block">
+      <h3>Mascote do Agente</h3>
+      <div class="masc">${mascot(d)}<div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:18px">Nuvi</b><span style="font-size:14px">${d.mText}</span></div></div>
+      <h3 style="margin-top:6px">Tamanhos pequenos</h3>
+      ${sizes(d)}
+      <h3 style="margin-top:6px">Ícone maskable (Android)</h3>
+      ${maskable(d)}
+      <p style="font-size:13px;color:var(--mut)">A arte sangra até a borda, e o símbolo fica dentro do círculo tracejado (zona segura de 80%). Nenhum recorte do Android corta o desenho.</p>
+    </div>
+  </div>
+  <div class="block">
+    <h3>Aplicada</h3>
+    <div class="apps">
+      <figure class="app">${phoneHome(d)}<figcaption>Ícone na tela de início</figcaption></figure>
+      <figure class="app">${phoneSplash(d)}<figcaption>Tela de abertura</figcaption></figure>
+      <figure class="app">${phoneApp(d)}<figcaption>Cabeçalho do app (Hoje)</figcaption></figure>
+      <figure class="app">${phoneLock(d)}<figcaption>Notificação</figcaption></figure>
+    </div>
+  </div>
+</section>`).join('');
+</script>

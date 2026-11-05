@@ -1,0 +1,24 @@
+/* Nuvi: cores da marca (aprovadas em 05/11/2026).
+   Todos os pares de texto abaixo passam no contraste WCAG AA (4,5:1). */
+:root {
+  /* marca */
+  --nuvi-laranja: #E8590C;        /* marca, botões de ação, medidor */
+  --nuvi-laranja-texto: #C2410C;  /* laranja usado como texto em fundo claro (4,84:1 no creme) */
+  --nuvi-gomo: #FF9A52;           /* gomos do símbolo; só desenho, nunca texto */
+  --nuvi-verde: #3FA34D;          /* positivo: meta batida, "no plano" (barras, selos, anéis) */
+  --nuvi-verde-texto: #2F7A33;    /* verde usado como texto em fundo claro (4,97:1 no creme) */
+
+  /* neutros */
+  --nuvi-creme: #FFF6EC;          /* fundo do tema claro e do ícone */
+  --nuvi-branco: #FFFFFF;         /* cartões no tema claro */
+  --nuvi-tinta: #1C1712;          /* texto principal; texto dentro do botão laranja (4,97:1) */
+  --nuvi-secundario: #7A6A58;     /* texto secundário no claro (4,87:1 no creme) */
+  --nuvi-escuro: #1A120B;         /* fundo do tema escuro */
+  --nuvi-texto-escuro: #F3EFE9;   /* texto principal no tema escuro (16,15:1) */
+  --nuvi-laranja-escuro: #FF6A26; /* casca do símbolo e destaques no tema escuro */
+}
+
+/* Regras rápidas
+   - Botão de ação: fundo var(--nuvi-laranja), texto var(--nuvi-tinta). Nunca texto branco no laranja (fica abaixo de 3:1).
+   - Cor sólida em botões e medidores, sem gradiente.
+   - Fonte do logotipo: Nunito Black (900), espaçamento entre letras de -0,04em, "nuvi" sempre em minúsculas. */

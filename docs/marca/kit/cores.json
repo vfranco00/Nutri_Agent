@@ -1,0 +1,27 @@
+{
+  "marca": "Nuvi",
+  "aprovada_em": "2026-11-05",
+  "cores": {
+    "laranja": { "hex": "#E8590C", "uso": "marca, botões de ação, medidor" },
+    "laranja-texto": { "hex": "#C2410C", "uso": "laranja como texto em fundo claro" },
+    "gomo": { "hex": "#FF9A52", "uso": "gomos do símbolo (não usar como texto)" },
+    "verde": { "hex": "#3FA34D", "uso": "positivo: barras, selos, anéis" },
+    "verde-texto": { "hex": "#2F7A33", "uso": "positivo como texto em fundo claro" },
+    "creme": { "hex": "#FFF6EC", "uso": "fundo do tema claro e do ícone" },
+    "branco": { "hex": "#FFFFFF", "uso": "cartões no tema claro" },
+    "tinta": { "hex": "#1C1712", "uso": "texto principal e texto no botão laranja" },
+    "secundario": { "hex": "#7A6A58", "uso": "texto secundário no claro" },
+    "escuro": { "hex": "#1A120B", "uso": "fundo do tema escuro" },
+    "texto-escuro": { "hex": "#F3EFE9", "uso": "texto no tema escuro" },
+    "laranja-escuro": { "hex": "#FF6A26", "uso": "símbolo e destaques no tema escuro" }
+  },
+  "contraste_aa": {
+    "tinta sobre creme": 16.64,
+    "texto-escuro sobre escuro": 16.15,
+    "tinta sobre laranja": 4.97,
+    "laranja-texto sobre creme": 4.84,
+    "verde-texto sobre creme": 4.97,
+    "secundario sobre creme": 4.87
+  },
+  "logotipo": { "fonte": "Nunito", "peso": 900, "espacamento": "-0.04em", "caixa": "minúsculas" }
+}

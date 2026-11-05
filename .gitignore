@@ -48,3 +48,5 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+# mockups do brainstorming
+.superpowers/
