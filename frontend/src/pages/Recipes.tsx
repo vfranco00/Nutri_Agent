@@ -330,7 +330,7 @@ export function Recipes() {
                   )
                 : navigate("/recipes/new")
             }
-            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 shadow-sm shrink-0"
+            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 shadow-xs shrink-0"
           >
             <Plus className="h-5 w-5" />{" "}
             <span className="hidden md:inline">Nova Receita</span>
@@ -341,13 +341,13 @@ export function Recipes() {
         <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-900 p-1 rounded-lg w-fit">
           <button
             onClick={() => setViewMode("mine")}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${viewMode === "mine" ? "bg-white dark:bg-zinc-800 text-orange-600 shadow-sm" : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400"}`}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${viewMode === "mine" ? "bg-white dark:bg-zinc-800 text-orange-600 shadow-xs" : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400"}`}
           >
             Meus Pratos
           </button>
           <button
             onClick={() => setViewMode("community")}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${viewMode === "community" ? "bg-white dark:bg-zinc-800 text-blue-600 shadow-sm" : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400"}`}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${viewMode === "community" ? "bg-white dark:bg-zinc-800 text-blue-600 shadow-xs" : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400"}`}
           >
             Comunidade
           </button>
@@ -355,7 +355,7 @@ export function Recipes() {
 
         {/* --- LEADERBOARD (Só na Comunidade) --- */}
         {viewMode === "community" && leaderboard.length > 0 && (
-          <div className="bg-gradient-to-r from-blue-900 to-purple-900 rounded-xl p-4 mb-2 shadow-lg animate-fadeIn text-white border border-blue-800">
+          <div className="bg-linear-to-r from-blue-900 to-purple-900 rounded-xl p-4 mb-2 shadow-lg animate-fadeIn text-white border border-blue-800">
             <h3 className="text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 text-yellow-400">
               <Trophy className="h-4 w-4" /> Top Chefs da Semana
             </h3>
@@ -401,7 +401,7 @@ export function Recipes() {
       {/* --- CARROSSEL RECOMENDAÇÕES --- */}
       {viewMode === "mine" && recommendations.length > 0 && !loading && (
         <div className="mb-10 animate-fadeIn">
-          <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500 mb-4 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-orange-500 to-pink-500 mb-4 flex items-center gap-2">
             <Target className="h-5 w-5 text-orange-500" /> Escolhidas para Você
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
@@ -409,10 +409,10 @@ export function Recipes() {
               <div
                 key={recipe.id}
                 onClick={() => handleOpenRecipe(recipe)}
-                className="min-w-[280px] bg-white dark:bg-zinc-900 border border-orange-100 dark:border-orange-900/30 rounded-xl p-4 cursor-pointer hover:scale-[1.02] transition-transform snap-center shadow-sm"
+                className="min-w-[280px] bg-white dark:bg-zinc-900 border border-orange-100 dark:border-orange-900/30 rounded-xl p-4 cursor-pointer hover:scale-[1.02] transition-transform snap-center shadow-xs"
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-[10px] font-bold px-2 py-1 rounded uppercase truncate max-w-[120px]">
+                  <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-[10px] font-bold px-2 py-1 rounded-sm uppercase truncate max-w-[120px]">
                     {recipe.category || "Geral"}
                   </span>
                   <span className="text-xs text-zinc-500 flex items-center gap-1 shrink-0">
@@ -430,7 +430,7 @@ export function Recipes() {
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" /> {recipe.prep_time}m
                   </span>
-                  <span className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-[10px]">
+                  <span className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-sm text-[10px]">
                     Ver receita
                   </span>
                 </div>
@@ -466,7 +466,7 @@ export function Recipes() {
           <div
             key={recipe.id}
             onClick={() => handleOpenRecipe(recipe)}
-            className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 hover:border-orange-500/50 hover:-translate-y-1 transition-all cursor-pointer group shadow-sm"
+            className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 hover:border-orange-500/50 hover:-translate-y-1 transition-all cursor-pointer group shadow-xs"
           >
             {recipe.is_new && viewMode === "mine" && (
               <div className="absolute -top-2 -left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg z-20 animate-bounce">
@@ -476,7 +476,7 @@ export function Recipes() {
 
             {/* Tag IA */}
             {recipe.is_ai && (
-              <div className="absolute top-4 left-4 bg-blue-500/10 text-blue-700 dark:text-blue-500 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/20 flex items-center gap-1">
+              <div className="absolute top-4 left-4 bg-blue-500/10 text-blue-700 dark:text-blue-500 text-[10px] font-bold px-2 py-1 rounded-sm border border-blue-500/20 flex items-center gap-1">
                 <Bot className="h-3 w-3" /> IA
               </div>
             )}
@@ -510,7 +510,7 @@ export function Recipes() {
                 {Math.round(recipe.calories || 0)}kcal
               </div>
               {recipe.category && (
-                <div className="ml-auto px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-zinc-500 capitalize">
+                <div className="ml-auto px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-sm text-zinc-500 capitalize">
                   {recipe.category}
                 </div>
               )}
@@ -521,7 +521,7 @@ export function Recipes() {
 
       {/* --- MODAL DETALHES --- */}
       {selectedRecipe && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] border border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
               {isEditing ? (
@@ -530,7 +530,7 @@ export function Recipes() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, title: e.target.value })
                   }
-                  className="bg-zinc-100 dark:bg-zinc-800 text-xl font-bold dark:text-white rounded px-2 py-1 w-full mr-4 outline-none focus:ring-2 focus:ring-orange-500"
+                  className="bg-zinc-100 dark:bg-zinc-800 text-xl font-bold dark:text-white rounded-sm px-2 py-1 w-full mr-4 outline-hidden focus:ring-2 focus:ring-orange-500"
                 />
               ) : (
                 <div className="flex items-center gap-3">
@@ -577,7 +577,7 @@ export function Recipes() {
                   {isEditing ? (
                     <input
                       type="number"
-                      className="w-16 bg-transparent outline-none border-b border-zinc-300 dark:border-zinc-700"
+                      className="w-16 bg-transparent outline-hidden border-b border-zinc-300 dark:border-zinc-700"
                       value={editForm.prep_time}
                       onChange={(e) =>
                         setEditForm({
@@ -595,7 +595,7 @@ export function Recipes() {
                   {isEditing ? (
                     <input
                       type="number"
-                      className="w-16 bg-transparent outline-none border-b border-zinc-300 dark:border-zinc-700"
+                      className="w-16 bg-transparent outline-hidden border-b border-zinc-300 dark:border-zinc-700"
                       value={editForm.calories}
                       onChange={(e) =>
                         setEditForm({
@@ -636,7 +636,7 @@ export function Recipes() {
                             onChange={(e) =>
                               updateIngredient(i, "name", e.target.value)
                             }
-                            className="flex-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-2 py-1 text-sm dark:text-white"
+                            className="flex-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm px-2 py-1 text-sm dark:text-white"
                             placeholder="Nome"
                           />
                           <input
@@ -645,7 +645,7 @@ export function Recipes() {
                             onChange={(e) =>
                               updateIngredient(i, "quantity", e.target.value)
                             }
-                            className="w-16 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-2 py-1 text-sm dark:text-white"
+                            className="w-16 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm px-2 py-1 text-sm dark:text-white"
                             placeholder="Qtd"
                           />
                           <input
@@ -653,7 +653,7 @@ export function Recipes() {
                             onChange={(e) =>
                               updateIngredient(i, "unit", e.target.value)
                             }
-                            className="w-16 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-2 py-1 text-sm dark:text-white"
+                            className="w-16 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm px-2 py-1 text-sm dark:text-white"
                             placeholder="Un"
                           />
                           <button
@@ -670,7 +670,7 @@ export function Recipes() {
                       selectedRecipe.ingredients.map((ing) => (
                         <li
                           key={ing.id}
-                          className="text-zinc-700 dark:text-zinc-300 text-sm bg-zinc-50 dark:bg-zinc-950/50 p-2 rounded border border-zinc-100 dark:border-zinc-800 flex justify-between items-center"
+                          className="text-zinc-700 dark:text-zinc-300 text-sm bg-zinc-50 dark:bg-zinc-950/50 p-2 rounded-sm border border-zinc-100 dark:border-zinc-800 flex justify-between items-center"
                         >
                           <span>{ing.name}</span>
                           <div className="flex items-center gap-2">
@@ -679,7 +679,7 @@ export function Recipes() {
                                 ? `~${Math.round(ing.calories)}kcal`
                                 : ""}
                             </span>
-                            <span className="font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-800 px-2 rounded">
+                            <span className="font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-800 px-2 rounded-sm">
                               {ing.quantity} {ing.unit}
                             </span>
                           </div>
@@ -695,7 +695,7 @@ export function Recipes() {
                 {isEditing ? (
                   <textarea
                     rows={8}
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 dark:text-zinc-300 outline-none resize-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 dark:text-zinc-300 outline-hidden resize-none focus:ring-2 focus:ring-orange-500"
                     value={editForm.instructions}
                     onChange={(e) =>
                       setEditForm({ ...editForm, instructions: e.target.value })

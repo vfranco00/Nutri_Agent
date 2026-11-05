@@ -73,7 +73,7 @@ export function SessionWatcher() {
   }
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
       <div className="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 text-center">
         <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center">
           <AlertTriangle className="h-7 w-7 text-orange-600 dark:text-orange-500" />

@@ -216,14 +216,14 @@ export function ShoppingPage() {
       {/* Criar Nova Lista */}
       <form
         onSubmit={handleCreateList}
-        className="flex gap-4 mb-8 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm"
+        className="flex gap-4 mb-8 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs"
       >
         <input
           type="text"
           placeholder="Nome da nova lista (ex: Churrasco de Domingo)"
           value={newListTitle}
           onChange={(e) => setNewListTitle(e.target.value)}
-          className="flex-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 outline-none dark:text-white focus:ring-2 focus:ring-pink-500"
+          className="flex-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 outline-hidden dark:text-white focus:ring-2 focus:ring-pink-500"
         />
         <button
           type="submit"
@@ -243,7 +243,7 @@ export function ShoppingPage() {
           {lists.map((list) => (
             <div
               key={list.id}
-              className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden"
+              className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs overflow-hidden"
             >
               {/* Header da Lista */}
               <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/30 flex justify-between items-center">
@@ -318,7 +318,7 @@ export function ShoppingPage() {
                     onKeyDown={(e) =>
                       e.key === "Enter" && handleAddItem(list.id)
                     }
-                    className="flex-1 bg-transparent border-b border-zinc-200 dark:border-zinc-700 px-2 py-1 outline-none focus:border-pink-500 dark:text-zinc-300 text-sm"
+                    className="flex-1 bg-transparent border-b border-zinc-200 dark:border-zinc-700 px-2 py-1 outline-hidden focus:border-pink-500 dark:text-zinc-300 text-sm"
                   />
                   <button
                     onClick={() => handleAddItem(list.id)}

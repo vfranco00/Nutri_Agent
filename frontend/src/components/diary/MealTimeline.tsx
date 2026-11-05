@@ -49,7 +49,7 @@ function SlotRow({
     <li className="grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-start gap-x-3 border-t border-dashed border-zinc-200 py-3.5 first:border-t-0 dark:border-zinc-800">
       {/* Coluna do marcador: cheio = registrado, vazado = só planejado. */}
       <span aria-hidden="true" className="relative flex h-full justify-center pt-1.5">
-        {!isLast && <i className="absolute top-3 bottom-[-1.25rem] w-px bg-zinc-200 dark:bg-zinc-800" />}
+        {!isLast && <i className="absolute top-3 -bottom-5 w-px bg-zinc-200 dark:bg-zinc-800" />}
         <i
           className={`relative z-10 h-2.5 w-2.5 rounded-full border-2 ${
             temRegistro
@@ -107,7 +107,7 @@ function SlotRow({
           <button
             type="button"
             onClick={onAdd}
-            className="mt-1 inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-zinc-400 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:text-zinc-500 dark:hover:text-green-400 dark:focus-visible:ring-offset-zinc-900"
+            className="mt-1 inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-zinc-400 hover:text-green-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:text-zinc-500 dark:hover:text-green-400 dark:focus-visible:ring-offset-zinc-900"
           >
             <Plus aria-hidden="true" className="h-3.5 w-3.5" />
             Registrar {slot.label.toLowerCase()}

@@ -171,7 +171,7 @@ export function MealPlanBuilder() {
         </h1>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm mb-6 space-y-4">
+      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs mb-6 space-y-4">
         <div>
           <label className="text-sm text-zinc-500 dark:text-zinc-400 mb-2 block">
             Nome do Plano
@@ -180,7 +180,7 @@ export function MealPlanBuilder() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-teal-500 dark:text-white"
+            className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-teal-500 dark:text-white"
           />
         </div>
         <div>
@@ -214,7 +214,7 @@ export function MealPlanBuilder() {
           return (
             <div
               key={dayIndex}
-              className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm"
+              className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs"
             >
               <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30 flex items-center justify-between">
                 <h3 className="font-semibold text-zinc-700 dark:text-zinc-200">
@@ -272,14 +272,14 @@ export function MealPlanBuilder() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full mt-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-sm disabled:opacity-50"
+        className="w-full mt-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-xs disabled:opacity-50"
       >
         {saving ? <BouncingDots /> : <><Save className="h-5 w-5" /> Salvar Plano</>}
       </button>
 
       {/* MODAL DE ESCOLHA DE RECEITA */}
       {pickerOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-80 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[85vh]">
             <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 rounded-t-2xl space-y-4">
               <div className="flex justify-between items-center">
@@ -301,7 +301,7 @@ export function MealPlanBuilder() {
                 <select
                   value={pickerSlot}
                   onChange={(e) => setPickerSlot(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 text-sm dark:text-white outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 text-sm dark:text-white outline-hidden"
                 >
                   {MEAL_SLOTS.map((s) => (
                     <option key={s} value={s}>
@@ -314,13 +314,13 @@ export function MealPlanBuilder() {
               <div className="flex gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
                 <button
                   onClick={() => setPickerTab("mine")}
-                  className={`flex-1 py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${pickerTab === "mine" ? "bg-white dark:bg-zinc-700 shadow text-teal-600 dark:text-white" : "text-zinc-500"}`}
+                  className={`flex-1 py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${pickerTab === "mine" ? "bg-white dark:bg-zinc-700 shadow-sm text-teal-600 dark:text-white" : "text-zinc-500"}`}
                 >
                   <UserRound className="h-3.5 w-3.5" /> Minhas Receitas
                 </button>
                 <button
                   onClick={() => setPickerTab("community")}
-                  className={`flex-1 py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${pickerTab === "community" ? "bg-white dark:bg-zinc-700 shadow text-teal-600 dark:text-white" : "text-zinc-500"}`}
+                  className={`flex-1 py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${pickerTab === "community" ? "bg-white dark:bg-zinc-700 shadow-sm text-teal-600 dark:text-white" : "text-zinc-500"}`}
                 >
                   <Users className="h-3.5 w-3.5" /> Comunidade
                 </button>
@@ -333,7 +333,7 @@ export function MealPlanBuilder() {
                   placeholder="Buscar receita..."
                   value={pickerSearch}
                   onChange={(e) => setPickerSearch(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2 pl-9 pr-4 text-sm dark:text-white outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2 pl-9 pr-4 text-sm dark:text-white outline-hidden"
                 />
               </div>
             </div>

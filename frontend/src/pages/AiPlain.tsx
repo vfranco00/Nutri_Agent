@@ -395,7 +395,7 @@ export function AiPlan() {
 
       {/* TELA DE CONFIGURAÇÃO (Layout original mantido) */}
       {!planData && !loading && (
-        <div className="flex flex-col items-center justify-center py-8 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 border-dashed text-center px-4 shadow-sm">
+        <div className="flex flex-col items-center justify-center py-8 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 border-dashed text-center px-4 shadow-xs">
           <div className="bg-purple-100 dark:bg-purple-500/10 p-4 rounded-full mb-4">
             <Calendar className="h-10 w-10 text-purple-600 dark:text-purple-500" />
           </div>
@@ -411,13 +411,13 @@ export function AiPlan() {
               <div className="grid grid-cols-2 gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
                 <button
                   onClick={() => setMode(1)}
-                  className={`py-2 rounded-md text-sm font-medium transition-all ${mode === 1 ? "bg-white dark:bg-zinc-700 shadow text-purple-600 dark:text-white" : "text-zinc-500 dark:text-zinc-400"}`}
+                  className={`py-2 rounded-md text-sm font-medium transition-all ${mode === 1 ? "bg-white dark:bg-zinc-700 shadow-sm text-purple-600 dark:text-white" : "text-zinc-500 dark:text-zinc-400"}`}
                 >
                   1 Dia
                 </button>
                 <button
                   onClick={() => setMode(7)}
-                  className={`py-2 rounded-md text-sm font-medium transition-all ${mode === 7 ? "bg-white dark:bg-zinc-700 shadow text-purple-600 dark:text-white" : "text-zinc-500 dark:text-zinc-400"}`}
+                  className={`py-2 rounded-md text-sm font-medium transition-all ${mode === 7 ? "bg-white dark:bg-zinc-700 shadow-sm text-purple-600 dark:text-white" : "text-zinc-500 dark:text-zinc-400"}`}
                 >
                   7 Dias
                 </button>
@@ -433,7 +433,7 @@ export function AiPlan() {
                   <button
                     key={count}
                     onClick={() => setMealsCount(count)}
-                    className={`py-2 rounded-md text-sm font-medium transition-all ${mealsCount === count ? "bg-white dark:bg-zinc-700 shadow text-purple-600 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"}`}
+                    className={`py-2 rounded-md text-sm font-medium transition-all ${mealsCount === count ? "bg-white dark:bg-zinc-700 shadow-sm text-purple-600 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"}`}
                   >
                     {count}
                   </button>
@@ -514,7 +514,7 @@ export function AiPlan() {
             </h2>
             {planData.days.length > 1 && (
               <div className="flex gap-2 overflow-x-auto">
-                <span className="text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
+                <span className="text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-sm">
                   Dia {selectedDayIndex + 1} de 7
                 </span>{" "}
                 {planData.days.map((d, i) => (
@@ -531,7 +531,7 @@ export function AiPlan() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center border-l-4 border-l-red-500 shadow-sm">
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center border-l-4 border-l-red-500 shadow-xs">
               <Target className="h-6 w-6 text-red-500 mb-2" />
               <span className="text-2xl font-bold dark:text-white">
                 {currentDay.calories_target}
@@ -540,19 +540,19 @@ export function AiPlan() {
                 Kcal
               </span>
             </div>
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-sm">
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-xs">
               <span className="text-xl font-bold text-blue-500">
                 {currentDay.macros.protein}
               </span>
               <span className="text-xs text-zinc-500 uppercase">Proteína</span>
             </div>
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-sm">
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-xs">
               <span className="text-xl font-bold text-yellow-500">
                 {currentDay.macros.carbs}
               </span>
               <span className="text-xs text-zinc-500 uppercase">Carbo</span>
             </div>
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-sm">
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-xs">
               <span className="text-xl font-bold text-orange-500">
                 {currentDay.macros.fats}
               </span>
@@ -560,7 +560,7 @@ export function AiPlan() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
             <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30 flex items-center justify-between">
               <h3 className="font-semibold text-zinc-700 dark:text-zinc-200 flex items-center gap-2">
                 <Utensils className="h-5 w-5 text-purple-500" /> Cardápio
@@ -637,7 +637,7 @@ export function AiPlan() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
             <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2 mb-2">
               <Edit3 className="h-4 w-4" /> Nome do plano
             </label>
@@ -645,7 +645,7 @@ export function AiPlan() {
               type="text"
               value={planTitle}
               onChange={(e) => setPlanTitle(e.target.value)}
-              className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-white focus:ring-2 focus:ring-teal-500"
+              className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white focus:ring-2 focus:ring-teal-500"
               placeholder="Nome do plano"
             />
           </div>
@@ -655,7 +655,7 @@ export function AiPlan() {
             <button
               onClick={handleSavePlan}
               disabled={savingPlan}
-              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
             >
               {savingPlan ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -666,7 +666,7 @@ export function AiPlan() {
             </button>
             <button
               onClick={handlePrepareShoppingList}
-              className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+              className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-xs"
             >
               <ShoppingCart className="h-5 w-5" /> Gerar Lista de Compras
             </button>
@@ -682,7 +682,7 @@ export function AiPlan() {
 
       {/* --- MODAL DE SELEÇÃO DE COMPRAS (Novo e Bonito) --- */}
       {shoppingModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[85vh]">
             {/* Header Modal */}
             <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 rounded-t-2xl">
@@ -706,7 +706,7 @@ export function AiPlan() {
                   type="text"
                   value={listTitle}
                   onChange={(e) => setListTitle(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2 pl-9 pr-4 dark:text-white focus:ring-2 focus:ring-pink-500 outline-none text-sm shadow-sm"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2 pl-9 pr-4 dark:text-white focus:ring-2 focus:ring-pink-500 outline-hidden text-sm shadow-xs"
                   placeholder="Nome da Lista"
                 />
               </div>

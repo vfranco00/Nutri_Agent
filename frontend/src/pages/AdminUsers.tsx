@@ -181,14 +181,14 @@ export function AdminUsers() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nome ou email..."
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2 pl-9 pr-3 text-sm text-white outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2 pl-9 pr-3 text-sm text-white outline-hidden focus:ring-2 focus:ring-red-500"
           />
         </div>
       </div>
 
       {insights && <UsersInsightsBlock insights={insights} />}
 
-      <div className="bg-zinc-900 rounded-xl shadow-sm border border-zinc-800 overflow-hidden">
+      <div className="bg-zinc-900 rounded-xl shadow-xs border border-zinc-800 overflow-hidden">
         <div className="p-5 border-b border-zinc-800 bg-zinc-950/50 flex items-center gap-2">
           <Users className="h-5 w-5 text-zinc-500" />
           <h2 className="font-semibold text-white">
@@ -240,7 +240,7 @@ export function AdminUsers() {
                       value={user.plan || 'starter'}
                       onChange={(e) => handleChangePlan(user, e.target.value)}
                       disabled={processingUserId === user.id}
-                      className="bg-zinc-800 border border-zinc-700 rounded-lg text-xs px-2 py-1.5 text-white outline-none disabled:opacity-50"
+                      className="bg-zinc-800 border border-zinc-700 rounded-lg text-xs px-2 py-1.5 text-white outline-hidden disabled:opacity-50"
                     >
                       <option value="starter">Starter</option>
                       <option value="plus">Plus</option>
@@ -252,13 +252,13 @@ export function AdminUsers() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => handleViewDetails(user)} className="text-zinc-400 hover:text-white hover:bg-zinc-800 p-2 rounded transition-colors" title="Ver detalhes">
+                      <button onClick={() => handleViewDetails(user)} className="text-zinc-400 hover:text-white hover:bg-zinc-800 p-2 rounded-sm transition-colors" title="Ver detalhes">
                           <Info className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleToggleAdmin(user)}
                         disabled={processingUserId === user.id}
-                        className={`p-2 rounded transition-colors disabled:opacity-50 ${user.is_superuser ? 'text-amber-500 hover:bg-amber-900/20' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}
+                        className={`p-2 rounded-sm transition-colors disabled:opacity-50 ${user.is_superuser ? 'text-amber-500 hover:bg-amber-900/20' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}
                         title={user.is_superuser ? "Remover privilégio de admin" : "Promover a admin"}
                       >
                           {processingUserId === user.id ? (
@@ -270,7 +270,7 @@ export function AdminUsers() {
                           )}
                       </button>
                       {!user.is_superuser && (
-                          <button onClick={() => handleDelete(user.id)} disabled={processingUserId === user.id} className="text-red-500 hover:bg-red-900/20 p-2 rounded transition-colors disabled:opacity-50" title="Deletar Usuário">
+                          <button onClick={() => handleDelete(user.id)} disabled={processingUserId === user.id} className="text-red-500 hover:bg-red-900/20 p-2 rounded-sm transition-colors disabled:opacity-50" title="Deletar Usuário">
                               {processingUserId === user.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                           </button>
                       )}
@@ -291,7 +291,7 @@ export function AdminUsers() {
       </div>
 
       {detailUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div className="bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-800 flex flex-col max-h-[85vh]">
             <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
               <div>

@@ -46,7 +46,7 @@ export function LoadingOverlay({ text, color = "purple" }: LoadingOverlayProps) 
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center animate-fadeIn px-6">
+    <div className="fixed inset-0 z-70 bg-black/80 backdrop-blur-xs flex flex-col items-center justify-center animate-fadeIn px-6">
       <Loader2 className={`h-16 w-16 animate-spin mb-6 ${variant.icon}`} />
       <h3 className="text-xl font-bold text-white mb-2">Um momento...</h3>
       <p className="text-zinc-400 animate-pulse mb-8">{text}</p>

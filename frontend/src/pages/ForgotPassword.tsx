@@ -60,7 +60,7 @@ export function ForgotPassword() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
+                    className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
                     placeholder="seu@email.com"
                   />
                 </div>

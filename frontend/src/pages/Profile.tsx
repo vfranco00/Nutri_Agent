@@ -204,7 +204,7 @@ export function Profile() {
         <div className="lg:col-span-2 space-y-6">
           <form
             onSubmit={handleSave}
-            className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-6 shadow-sm"
+            className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-6 shadow-xs"
           >
             <h2 className="text-lg font-semibold dark:text-zinc-100">
               Dados Corporais
@@ -265,7 +265,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, age: Number(e.target.value) })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500 dark:text-white"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white"
                 />
               </div>
               <div className="space-y-2">
@@ -280,7 +280,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, weight: Number(e.target.value) })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500 dark:text-white"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white"
                 />
               </div>
               <div className="space-y-2">
@@ -294,7 +294,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, height: Number(e.target.value) })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500 dark:text-white"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white"
                 />
               </div>
             </div>
@@ -312,7 +312,7 @@ export function Profile() {
                       activity_level: e.target.value as any,
                     })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-zinc-100"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-zinc-100"
                 >
                   {Object.entries(ACTIVITY_LEVELS).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -330,7 +330,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, goal: e.target.value as any })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-zinc-100"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-zinc-100"
                 >
                   {Object.entries(GOALS).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -410,7 +410,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, diet_type: e.target.value })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none dark:text-zinc-100"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-zinc-100"
                 >
                   {Object.entries(DIET_TYPES).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -429,7 +429,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, allergies: e.target.value })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50 dark:text-white"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-red-500/50 dark:text-white"
                 />
               </div>
               <div className="space-y-2">
@@ -442,7 +442,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, food_likes: e.target.value })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500 dark:text-white resize-none"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white resize-none"
                 />
               </div>
               <div className="space-y-2">
@@ -455,7 +455,7 @@ export function Profile() {
                   onChange={(e) =>
                     setFormData({ ...formData, food_dislikes: e.target.value })
                   }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500/50 dark:text-white resize-none"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-red-500/50 dark:text-white resize-none"
                 />
               </div>
             </div>
@@ -472,7 +472,7 @@ export function Profile() {
 
         {/* COLUNA 2: Gráfico (Direita) */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
             <h3 className="text-zinc-800 dark:text-zinc-100 font-semibold mb-4 flex items-center gap-2">
               <Scale className="h-5 w-5 text-blue-500" /> Pesagem Rápida
             </h3>
@@ -482,7 +482,7 @@ export function Profile() {
                 placeholder="Peso hoje (kg)"
                 value={newWeight}
                 onChange={(e) => setNewWeight(e.target.value)}
-                className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-white"
               />
               <button
                 onClick={handleAddWeight}
@@ -494,7 +494,7 @@ export function Profile() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 h-80 shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 h-80 shadow-xs">
             <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-medium mb-4">
               Evolução do Peso
             </h3>

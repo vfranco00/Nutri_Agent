@@ -157,7 +157,7 @@ export function DiaryLog() {
             aria-label="Dia anterior"
             onClick={() => diary.shiftDay(-1)}
             disabled={diary.mutating}
-            className="rounded-lg border border-zinc-200 bg-white p-1.5 text-zinc-600 hover:border-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
+            className="rounded-lg border border-zinc-200 bg-white p-1.5 text-zinc-600 hover:border-zinc-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
           >
             <ChevronLeft aria-hidden="true" className="h-4 w-4" />
           </button>
@@ -173,7 +173,7 @@ export function DiaryLog() {
                 ? `Hoje, ${formatDayShort(diary.date, hoje)}`
                 : `${formatDayShort(diary.date, hoje)}. Voltar para hoje`
             }
-            className="min-w-[4.5rem] rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold tabular-nums text-zinc-600 hover:border-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
+            className="min-w-18 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold tabular-nums text-zinc-600 hover:border-zinc-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
           >
             {formatDayShort(diary.date, hoje)}
           </button>
@@ -182,7 +182,7 @@ export function DiaryLog() {
             aria-label="Próximo dia"
             onClick={() => diary.shiftDay(1)}
             disabled={diary.mutating}
-            className="rounded-lg border border-zinc-200 bg-white p-1.5 text-zinc-600 hover:border-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
+            className="rounded-lg border border-zinc-200 bg-white p-1.5 text-zinc-600 hover:border-zinc-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
           >
             <ChevronRight aria-hidden="true" className="h-4 w-4" />
           </button>
@@ -191,7 +191,7 @@ export function DiaryLog() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* ---------------------------------------------------- ADICIONAR */}
-        <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-sm font-semibold text-zinc-900 dark:text-white">
             Adicionar alimento
           </h2>
@@ -207,7 +207,7 @@ export function DiaryLog() {
                   type="button"
                   aria-pressed={slot === s}
                   onClick={() => setSlot(s)}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900 ${
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900 ${
                     slot === s
                       ? "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400"
                       : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400"
@@ -233,7 +233,7 @@ export function DiaryLog() {
         </section>
 
         {/* ---------------------------------------------------- REGISTRADO */}
-        <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
           <div className="mb-4 flex items-baseline justify-between gap-3">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">
               Registrado em {relativeDayLabel(diary.date, hoje).toLowerCase()}
@@ -273,7 +273,7 @@ export function DiaryLog() {
               <button
                 type="button"
                 onClick={diary.reload}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
               >
                 <RefreshCw aria-hidden="true" className="h-3.5 w-3.5" />
                 Tentar de novo
@@ -344,7 +344,7 @@ function FoodSearchPanel({
           onChange={(e) => busca.setTerm(e.target.value)}
           placeholder="arroz, frango, banana…"
           aria-describedby="busca-ajuda"
-          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-9 pr-9 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-9 pr-9 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
         />
         {busca.status === "searching" && (
           <Loader2
@@ -380,7 +380,7 @@ function FoodSearchPanel({
               <button
                 type="button"
                 onClick={() => onPick(f)}
-                className="flex w-full items-center gap-2 rounded-lg border border-transparent px-3 py-2 text-left hover:border-green-500/50 hover:bg-green-500/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
+                className="flex w-full items-center gap-2 rounded-lg border border-transparent px-3 py-2 text-left hover:border-green-500/50 hover:bg-green-500/5 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
               >
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-1.5">
@@ -423,7 +423,7 @@ function FoodSearchPanel({
                   type="button"
                   aria-pressed={unidadeResolve === u}
                   onClick={() => setUnidadeResolve(u)}
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900 ${
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900 ${
                     unidadeResolve === u
                       ? "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400"
                       : "border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
@@ -443,7 +443,7 @@ function FoodSearchPanel({
             type="button"
             onClick={estimar}
             disabled={busca.resolving}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:opacity-50 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:opacity-50 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
           >
             {busca.resolving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 motion-safe:animate-spin" />
@@ -530,7 +530,7 @@ function PortionForm({
             type="button"
             onClick={onCancel}
             aria-label="Escolher outro alimento"
-            className="shrink-0 rounded-md p-1 text-zinc-400 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:hover:text-zinc-200"
+            className="shrink-0 rounded-md p-1 text-zinc-400 hover:text-zinc-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 dark:hover:text-zinc-200"
           >
             <X aria-hidden="true" className="h-4 w-4" />
           </button>
@@ -557,7 +557,7 @@ function PortionForm({
               inputMode="decimal"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm tabular-nums text-zinc-900 focus-visible:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm tabular-nums text-zinc-900 focus-visible:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
             />
           </div>
           <div className="min-w-0 flex-1">
@@ -577,7 +577,7 @@ function PortionForm({
                 setUnit(nova);
                 setQuantity(String(quantidadePadraoPara(nova)));
               }}
-              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus-visible:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus-visible:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
             >
               {food.allowed_units.map((u) => (
                 <option key={u} value={u}>
@@ -597,7 +597,7 @@ function PortionForm({
         <button
           type="submit"
           disabled={submitting}
-          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:opacity-60 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
+          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:opacity-60 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
         >
           {submitting ? (
             <Loader2 aria-hidden="true" className="h-4 w-4 motion-safe:animate-spin" />
@@ -696,7 +696,7 @@ function LoggedList({
                       onClick={() => onEdit(e)}
                       disabled={mutating}
                       aria-label={`Editar ${e.food_name}`}
-                      className="rounded-md p-1.5 text-zinc-400 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
+                      className="rounded-md p-1.5 text-zinc-400 hover:text-zinc-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
                     >
                       <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
                     </button>
@@ -705,7 +705,7 @@ function LoggedList({
                       onClick={() => onDelete(e)}
                       disabled={mutating}
                       aria-label={`Apagar ${e.food_name}`}
-                      className="rounded-md p-1.5 text-zinc-400 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:focus-visible:ring-offset-zinc-900"
+                      className="rounded-md p-1.5 text-zinc-400 hover:text-red-600 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:focus-visible:ring-offset-zinc-900"
                     >
                       <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                     </button>
@@ -774,7 +774,7 @@ function EntryEditForm({
             autoFocus
             value={quantity}
             onChange={(ev) => setQuantity(ev.target.value)}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-sm tabular-nums text-zinc-900 focus-visible:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-sm tabular-nums text-zinc-900 focus-visible:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
           />
         </div>
 
@@ -789,7 +789,7 @@ function EntryEditForm({
             id={`edit-slot-${entry.id}`}
             value={slot}
             onChange={(ev) => setSlot(ev.target.value as MealSlot)}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 focus-visible:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 focus-visible:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
           >
             {MEAL_SLOT_ORDER.map((s) => (
               <option key={s} value={s}>
@@ -818,14 +818,14 @@ function EntryEditForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:opacity-60 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
+          className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:opacity-60 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
         >
           Salvar
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
+          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-zinc-400 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
         >
           Cancelar
         </button>

@@ -100,7 +100,7 @@ export function MealPlanDetail() {
                   if (e.key === "Enter") handleRenamePlan();
                   if (e.key === "Escape") setEditingTitle(false);
                 }}
-                className="text-xl font-bold text-teal-600 dark:text-teal-500 bg-zinc-50 dark:bg-zinc-800 border border-teal-300 dark:border-teal-700 rounded-lg px-3 py-1 outline-none"
+                className="text-xl font-bold text-teal-600 dark:text-teal-500 bg-zinc-50 dark:bg-zinc-800 border border-teal-300 dark:border-teal-700 rounded-lg px-3 py-1 outline-hidden"
               />
               <button
                 onClick={handleRenamePlan}
@@ -196,7 +196,7 @@ export function MealPlanDetail() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
             <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30">
               <h3 className="font-semibold text-zinc-700 dark:text-zinc-200 flex items-center gap-2">
                 <Utensils className="h-5 w-5 text-teal-500" /> Refeições

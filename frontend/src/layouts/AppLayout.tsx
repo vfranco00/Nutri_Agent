@@ -114,7 +114,7 @@ export function AppLayout({ children, accentColor = "zinc" }: AppLayoutProps) {
           >
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">Buscar</span>
-            <kbd className="hidden sm:inline text-[10px] border border-zinc-300 dark:border-zinc-600 rounded px-1.5 py-0.5">⌘K</kbd>
+            <kbd className="hidden sm:inline text-[10px] border border-zinc-300 dark:border-zinc-600 rounded-sm px-1.5 py-0.5">⌘K</kbd>
           </button>
         </header>
 

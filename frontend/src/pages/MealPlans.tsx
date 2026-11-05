@@ -79,7 +79,7 @@ export function MealPlans() {
                 )
               : navigate("/meal-plans/new")
           }
-          className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors disabled:opacity-50"
+          className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs transition-colors disabled:opacity-50"
         >
           <Plus className="h-5 w-5" /> Criar Plano Manual
         </button>
@@ -115,7 +115,7 @@ export function MealPlans() {
             <div
               key={plan.id}
               onClick={() => navigate(`/meal-plans/${plan.id}`)}
-              className="bg-white dark:bg-zinc-900 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm hover:border-teal-300 dark:hover:border-teal-700 cursor-pointer transition-colors group"
+              className="bg-white dark:bg-zinc-900 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-teal-300 dark:hover:border-teal-700 cursor-pointer transition-colors group"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">

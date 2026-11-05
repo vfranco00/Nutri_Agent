@@ -112,7 +112,7 @@ export function Register() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
+                className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
                 placeholder="Seu Nome"
               />
             </div>
@@ -127,7 +127,7 @@ export function Register() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
+                className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
                 placeholder="seu@email.com"
               />
             </div>
@@ -140,7 +140,7 @@ export function Register() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
+              className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -153,7 +153,7 @@ export function Register() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`w-full bg-zinc-800 border text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-none focus:ring-2 placeholder-zinc-500 transition-all
+              className={`w-full bg-zinc-800 border text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-hidden focus:ring-2 placeholder-zinc-500 transition-all
                 ${
                   confirmPassword && password !== confirmPassword
                     ? "border-red-500 focus:ring-red-500"

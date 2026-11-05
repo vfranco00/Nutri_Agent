@@ -67,7 +67,7 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, toggleTheme, isD
               title={item.name}
               className={`w-full flex items-center justify-start ${itemJustify} gap-3 px-3.5 py-2.5 rounded-lg transition-all
                 ${isActive
-                  ? "bg-zinc-100 dark:bg-zinc-800/80 shadow-sm"
+                  ? "bg-zinc-100 dark:bg-zinc-800/80 shadow-xs"
                   : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400"}`}
             >
               <item.icon className={`h-5 w-5 shrink-0 ${isActive ? item.color : ""}`} />

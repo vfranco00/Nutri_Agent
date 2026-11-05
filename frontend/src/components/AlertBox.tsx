@@ -106,7 +106,7 @@ export function AlertBox({
   return (
     <>
       {/* Toasts */}
-      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-3 items-end">
+      <div className="fixed top-4 right-4 z-100 flex flex-col gap-3 items-end">
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onDismiss={onDismiss} />
         ))}
@@ -114,7 +114,7 @@ export function AlertBox({
 
       {/* Modal de confirmação (substitui window.confirm) */}
       {confirmData && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-110 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6">
             <div className="flex items-start gap-3 mb-6">
               {confirmData.danger ? (

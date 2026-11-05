@@ -57,7 +57,7 @@ function TourModal({ onFinish }: { onFinish: () => void }) {
   const Icon = current.icon;
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-150 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
       <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
         <div className="p-8 text-center">
           <div className={`mx-auto mb-5 w-16 h-16 rounded-2xl flex items-center justify-center ${current.bg}`}>

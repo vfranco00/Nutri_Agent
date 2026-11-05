@@ -39,7 +39,7 @@ export function MacroDonut({ day }: MacroDonutProps) {
   ];
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
       <h3 className="mb-4 text-sm font-semibold text-zinc-900 dark:text-white">Macros de hoje</h3>
 
       {isEmpty ? (
@@ -96,7 +96,7 @@ export function MacroDonut({ day }: MacroDonutProps) {
           <dl className="min-w-0 flex-1 space-y-2.5">
             {linhas.map((l) => (
               <div key={l.key} className="flex items-center gap-2.5 text-sm">
-                <i aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-sm ${SWATCH_CLASS[l.key]}`} />
+                <i aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-xs ${SWATCH_CLASS[l.key]}`} />
                 <dt className="text-zinc-600 dark:text-zinc-400">{l.label}</dt>
                 <dd className="ml-auto font-semibold tabular-nums text-zinc-900 dark:text-white">
                   {formatGrams(l.grams)}

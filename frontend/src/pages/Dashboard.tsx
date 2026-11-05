@@ -145,7 +145,7 @@ export function Dashboard() {
               <EnergyCard day={diary.day} profile={profile} />
             )}
 
-            <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
                   <Clock aria-hidden="true" className="h-4 w-4 text-green-600 dark:text-green-500" />
@@ -154,7 +154,7 @@ export function Dashboard() {
                 <button
                   type="button"
                   onClick={() => irParaRegistro()}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-1.5 text-xs font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-1.5 text-xs font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-900"
                 >
                   <Plus aria-hidden="true" className="h-3.5 w-3.5" />
                   Registrar alimento
@@ -196,7 +196,7 @@ export function Dashboard() {
       {user?.is_superuser && (
         <button
           onClick={() => navigate("/admin")}
-          className="flex w-full items-center gap-4 rounded-xl border border-red-200 bg-white p-5 text-left shadow-sm hover:border-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 motion-safe:transition-all dark:border-red-900/50 dark:bg-zinc-900 dark:focus-visible:ring-offset-zinc-900"
+          className="flex w-full items-center gap-4 rounded-xl border border-red-200 bg-white p-5 text-left shadow-xs hover:border-red-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 motion-safe:transition-all dark:border-red-900/50 dark:bg-zinc-900 dark:focus-visible:ring-offset-zinc-900"
         >
           <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-100 dark:bg-red-500/10">
             <Shield aria-hidden="true" className="h-5 w-5 text-red-600 dark:text-red-500" />
@@ -225,7 +225,7 @@ function DayNav({
   hoje: string;
 }) {
   const botao =
-    "rounded-lg border border-zinc-200 bg-white p-1.5 text-zinc-600 hover:border-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950";
+    "rounded-lg border border-zinc-200 bg-white p-1.5 text-zinc-600 hover:border-zinc-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950";
 
   return (
     <div className="flex items-center gap-1.5">
@@ -249,7 +249,7 @@ function DayNav({
             ? `Hoje, ${formatDayShort(diary.date, hoje)}`
             : `${formatDayShort(diary.date, hoje)}. Voltar para hoje`
         }
-        className="min-w-[4.5rem] rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold tabular-nums text-zinc-600 hover:border-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
+        className="min-w-18 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold tabular-nums text-zinc-600 hover:border-zinc-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors disabled:opacity-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:focus-visible:ring-offset-zinc-950"
       >
         {formatDayShort(diary.date, hoje)}
       </button>
@@ -270,7 +270,7 @@ function EnergyCard({ day, profile }: { day: DiaryDay; profile: Profile | null }
   return (
     <section
       aria-labelledby="energia-do-dia"
-      className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+      className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900"
     >
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <div>
@@ -314,7 +314,7 @@ function RemainingCard({ day, onFixTarget }: { day: DiaryDay; onFixTarget: () =>
 
   if (restante === null) {
     return (
-      <section className="rounded-xl border border-zinc-200 bg-white p-5 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="rounded-xl border border-zinc-200 bg-white p-5 text-center shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
         <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
           Ainda cabem
         </p>
@@ -324,7 +324,7 @@ function RemainingCard({ day, onFixTarget }: { day: DiaryDay; onFixTarget: () =>
         <button
           type="button"
           onClick={onFixTarget}
-          className="mt-3 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-300 dark:focus-visible:ring-offset-zinc-900"
+          className="mt-3 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-300 dark:focus-visible:ring-offset-zinc-900"
         >
           Definir meta
         </button>
@@ -335,7 +335,7 @@ function RemainingCard({ day, onFixTarget }: { day: DiaryDay; onFixTarget: () =>
   const acimaDaMeta = restante < 0;
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <section className="rounded-xl border border-zinc-200 bg-white p-5 text-center shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
       <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
         {acimaDaMeta ? "Acima da meta" : "Ainda cabem"}
       </p>
@@ -368,7 +368,7 @@ function NextStepsCard({
   if (passos.length === 0) return null;
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
       <p className="mb-3 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
         Próximo passo
       </p>
@@ -378,7 +378,7 @@ function NextStepsCard({
             key={p.id}
             type="button"
             onClick={() => onGo(p.path)}
-            className="flex w-full items-center gap-3 rounded-lg border border-zinc-200 px-3 py-2.5 text-left hover:border-green-500/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-800 dark:focus-visible:ring-offset-zinc-900"
+            className="flex w-full items-center gap-3 rounded-lg border border-zinc-200 px-3 py-2.5 text-left hover:border-green-500/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-800 dark:focus-visible:ring-offset-zinc-900"
           >
             <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-green-600 dark:text-green-500" />
             <span className="min-w-0">
@@ -398,7 +398,7 @@ function WeightCard({ history, onRegister }: { history: WeightData[]; onRegister
   const spark = buildSparkline(history.map((h) => h.weight));
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
           Peso
@@ -448,7 +448,7 @@ function WeightCard({ history, onRegister }: { history: WeightData[]; onRegister
           <button
             type="button"
             onClick={onRegister}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-300 dark:focus-visible:ring-offset-zinc-900"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-300 dark:focus-visible:ring-offset-zinc-900"
           >
             <Scale aria-hidden="true" className="h-3.5 w-3.5" />
             Registrar peso
@@ -477,7 +477,7 @@ function EmptyDayCard({ onRegister, onPlan }: { onRegister: () => void; onPlan: 
         <button
           type="button"
           onClick={onRegister}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-950"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-green-950 hover:bg-green-600 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:focus-visible:ring-offset-zinc-950"
         >
           <Plus aria-hidden="true" className="h-4 w-4" />
           Registrar primeira refeição
@@ -485,7 +485,7 @@ function EmptyDayCard({ onRegister, onPlan }: { onRegister: () => void; onPlan: 
         <button
           type="button"
           onClick={onPlan}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-950"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-950"
         >
           <Sparkles aria-hidden="true" className="h-4 w-4" />
           Gerar um cardápio
@@ -497,7 +497,7 @@ function EmptyDayCard({ onRegister, onPlan }: { onRegister: () => void; onPlan: 
 
 function ErrorCard({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <section className="rounded-xl border border-red-200 bg-white p-6 text-center shadow-sm dark:border-red-900/50 dark:bg-zinc-900">
+    <section className="rounded-xl border border-red-200 bg-white p-6 text-center shadow-xs dark:border-red-900/50 dark:bg-zinc-900">
       <h2 className="text-base font-bold text-zinc-900 dark:text-white">
         Não conseguimos carregar o seu dia
       </h2>
@@ -505,7 +505,7 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry: () => void 
       <button
         type="button"
         onClick={onRetry}
-        className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
+        className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-green-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 motion-safe:transition-colors dark:border-zinc-700 dark:text-zinc-200 dark:focus-visible:ring-offset-zinc-900"
       >
         <RefreshCw aria-hidden="true" className="h-4 w-4" />
         Tentar de novo

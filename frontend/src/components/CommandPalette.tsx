@@ -68,7 +68,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[90] flex items-start justify-center pt-24 px-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 z-90 flex items-start justify-center pt-24 px-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
       onClick={onClose}
     >
       <div
@@ -83,9 +83,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Pular para..."
-            className="flex-1 bg-transparent py-3.5 outline-none text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
+            className="flex-1 bg-transparent py-3.5 outline-hidden text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
           />
-          <kbd className="text-[10px] text-zinc-400 border border-zinc-300 dark:border-zinc-700 rounded px-1.5 py-0.5">ESC</kbd>
+          <kbd className="text-[10px] text-zinc-400 border border-zinc-300 dark:border-zinc-700 rounded-sm px-1.5 py-0.5">ESC</kbd>
         </div>
 
         <div className="max-h-72 overflow-y-auto py-2">

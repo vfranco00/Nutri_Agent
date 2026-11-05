@@ -60,13 +60,13 @@ export function EnergyBar({ day }: EnergyBarProps) {
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-zinc-600 dark:text-zinc-400">
         <span className="inline-flex items-center gap-1.5">
-          <i aria-hidden="true" className="block h-3 w-3 rounded-sm bg-green-500" />
+          <i aria-hidden="true" className="block h-3 w-3 rounded-xs bg-green-500" />
           Registrado · {formatKcal(day.totals.calories)} kcal
         </span>
         <span className="inline-flex items-center gap-1.5">
           <i
             aria-hidden="true"
-            className="diary-hatch block h-3 w-3 rounded-sm border border-green-500/40"
+            className="diary-hatch block h-3 w-3 rounded-xs border border-green-500/40"
           />
           Planejado · {formatKcal(day.planned_totals.calories)} kcal
         </span>

@@ -108,7 +108,7 @@ export function AiChef() {
         </h1>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm mb-6">
+      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs mb-6">
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-400 mb-2">
           Quais ingredientes você tem?
         </label>
@@ -116,7 +116,7 @@ export function AiChef() {
           value={ingredientsInput}
           onChange={(e) => setIngredientsInput(e.target.value)}
           placeholder="Ex: Frango, batata doce, creme de leite, cebola..."
-          className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 h-32 focus:ring-2 focus:ring-blue-500 outline-none resize-none dark:text-white"
+          className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 h-32 focus:ring-2 focus:ring-blue-500 outline-hidden resize-none dark:text-white"
         />
 
         <div className="mt-4">
@@ -129,7 +129,7 @@ export function AiChef() {
                 key={count}
                 type="button"
                 onClick={() => setServings(count)}
-                className={`py-2 rounded-md text-sm font-medium transition-all ${servings === count ? "bg-white dark:bg-zinc-700 shadow text-blue-600 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"}`}
+                className={`py-2 rounded-md text-sm font-medium transition-all ${servings === count ? "bg-white dark:bg-zinc-700 shadow-sm text-blue-600 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"}`}
               >
                 {count}
               </button>
@@ -165,7 +165,7 @@ export function AiChef() {
       </div>
 
       {generatedRecipe && (
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 animate-fadeIn space-y-6 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 animate-fadeIn space-y-6 shadow-xs">
           <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
             {generatedRecipe.title}
           </h2>
@@ -193,14 +193,14 @@ export function AiChef() {
               {generatedRecipe.ingredients.map((ing: any, i: number) => (
                 <li
                   key={i}
-                  className="text-zinc-700 dark:text-zinc-300 text-sm bg-zinc-50 dark:bg-zinc-950/50 p-2 rounded border border-zinc-100 dark:border-zinc-800 flex justify-between items-center"
+                  className="text-zinc-700 dark:text-zinc-300 text-sm bg-zinc-50 dark:bg-zinc-950/50 p-2 rounded-sm border border-zinc-100 dark:border-zinc-800 flex justify-between items-center"
                 >
                   <span>{ing.name}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-zinc-500">
                       {ing.calories ? `~${Math.round(ing.calories)}kcal` : ""}
                     </span>
-                    <span className="font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-800 px-2 rounded">
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-800 px-2 rounded-sm">
                       {ing.quantity} {ing.unit}
                     </span>
                   </div>
@@ -221,7 +221,7 @@ export function AiChef() {
           <button
             onClick={handleSaveRecipe}
             disabled={saving}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-sm disabled:opacity-50"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-xs disabled:opacity-50"
           >
             {saving ? (
               <Loader2 className="h-5 w-5 animate-spin" />

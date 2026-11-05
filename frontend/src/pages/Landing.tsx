@@ -409,7 +409,7 @@ export function Landing() {
 
       {/* CTA FINAL */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="bg-gradient-to-r from-green-700 to-green-600 rounded-2xl p-10 sm:p-14 flex flex-col sm:flex-row items-center justify-between gap-8">
+        <div className="bg-linear-to-r from-green-700 to-green-600 rounded-2xl p-10 sm:p-14 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-green-200 mb-3">— Comece hoje</p>
             <h2 className="text-3xl font-bold text-white max-w-md">

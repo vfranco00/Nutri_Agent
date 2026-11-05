@@ -1,6 +1,138 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import './components/brand/brand.css';
+
+/* Tema escuro por classe .dark no <html> (o AppLayout liga e desliga). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------
+   Nuvi: cores da marca (kit em docs/marca/kit/) e tokens de movimento.
+   Botão laranja sempre com texto tinta (#1C1712); nada de gradiente.
+   ------------------------------------------------------------------ */
+@theme {
+  --color-nuvi-laranja: #E8590C;
+  --color-nuvi-laranja-texto: #C2410C;
+  --color-nuvi-gomo: #FF9A52;
+  --color-nuvi-verde: #3FA34D;
+  --color-nuvi-verde-texto: #2F7A33;
+  --color-nuvi-creme: #FFF6EC;
+  --color-nuvi-tinta: #1C1712;
+  --color-nuvi-secundario: #7A6A58;
+  --color-nuvi-escuro: #1A120B;
+  --color-nuvi-cartao-escuro: #261B13;
+  --color-nuvi-texto-escuro: #F3EFE9;
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-logo: "Nunito", "DM Sans", ui-sans-serif, sans-serif;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Verde antigo (#52CC02) das telas que a Frente T ainda vai trocar. */
+  --color-green-50: #f0fde7;
+  --color-green-100: #e1fccf;
+  --color-green-200: #c3fa9e;
+  --color-green-300: #9ef962;
+  --color-green-400: #76f91f;
+  --color-green-500: #52cc02;
+  --color-green-600: #44a702;
+  --color-green-700: #378801;
+  --color-green-800: #2b6a01;
+  --color-green-900: #215002;
+  --color-green-950: #153003;
+
+  --animate-fadeIn: fadeIn 0.2s ease-out;
+  --animate-slideInRight: slideInRight 0.3s ease-out;
+  --animate-shrinkWidth: shrinkWidth linear forwards;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes slideInRight {
+    0% { transform: translateX(120%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes shrinkWidth {
+    0% { width: 100%; }
+    100% { width: 0%; }
+  }
+}
+
+/* Aliases semânticos: trocam de valor com .dark. Utilitários: bg-bg, bg-card,
+   text-ink, text-mut, border-line, bg-soft, bg-act, text-on-act, text-act-text,
+   bg-pos, text-pos-text, bg-act-soft, bg-pos-soft, bg-bar, text-bar-ink,
+   text-bar-on. Todo par de texto passa AA (src/theme.test.ts). */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-mut: var(--mut);
+  --color-line: var(--line);
+  --color-soft: var(--soft);
+  --color-act: var(--act);
+  --color-on-act: var(--on-act);
+  --color-act-text: var(--act-text);
+  --color-act-soft: var(--act-soft);
+  --color-pos: var(--pos);
+  --color-pos-text: var(--pos-text);
+  --color-pos-soft: var(--pos-soft);
+  --color-bar: var(--bar);
+  --color-bar-ink: var(--bar-ink);
+  --color-bar-on: var(--bar-on);
+}
+
+:root {
+  --bg: #FFF6EC;
+  --card: #FFFFFF;
+  --ink: #1C1712;
+  --mut: #7A6A58;
+  --line: #F1E4D6;
+  --soft: #F6E6D6;
+  --act: #E8590C;
+  --on-act: #1C1712;
+  --act-text: #C2410C;
+  --act-soft: #FDE6D4;
+  --pos: #3FA34D;
+  --pos-text: #2F7A33;
+  --pos-soft: #E3F3E1;
+  --bar: #1C1712;
+  --bar-ink: #A39586;
+  --bar-on: #FFF6EC;
+}
+
+.dark {
+  --bg: #1A120B;
+  --card: #261B13;
+  --ink: #F3EFE9;
+  --mut: #AB9A88;
+  --line: #33261B;
+  --soft: #30241A;
+  --act-text: #FF9A52;
+  --act-soft: rgba(232, 89, 12, 0.18);
+  --pos: #5CC46A;
+  --pos-text: #7FD98A;
+  --pos-soft: rgba(63, 163, 77, 0.18);
+  --bar: #2A1F16;
+  --bar-ink: #9B8A78;
+  --bar-on: #F3EFE9;
+}
+
+/* Tailwind v4 mudou a cor padrão da borda para currentcolor; as telas antigas
+   contam com o cinza do v3. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
 
 @layer components {
   /* Faixa hachurada da barra de energia do diário = "planejado, ainda não
@@ -26,8 +158,9 @@
   }
 }
 
-/* Respeita quem pediu menos movimento no sistema. Vale para o app inteiro,
-   não só para o diário. */
+/* Respeita quem pediu menos movimento no sistema. Vale para o app inteiro.
+   As peças da marca (brand.css) e a WAAPI trazem a própria versão reduzida,
+   só com opacidade. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -191,7 +191,7 @@ export function AdminTickets() {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-red-500"
+          className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white outline-hidden focus:ring-2 focus:ring-red-500"
         >
           <option value="todas">Todas as categorias</option>
           {Object.entries(FEEDBACK_CATEGORY_LABELS).map(([k, label]) => (
@@ -208,7 +208,7 @@ export function AdminTickets() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por email ou nome..."
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 pl-9 pr-3 text-sm text-white outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 pl-9 pr-3 text-sm text-white outline-hidden focus:ring-2 focus:ring-red-500"
           />
         </div>
       </div>
