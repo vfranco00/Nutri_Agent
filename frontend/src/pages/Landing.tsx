@@ -96,8 +96,8 @@ const OBJECTION_FAQ = [
 
 const FAQ_ITEMS = [
   {
-    q: "O NutriAgent substitui um nutricionista?",
-    a: "Não. O NutriAgent te ajuda a organizar e planejar sua alimentação no dia a dia, mas não substitui acompanhamento profissional — principalmente se você tem alguma condição de saúde específica.",
+    q: "O Nuvi substitui um nutricionista?",
+    a: "Não. O Nuvi te ajuda a organizar e planejar sua alimentação no dia a dia, mas não substitui acompanhamento profissional — principalmente se você tem alguma condição de saúde específica.",
   },
   {
     q: "Funciona pra dieta vegetariana, vegana ou restrições alimentares?",
@@ -105,7 +105,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Preciso instalar algum aplicativo?",
-    a: "Não. O NutriAgent roda direto no navegador, no computador ou no celular, sem instalação.",
+    a: "Não. O Nuvi roda direto no navegador, no computador ou no celular, sem instalação.",
   },
   {
     q: "Como funciona o Chef IA?",
@@ -189,7 +189,7 @@ export function Landing() {
       {/* HEADER */}
       <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-8 w-auto object-contain" />
+          <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-8 w-auto object-contain" />
           <nav className="hidden md:flex items-center gap-8 text-sm text-zinc-400">
             <a href="#produto" className="hover:text-white transition-colors">Produto</a>
             <a href="#recursos" className="hover:text-white transition-colors">Recursos</a>
@@ -396,7 +396,7 @@ export function Landing() {
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold mb-3">Precisa de ajuda?</h2>
         <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-          Achou um bug, tem uma dúvida ou uma ideia pro NutriAgent? Manda pra gente — a
+          Achou um bug, tem uma dúvida ou uma ideia pro Nuvi? Manda pra gente — a
           bolinha verde no canto da tela abre esse mesmo formulário em qualquer página.
         </p>
         <button
@@ -432,7 +432,7 @@ export function Landing() {
       <footer className="border-t border-zinc-900 mt-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 sm:grid-cols-4 gap-8">
           <div className="col-span-2 sm:col-span-1">
-            <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-6 w-auto object-contain mb-3" />
+            <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-6 w-auto object-contain mb-3" />
             <p className="text-zinc-500 text-sm">Nutrição inteligente com IA pro seu dia a dia.</p>
           </div>
           <div>
@@ -450,8 +450,8 @@ export function Landing() {
             </ul>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase text-zinc-500 mb-3">NutriAgent</p>
-            <p className="text-sm text-zinc-500">© {new Date().getFullYear()} NutriAgent</p>
+            <p className="text-xs font-bold uppercase text-zinc-500 mb-3">Nuvi</p>
+            <p className="text-sm text-zinc-500">© {new Date().getFullYear()} Nuvi</p>
           </div>
         </div>
       </footer>

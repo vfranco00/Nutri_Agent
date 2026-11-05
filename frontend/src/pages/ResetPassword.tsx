@@ -67,7 +67,7 @@ export function ResetPassword() {
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
         <div className="text-center mb-8">
-          <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-20 w-auto object-contain mx-auto mb-2" />
+          <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-20 w-auto object-contain mx-auto mb-2" />
         </div>
 
         {success ? (

@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "NutriAgent"
+    PROJECT_NAME: str = "Nuvi"
     DATABASE_URL: str
 
     SECRET_KEY: str
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     BREVO_FROM_EMAIL: str = ""
 
     RESEND_API_KEY: str = ""
-    RESEND_FROM_EMAIL: str = "NutriAgent <onboarding@resend.dev>"
+    RESEND_FROM_EMAIL: str = "Nuvi <onboarding@resend.dev>"
     FRONTEND_URL: str = "http://localhost:5173"
 
     # Assinaturas via Mercado Pago. Sem essa chave, o checkout cai num 501

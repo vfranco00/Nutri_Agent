@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 RESEND_URL = "https://api.resend.com/emails"
-VERIFICATION_SUBJECT = "Confirme seu email — NutriAgent"
-PASSWORD_RESET_SUBJECT = "Redefinir sua senha — NutriAgent"
+VERIFICATION_SUBJECT = "Confirme seu email — Nuvi"
+PASSWORD_RESET_SUBJECT = "Redefinir sua senha — Nuvi"
 FEEDBACK_TO_EMAIL = "victorfranco02@outlook.com"
 
 
@@ -76,7 +76,7 @@ def _send_via_resend(to_email: str, subject: str, html: str, reply_to: str | Non
 def _send_via_brevo(to_email: str, subject: str, html: str, reply_to: str | None = None) -> bool:
     try:
         payload = {
-            "sender": {"name": "NutriAgent", "email": settings.BREVO_FROM_EMAIL},
+            "sender": {"name": "Nuvi", "email": settings.BREVO_FROM_EMAIL},
             "to": [{"email": to_email}],
             "subject": subject,
             "htmlContent": html,
@@ -155,7 +155,7 @@ def send_password_reset_email(to_email: str, hashed_password: str) -> bool:
 def send_feedback_email(name: str | None, email: str, category: str, message: str) -> bool:
     """Manda o chamado de ajuda/feedback pro email do Franco, com Reply-To pro email de
     quem abriu o chamado — responder o email já cai direto pro usuário."""
-    subject = f"[NutriAgent] Novo chamado: {category}"
+    subject = f"[Nuvi] Novo chamado: {category}"
     html = feedback_email_html(name, email, category, message)
     return _send_email(
         FEEDBACK_TO_EMAIL, subject, html,
@@ -167,7 +167,7 @@ def send_feedback_email(name: str | None, email: str, category: str, message: st
 def send_subscription_expiring_email(to_email: str, plan_label: str, expires_at: datetime) -> bool:
     """Aviso de que a assinatura vence em até 7 dias — mandado uma vez por ciclo
     (ver app/services/subscription_lifecycle.py)."""
-    subject = f"Sua assinatura {plan_label} vence em breve — NutriAgent"
+    subject = f"Sua assinatura {plan_label} vence em breve — Nuvi"
     html = subscription_expiring_email_html(plan_label, expires_at)
     return _send_email(
         to_email, subject, html,

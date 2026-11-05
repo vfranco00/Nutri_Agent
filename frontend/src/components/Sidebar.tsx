@@ -42,13 +42,13 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, toggleTheme, isD
       {/* Logo */}
       <div className={`h-16 flex items-center border-b border-zinc-200 dark:border-zinc-800 px-4 ${collapsed ? "lg:justify-center" : ""}`}>
         <img
-          src="/nutri-agent-logo-horizontal.png"
-          alt="NutriAgent"
+          src="/logo-horizontal-fundo-escuro.png"
+          alt="Nuvi"
           className={`h-9 w-auto object-contain ${labelClass}`}
         />
         <img
-          src="/nutri-agent-icon.png"
-          alt="NutriAgent"
+          src="/favicon.svg"
+          alt="Nuvi"
           className={`h-8 w-8 object-contain hidden ${collapsed ? "lg:block" : ""}`}
         />
       </div>

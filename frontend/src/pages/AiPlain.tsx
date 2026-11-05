@@ -389,7 +389,7 @@ export function AiPlan() {
           <ArrowLeft className="h-6 w-6 text-zinc-500" />
         </button>
         <h1 className="text-2xl font-bold text-purple-500 flex items-center gap-2">
-          <Sparkles className="h-6 w-6" /> NutriAgent AI
+          <Sparkles className="h-6 w-6" /> Agente Nuvi
         </h1>
       </div>
 
@@ -629,7 +629,7 @@ export function AiPlan() {
             <Lightbulb className="h-6 w-6 text-purple-500 dark:text-purple-400 shrink-0 mt-1" />
             <div>
               <h4 className="font-bold text-purple-700 dark:text-purple-400 mb-1">
-                Dica do NutriAgent
+                Dica do Nuvi
               </h4>
               <p className="text-purple-700/80 dark:text-purple-200/80 text-sm italic">
                 "{currentDay.tip}"

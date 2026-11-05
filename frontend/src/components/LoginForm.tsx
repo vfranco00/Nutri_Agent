@@ -68,7 +68,7 @@ export function LoginForm() {
   return (
     <>
       <div className="text-center mb-8">
-        <img src="/nutri-agent-logo-horizontal.png" alt="NutriAgent" className="h-16 w-auto object-contain mx-auto mb-2" />
+        <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-16 w-auto object-contain mx-auto mb-2" />
         <p className="text-zinc-400">Entre para gerenciar sua dieta</p>
       </div>
 

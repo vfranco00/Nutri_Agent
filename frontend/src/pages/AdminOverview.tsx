@@ -70,7 +70,7 @@ export function AdminOverview() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white">Visão Geral</h1>
-        <p className="text-sm text-zinc-500">O pulso do NutriAgent num lugar só — números reais do sistema.</p>
+        <p className="text-sm text-zinc-500">O pulso do Nuvi num lugar só — números reais do sistema.</p>
       </div>
 
       {/* USUÁRIOS */}

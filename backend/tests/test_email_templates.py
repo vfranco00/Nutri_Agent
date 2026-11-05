@@ -12,7 +12,7 @@ from app.services.email_templates import (
 def test_verification_email_uses_real_logo_not_emoji():
     html = verification_email_html("user@example.com", "https://example.com/verify?token=abc")
     assert "🍎" not in html
-    assert f"{settings.FRONTEND_URL}/nutri-agent-logo-horizontal.png" in html
+    assert f"{settings.FRONTEND_URL}/logo-horizontal-fundo-escuro.png" in html
 
 
 def test_feedback_email_escapes_user_content():
@@ -42,13 +42,13 @@ def test_feedback_email_translates_category_label():
 def test_feedback_email_uses_real_logo():
     html = feedback_email_html("Fulano", "f@example.com", "bug", "algo quebrou")
     assert "🍎" not in html
-    assert "nutri-agent-logo-horizontal.png" in html
+    assert "logo-horizontal-fundo-escuro.png" in html
 
 
 def test_subscription_expiring_email_uses_real_logo():
     html = subscription_expiring_email_html("Plus", datetime(2026, 8, 1))
     assert "🍎" not in html
-    assert "nutri-agent-logo-horizontal.png" in html
+    assert "logo-horizontal-fundo-escuro.png" in html
 
 
 def test_password_reset_email_includes_reset_url():
@@ -60,4 +60,18 @@ def test_password_reset_email_includes_reset_url():
 def test_password_reset_email_uses_real_logo():
     html = password_reset_email_html("user@example.com", "https://example.com/reset-password?token=abc")
     assert "🍎" not in html
-    assert "nutri-agent-logo-horizontal.png" in html
+    assert "logo-horizontal-fundo-escuro.png" in html
+
+
+def test_templates_usam_nome_nuvi():
+    # Marca nova (redesign Nuvi): todo e-mail que o usuário recebe fala "Nuvi"
+    # e não sobra "NutriAgent" visível em nenhum deles.
+    rendered = [
+        verification_email_html("user@example.com", "https://example.com/verify?token=abc"),
+        password_reset_email_html("user@example.com", "https://example.com/reset?token=abc"),
+        feedback_email_html("Fulano", "f@example.com", "bug", "mensagem qualquer aqui"),
+        subscription_expiring_email_html("Plus", datetime(2026, 12, 1)),
+    ]
+    for html in rendered:
+        assert "Nuvi" in html
+        assert "NutriAgent" not in html

@@ -1,6 +1,6 @@
 """
 Templates de email em HTML. Usa a mesma identidade visual do frontend
-(fundo escuro zinc-950/zinc-900, verde NutriAgent #16a34a/#22c55e, logo
+(fundo escuro zinc-950/zinc-900, verde antigo #16a34a/#22c55e, logo
 igual à que aparece na Sidebar e nas telas de Login/Registro).
 
 Escrito com <table> e estilos inline de propósito — é o jeito que garante
@@ -22,11 +22,11 @@ FEEDBACK_CATEGORY_LABELS = {
 
 def _logo_header_html() -> str:
     # Precisa de URL absoluta — cliente de email não tem base URL pra resolver
-    # caminho relativo. Mesmo arquivo servido pelo frontend em /nutri-agent-logo-horizontal.png
-    # (usado também na Sidebar e no Login).
-    logo_url = f"{settings.FRONTEND_URL}/nutri-agent-logo-horizontal.png"
+    # caminho relativo. Logo do kit da marca, servido pelo frontend em /logo-horizontal-fundo-escuro.png
+    # (versão para fundo escuro, que é o fundo destes e-mails).
+    logo_url = f"{settings.FRONTEND_URL}/logo-horizontal-fundo-escuro.png"
     return (
-        f'<img src="{logo_url}" alt="NutriAgent" width="180" '
+        f'<img src="{logo_url}" alt="Nuvi" width="180" '
         f'style="display:block;margin:0 auto 28px;width:180px;max-width:180px;height:auto;" />'
     )
 

@@ -32,7 +32,7 @@ def create_subscription_checkout(user: User, plan: str) -> str | None:
                 f"{MP_API_BASE}/preapproval",
                 headers={"Authorization": f"Bearer {settings.MERCADO_PAGO_ACCESS_TOKEN}"},
                 json={
-                    "reason": f"NutriAgent — Plano {PLAN_LABELS.get(plan, plan)}",
+                    "reason": f"Nuvi — Plano {PLAN_LABELS.get(plan, plan)}",
                     "payer_email": user.email,
                     "external_reference": f"user:{user.id}:plan:{plan}",
                     "auto_recurring": {

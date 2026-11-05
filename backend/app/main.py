@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="NutriAgent API",
+    title="Nuvi API",
     description="Backend com agente de IA para planejamento alimentar.",
     version="0.1.0",
     lifespan=lifespan,
@@ -200,7 +200,7 @@ app.include_router(agent.router, prefix="/agent", tags=["agent"])
 @app.get("/")
 def read_root():
     return {
-        "project": "NutriAgent",
+        "project": "Nuvi",
         "status": "online",
         "version": "0.1.0",
         "docs": "/docs"

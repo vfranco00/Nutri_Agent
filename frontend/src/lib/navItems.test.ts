@@ -39,6 +39,6 @@ describe("sectionTitleForPath", () => {
   });
 
   it("falls back to the brand name for unknown routes", () => {
-    expect(sectionTitleForPath("/rota-inexistente")).toBe("NutriAgent");
+    expect(sectionTitleForPath("/rota-inexistente")).toBe("Nuvi");
   });
 });

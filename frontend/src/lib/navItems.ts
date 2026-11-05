@@ -54,5 +54,5 @@ export function sectionTitleForPath(pathname: string): string {
   const match = all
     .filter((i) => pathname === i.path || pathname.startsWith(i.path + "/"))
     .sort((a, b) => b.path.length - a.path.length)[0];
-  return match?.name ?? "NutriAgent";
+  return match?.name ?? "Nuvi";
 }

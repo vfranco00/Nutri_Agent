@@ -55,7 +55,7 @@ export function LoadingOverlay({ text, color = "purple" }: LoadingOverlayProps) 
         <Lightbulb className={`h-5 w-5 shrink-0 mt-0.5 ${variant.lightbulb}`} />
         <div>
           <h4 className={`font-bold text-sm mb-1 ${variant.label}`}>
-            Dica do NutriAgent
+            Dica do Nuvi
           </h4>
           <p className={`text-sm italic ${variant.quote}`}>"{tip}"</p>
         </div>
