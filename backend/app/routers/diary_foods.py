@@ -12,7 +12,10 @@ Este módulo NÃO importa `FoodCache` e NÃO importa nada de `services/ai.py`: a
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
@@ -21,8 +24,16 @@ from app.core.quotas import check_quota, log_usage
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.diary import FoodOption, FoodResolveRequest, FoodSearchResponse
+from app.schemas.diary_registro import (
+    BARCODE_PATTERN,
+    UserFoodCreate,
+    UserFoodList,
+    UserFoodResponse,
+    UserFoodUpdate,
+)
+from app.models.user_food import UserFood
 from app.services import diary_foods as svc
-from app.services import openfoodfacts
+from app.services import diary_registro, openfoodfacts
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -170,3 +181,163 @@ def buscar_por_codigo_de_barras(
         "diary_barcode_found user_id=%s source=%s", current_user.id, opcao.source
     )
     return opcao
+
+
+# ======================================================================================
+# Alimento pessoal — `mine:<id>` (Frente R). Recurso alheio é 404 com corpo idêntico ao
+# de inexistente (RS-03): a busca já sai escopada por dono e os dois casos dão `None`.
+# ======================================================================================
+
+
+def _mine_nao_encontrado() -> HTTPException:
+    return HTTPException(
+        status_code=404,
+        detail={"code": "USER_FOOD_NOT_FOUND", "message": "Alimento não encontrado."},
+    )
+
+
+def _barcode_em_uso() -> HTTPException:
+    # 409 só fala da conta do PRÓPRIO usuário: o unique é (user_id, barcode), então este
+    # erro nunca revela que outra pessoa cadastrou o mesmo código.
+    return HTTPException(
+        status_code=409,
+        detail={
+            "code": "BARCODE_ALREADY_USED",
+            "message": "Você já tem um alimento com este código de barras.",
+        },
+    )
+
+
+def _como_resposta_mine(linha: UserFood) -> UserFoodResponse:
+    return UserFoodResponse(
+        id=linha.id,
+        food_ref=diary_registro.mine_ref(linha.id),
+        name=linha.name,
+        portion_label=linha.portion_label,
+        portion_grams=linha.portion_grams,
+        kcal=linha.kcal,
+        protein_g=linha.protein_g,
+        carbs_g=linha.carbs_g,
+        fat_g=linha.fat_g,
+        barcode=linha.barcode,
+        created_at=linha.created_at,
+    )
+
+
+def _commit_ou_409(db: Session) -> None:
+    """O unique (user_id, barcode) é a defesa real; a checagem prévia só dá a mensagem.
+    Duas abas criando o mesmo código ao mesmo tempo caem aqui, não num 500."""
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise _barcode_em_uso()
+
+
+@router.get("/mine", response_model=UserFoodList)
+@limiter.limit("120/minute")
+def listar_meus_alimentos(
+    request: Request,
+    barcode: Optional[str] = Query(default=None, pattern=BARCODE_PATTERN),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Sem `barcode`: todos, por nome. Com `barcode`: zero ou um item (contrato da
+    Frente B, que procura primeiro aqui antes do Open Food Facts)."""
+    if barcode is not None:
+        linha = diary_registro.buscar_mine_por_barcode(db, current_user.id, barcode)
+        linhas = [] if linha is None else [linha]
+    else:
+        linhas = diary_registro.listar_mine(db, current_user.id)
+    return UserFoodList(items=[_como_resposta_mine(linha) for linha in linhas])
+
+
+@router.post("/mine", response_model=UserFoodResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("60/minute")
+def criar_meu_alimento(
+    request: Request,
+    payload: UserFoodCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    usados = diary_registro.contar_mine(db, current_user.id)
+    if usados >= diary_registro.MAX_ALIMENTOS_PESSOAIS:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "PLAN_LIMIT_REACHED",
+                "message": "Limite de alimentos pessoais atingido.",
+                "event_type": "user_foods",
+                "limit": diary_registro.MAX_ALIMENTOS_PESSOAIS,
+                "used": usados,
+            },
+        )
+    if payload.barcode is not None and diary_registro.buscar_mine_por_barcode(
+        db, current_user.id, payload.barcode
+    ):
+        raise _barcode_em_uso()
+
+    linha = UserFood(user_id=current_user.id, **payload.model_dump())
+    db.add(linha)
+    _commit_ou_409(db)
+    db.refresh(linha)
+    logger.info("user_food_created user_id=%s user_food_id=%s", current_user.id, linha.id)
+    return _como_resposta_mine(linha)
+
+
+@router.get("/mine/{food_id}", response_model=UserFoodResponse)
+@limiter.limit("120/minute")
+def ler_meu_alimento(
+    request: Request,
+    food_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    linha = diary_registro.buscar_mine(db, current_user.id, food_id)
+    if linha is None:
+        raise _mine_nao_encontrado()
+    return _como_resposta_mine(linha)
+
+
+@router.patch("/mine/{food_id}", response_model=UserFoodResponse)
+@limiter.limit("60/minute")
+def editar_meu_alimento(
+    request: Request,
+    food_id: int,
+    payload: UserFoodUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Editar NÃO muda entradas já registradas: elas guardam snapshot (§ 4.4)."""
+    linha = diary_registro.buscar_mine(db, current_user.id, food_id)
+    if linha is None:
+        raise _mine_nao_encontrado()
+
+    mudancas = payload.model_dump(exclude_unset=True)
+    novo_codigo = mudancas.get("barcode")
+    if novo_codigo is not None and novo_codigo != linha.barcode:
+        if diary_registro.buscar_mine_por_barcode(db, current_user.id, novo_codigo):
+            raise _barcode_em_uso()
+    for campo, valor in mudancas.items():
+        setattr(linha, campo, valor)
+    _commit_ou_409(db)
+    db.refresh(linha)
+    logger.info("user_food_updated user_id=%s user_food_id=%s", current_user.id, linha.id)
+    return _como_resposta_mine(linha)
+
+
+@router.delete("/mine/{food_id}")
+@limiter.limit("60/minute")
+def apagar_meu_alimento(
+    request: Request,
+    food_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    linha = diary_registro.buscar_mine(db, current_user.id, food_id)
+    if linha is None:
+        raise _mine_nao_encontrado()
+    db.delete(linha)
+    db.commit()
+    logger.info("user_food_deleted user_id=%s user_food_id=%s", current_user.id, food_id)
+    return {"ok": True}

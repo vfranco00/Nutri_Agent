@@ -22,7 +22,9 @@ DiaryUnitType = Literal[
     "g", "ml", "un", "colher_sopa", "colher_cha", "xicara", "fatia", "porcao"
 ]
 FoodBaseUnitType = Literal["g", "ml", "un"]
-FoodSourceType = Literal["taco", "curated", "openfoodfacts", "llm"]
+# `user` = alimento pessoal (`mine:`), `recipe` = porção de receita (`recipe:`). Nenhum
+# dos dois é estimativa: os números são do próprio usuário.
+FoodSourceType = Literal["taco", "curated", "openfoodfacts", "llm", "user", "recipe"]
 
 # Ao menos uma letra (com acento) — mesmo validador de schemas/profile.py:33-38.
 _HAS_LETTER_RE = re.compile(r"[a-zA-ZÀ-ÖØ-öø-ÿ]")
@@ -31,10 +33,11 @@ _HAS_LETTER_RE = re.compile(r"[a-zA-ZÀ-ÖØ-öø-ÿ]")
 # log (log injection). Custa uma regex e fecha os dois (RS-08).
 _NOME_PROIBIDO = re.compile(r"[\x00-\x1f\x7f]")
 
-# "catalog:<slug>" ou "cache:<id>". Opaco para o cliente: obtido da busca ou do resolve
+# "catalog:<slug>", "cache:<id>", "mine:<id>" (alimento pessoal) ou "recipe:<id>"
+# (porção de receita). Opaco para o cliente: obtido da busca ou do resolve
 # e devolvido inalterado. O formato é validado aqui para que a resolução no router não
 # precise confiar em nada do que veio no corpo.
-_FOOD_REF_RE = re.compile(r"^(catalog:[a-z0-9-]{1,160}|cache:[0-9]{1,12})$")
+_FOOD_REF_RE = re.compile(r"^(catalog:[a-z0-9-]{1,160}|(?:cache|mine|recipe):[0-9]{1,12})$")
 
 JANELA_FUTURO_DIAS = 1
 JANELA_PASSADO_DIAS = 730
@@ -89,6 +92,8 @@ class FoodOption(BaseModel):
     source: FoodSourceType
     # Já calculado no servidor: is_estimate = source in ("llm", "openfoodfacts").
     is_estimate: bool
+    # Rótulo da porção ("1 pote (40 g)") para `mine:` e `recipe:`. None nos demais.
+    portion_label: Optional[str] = None
 
 
 class FoodSearchResponse(BaseModel):

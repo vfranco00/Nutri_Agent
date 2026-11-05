@@ -41,7 +41,7 @@ from app.schemas.diary import (
     DiaryPlanBindingResponse,
     DiarySummaryResponse,
 )
-from app.services import diary_foods, diary_math, diary_plan
+from app.services import diary_foods, diary_math, diary_plan, diary_registro
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -146,9 +146,18 @@ def _resolver_food_ref(db: Session, food_ref: str, user_id: int):
         )
         return None if linha is None else diary_foods.opcao_do_catalogo(linha)
 
-    bruto = food_ref.split(":", 1)[1]
+    namespace, bruto = food_ref.split(":", 1)
     if not bruto.isdigit():
         return None
+
+    if namespace == "mine":
+        # Alimento pessoal: SEMPRE só do dono. Alheio e inexistente dão o mesmo None.
+        pessoal = diary_registro.buscar_mine(db, user_id, int(bruto))
+        return None if pessoal is None else diary_registro.opcao_do_mine(pessoal)
+
+    if namespace != "cache":
+        return None
+
     linha = (
         db.query(FoodCache)
         .filter(
