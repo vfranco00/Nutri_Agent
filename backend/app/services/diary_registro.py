@@ -17,10 +17,15 @@ from app.models.diary import DiaryEntry
 from app.models.food_cache import FoodCache
 from app.models.food_catalog import FoodCatalog
 from app.models.ingredient import Ingredient
+from app.models.saved_meal import SavedMeal, SavedMealItem
 from app.models.recipe import Recipe
 from app.models.user_food import UserFood
 from app.schemas.diary import FoodOption
-from app.schemas.diary_registro import QuickFood
+from app.schemas.diary_registro import (
+    QuickFood,
+    SavedMealItemResponse,
+    SavedMealResponse,
+)
 from app.services import diary_foods, diary_math
 
 # Teto de SEGURANÇA, não comercial: alimento pessoal é escrita do usuário no banco, e sem
@@ -377,3 +382,145 @@ def copiar_dia(
             continue
         return len(novas)
     return 0
+
+
+# --------------------------------------------------------------------------------------
+# Refeições prontas
+# --------------------------------------------------------------------------------------
+
+MAX_REFEICOES_PRONTAS = 100
+
+
+class RefeicaoVazia(Exception):
+    """Nada no slot para salvar."""
+
+
+class TetoRefeicoesProntas(Exception):
+    """O usuário já tem `MAX_REFEICOES_PRONTAS`."""
+
+
+def _kcal_do_item(item: SavedMealItem) -> float:
+    kcal, _ = diary_math.calcular(item.kcal_per_base_unit, None, item.quantity, item.unit)
+    return kcal
+
+
+def como_resposta_refeicao(refeicao: SavedMeal) -> SavedMealResponse:
+    itens = [
+        SavedMealItemResponse(
+            food_ref=i.food_ref,
+            food_name=i.food_name,
+            quantity=i.quantity,
+            unit=i.unit,
+            calories=_kcal_do_item(i),
+        )
+        for i in refeicao.items
+    ]
+    return SavedMealResponse(
+        id=refeicao.id,
+        name=refeicao.name,
+        calories=diary_math.somar([i.calories for i in itens]),
+        items=itens,
+        created_at=refeicao.created_at,
+    )
+
+
+def listar_refeicoes(db: Session, user_id: int) -> list[SavedMeal]:
+    return (
+        db.query(SavedMeal)
+        .filter(SavedMeal.user_id == user_id)
+        .order_by(SavedMeal.name, SavedMeal.id)
+        .all()
+    )
+
+
+def buscar_refeicao(db: Session, user_id: int, meal_id: int) -> Optional[SavedMeal]:
+    """Alheia e inexistente dão o mesmo `None`, pela mesma query."""
+    return (
+        db.query(SavedMeal)
+        .filter(SavedMeal.id == meal_id, SavedMeal.user_id == user_id)
+        .first()
+    )
+
+
+def salvar_refeicao(
+    db: Session, user_id: int, name: str, entry_date: date, meal_slot: str
+) -> SavedMeal:
+    entradas = (
+        db.query(DiaryEntry)
+        .filter(
+            DiaryEntry.user_id == user_id,
+            DiaryEntry.entry_date == entry_date,
+            DiaryEntry.meal_slot == meal_slot,
+        )
+        .order_by(DiaryEntry.id)
+        .all()
+    )
+    if not entradas:
+        raise RefeicaoVazia()
+    total = db.query(func.count(SavedMeal.id)).filter(SavedMeal.user_id == user_id).scalar() or 0
+    if total >= MAX_REFEICOES_PRONTAS:
+        raise TetoRefeicoesProntas()
+    refeicao = SavedMeal(user_id=user_id, name=name)
+    for posicao, e in enumerate(entradas):
+        refeicao.items.append(
+            SavedMealItem(
+                position=posicao,
+                food_ref=e.food_ref,
+                food_name=e.food_name,
+                source=e.source,
+                base_unit=e.base_unit,
+                quantity=e.quantity,
+                unit=e.unit,
+                kcal_per_base_unit=e.kcal_per_base_unit,
+                protein_per_base_unit=e.protein_per_base_unit,
+                carbs_per_base_unit=e.carbs_per_base_unit,
+                fat_per_base_unit=e.fat_per_base_unit,
+            )
+        )
+    db.add(refeicao)
+    db.commit()
+    db.refresh(refeicao)
+    return refeicao
+
+
+def registrar_refeicao(
+    db: Session, user_id: int, refeicao: SavedMeal, entry_date: date, meal_slot: str
+) -> int:
+    """Grava todos os itens no dia/slot, recalculando os totais a partir do snapshot.
+    Atômico: estourar o teto do dia não grava nada."""
+    usadas = contar_do_dia(db, user_id, entry_date)
+    if usadas + len(refeicao.items) > diary_math.MAX_ENTRADAS_POR_DIA:
+        raise TetoDiarioEstourado(usadas)
+    for i in refeicao.items:
+        kcal, proteina = diary_math.calcular(
+            i.kcal_per_base_unit, i.protein_per_base_unit, i.quantity, i.unit
+        )
+        _, carbo = diary_math.calcular(
+            i.kcal_per_base_unit, i.carbs_per_base_unit, i.quantity, i.unit
+        )
+        _, gordura = diary_math.calcular(
+            i.kcal_per_base_unit, i.fat_per_base_unit, i.quantity, i.unit
+        )
+        db.add(
+            DiaryEntry(
+                user_id=user_id,
+                entry_date=entry_date,
+                meal_slot=meal_slot,
+                food_ref=i.food_ref,
+                food_name=i.food_name,
+                source=i.source,
+                base_unit=i.base_unit,
+                quantity=i.quantity,
+                unit=i.unit,
+                kcal_per_base_unit=i.kcal_per_base_unit,
+                protein_per_base_unit=i.protein_per_base_unit,
+                carbs_per_base_unit=i.carbs_per_base_unit,
+                fat_per_base_unit=i.fat_per_base_unit,
+                calories_total=kcal,
+                protein_g_total=proteina,
+                carbs_g_total=carbo,
+                fat_g_total=gordura,
+            )
+        )
+    db.commit()
+    return len(refeicao.items)

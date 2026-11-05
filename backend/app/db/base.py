@@ -35,6 +35,7 @@ from app.models.feedback import FeedbackTicket  # noqa: F401
 from app.models.food_catalog import FoodCatalog  # noqa: F401
 from app.models.diary import DiaryEntry, DiaryPlanBinding  # noqa: F401
 from app.models.user_food import UserFood  # noqa: F401
+from app.models.saved_meal import SavedMeal, SavedMealItem  # noqa: F401
 from app.models.water import WaterEntry  # noqa: F401
 from app.models.reminder import Reminder  # noqa: F401
 from app.models.push_subscription import PushSubscription  # noqa: F401

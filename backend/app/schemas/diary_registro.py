@@ -192,3 +192,55 @@ class DiaryBatchRequest(BaseModel):
     @classmethod
     def data_na_janela(cls, v: date) -> date:
         return _validar_janela_data(v)
+
+
+# --------------------------------------------------------------------------------------
+# Refeições prontas
+# --------------------------------------------------------------------------------------
+
+
+class SavedMealCreate(BaseModel):
+    """Salva as entradas de `meal_slot` em `entry_date` como uma refeição pronta."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1, max_length=80)
+    entry_date: date
+    meal_slot: MealSlotType
+
+    @field_validator("name")
+    @classmethod
+    def nome_plausivel(cls, v: str) -> str:
+        return _validar_nome_alimento(v)
+
+
+class SavedMealLog(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    entry_date: date
+    meal_slot: MealSlotType
+
+    @field_validator("entry_date")
+    @classmethod
+    def data_na_janela(cls, v: date) -> date:
+        return _validar_janela_data(v)
+
+
+class SavedMealItemResponse(BaseModel):
+    food_ref: str
+    food_name: str
+    quantity: float
+    unit: DiaryUnitType
+    calories: float
+
+
+class SavedMealResponse(BaseModel):
+    id: int
+    name: str
+    calories: float
+    items: list[SavedMealItemResponse]
+    created_at: datetime
+
+
+class SavedMealList(BaseModel):
+    items: list[SavedMealResponse]

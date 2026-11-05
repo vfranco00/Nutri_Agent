@@ -41,7 +41,14 @@ from app.schemas.diary import (
     DiaryPlanBindingResponse,
     DiarySummaryResponse,
 )
-from app.schemas.diary_registro import DiaryBatchRequest, DiaryCopyRequest
+from app.schemas.diary_registro import (
+    DiaryBatchRequest,
+    DiaryCopyRequest,
+    SavedMealCreate,
+    SavedMealList,
+    SavedMealLog,
+    SavedMealResponse,
+)
 from app.services import diary_foods, diary_math, diary_plan, diary_registro
 
 router = APIRouter()
@@ -355,6 +362,106 @@ def criar_em_lote(
     db.add_all(novas)
     db.commit()
     logger.info("diary_batch user_id=%s criadas=%s", current_user.id, len(novas))
+    return diary_plan.montar_dia(db, current_user.id, payload.entry_date)
+
+
+def _refeicao_nao_encontrada() -> HTTPException:
+    """Corpo único para "não existe" e para "não é sua" (RS-03)."""
+    return HTTPException(
+        status_code=404,
+        detail={"code": "SAVED_MEAL_NOT_FOUND", "message": "Refeição não encontrada."},
+    )
+
+
+@router.get("/saved-meals", response_model=SavedMealList)
+@limiter.limit("120/minute")
+def listar_refeicoes_prontas(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return SavedMealList(
+        items=[
+            diary_registro.como_resposta_refeicao(m)
+            for m in diary_registro.listar_refeicoes(db, current_user.id)
+        ]
+    )
+
+
+@router.post(
+    "/saved-meals", response_model=SavedMealResponse, status_code=status.HTTP_201_CREATED
+)
+@limiter.limit("30/minute")
+def salvar_refeicao_pronta(
+    request: Request,
+    payload: SavedMealCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        refeicao = diary_registro.salvar_refeicao(
+            db, current_user.id, payload.name, payload.entry_date, payload.meal_slot
+        )
+    except diary_registro.RefeicaoVazia:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "SAVED_MEAL_EMPTY",
+                "message": "Não há nada nesta refeição para salvar.",
+            },
+        )
+    except diary_registro.TetoRefeicoesProntas:
+        # Teto de SEGURANÇA, igual nos três planos (mesmo formato do RS-11).
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "PLAN_LIMIT_REACHED",
+                "message": "Limite de refeições prontas atingido.",
+                "event_type": "saved_meals",
+                "limit": diary_registro.MAX_REFEICOES_PRONTAS,
+            },
+        )
+    logger.info("saved_meal_created user_id=%s saved_meal_id=%s", current_user.id, refeicao.id)
+    return diary_registro.como_resposta_refeicao(refeicao)
+
+
+@router.delete("/saved-meals/{meal_id}")
+@limiter.limit("30/minute")
+def apagar_refeicao_pronta(
+    request: Request,
+    meal_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    refeicao = diary_registro.buscar_refeicao(db, current_user.id, meal_id)
+    if refeicao is None:
+        raise _refeicao_nao_encontrada()
+    db.delete(refeicao)
+    db.commit()
+    return {"ok": True}
+
+
+@router.post(
+    "/saved-meals/{meal_id}/log", response_model=DiaryDay, status_code=status.HTTP_201_CREATED
+)
+@limiter.limit("30/minute")
+def registrar_refeicao_pronta(
+    request: Request,
+    meal_id: int,
+    payload: SavedMealLog,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    refeicao = diary_registro.buscar_refeicao(db, current_user.id, meal_id)
+    if refeicao is None:
+        raise _refeicao_nao_encontrada()
+    try:
+        diary_registro.registrar_refeicao(
+            db, current_user.id, refeicao, payload.entry_date, payload.meal_slot
+        )
+    except diary_registro.TetoDiarioEstourado as e:
+        raise _teto_diario_atingido(e.usadas)
+    logger.info("saved_meal_logged user_id=%s saved_meal_id=%s", current_user.id, meal_id)
     return diary_plan.montar_dia(db, current_user.id, payload.entry_date)
 
 
