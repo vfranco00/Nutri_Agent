@@ -19,6 +19,7 @@ from app.core.scheduler import start_scheduler, stop_scheduler
 from app.data.seed_food_catalog import sync_food_catalog
 from app.db.session import SessionLocal, get_db
 from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions, feedback, diary, diary_foods
+from app.routers import agent  # Frente G (Agente Nuvi)
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -194,6 +195,7 @@ app.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
 # do resultado da busca.
 app.include_router(diary_foods.router, prefix="/diary/foods", tags=["diary"])
 app.include_router(diary.router, prefix="/diary", tags=["diary"])
+app.include_router(agent.router, prefix="/agent", tags=["agent"])
 
 @app.get("/")
 def read_root():

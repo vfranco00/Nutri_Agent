@@ -27,7 +27,14 @@ def call_gemini(prompt: str, timeout: float = GEMINI_TIMEOUT_SECONDS):
     10s (RS-23): ali o usuário está parado olhando um campo, e uma requisição que segura
     um worker por 90s é, ela própria, o vetor de DoS — bastam N conexões para ocupar o
     pool inteiro. Um único lugar que fala com o Gemini, dois orçamentos de tempo."""
-    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+    return call_gemini_parts([{"text": prompt}], timeout=timeout)
+
+
+def call_gemini_parts(parts: list[dict], timeout: float = GEMINI_TIMEOUT_SECONDS):
+    """Mesma chamada de `call_gemini`, com as `parts` montadas por quem chama. É o que
+    deixa o Agente (app/services/agent_parse.py) mandar texto e foto (`inline_data`) sem
+    um segundo cliente do Gemini com tratamento de erro próprio."""
+    payload = {"contents": [{"parts": parts}]}
     try:
         with httpx.Client() as client:
             response = client.post(GEMINI_URL, json=payload, timeout=timeout)
