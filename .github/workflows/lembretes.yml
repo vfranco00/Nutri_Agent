@@ -1,0 +1,40 @@
+# Cron dos lembretes do Nuvi: chama o backend a cada 5 minutos.
+#
+# Por que aqui e não no APScheduler (backend/app/core/scheduler.py): o Render dorme
+# quando não há tráfego, e um agendador dentro do processo dorme junto. Esta chamada
+# externa também acorda o serviço.
+#
+# Segredo: `CRON_SECRET` em Settings > Secrets and variables > Actions (o mesmo valor
+# cadastrado no Render). Variável opcional `NUVI_API_URL` troca o endereço da API.
+name: Lembretes
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+# Uma execução por vez; a nova espera a anterior em vez de cancelá-la.
+concurrency:
+  group: lembretes
+  cancel-in-progress: false
+
+jobs:
+  disparar:
+    name: Disparar lembretes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Chamar /internal/reminders/dispatch
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_URL: ${{ vars.NUVI_API_URL || 'https://nutri-agent-api.onrender.com' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::warning::Segredo CRON_SECRET ainda não cadastrado no GitHub; nada a fazer."
+            exit 0
+          fi
+          curl -fsS --retry 3 --retry-delay 20 --max-time 90 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "$API_URL/internal/reminders/dispatch"

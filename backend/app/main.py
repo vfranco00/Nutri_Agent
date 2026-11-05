@@ -20,7 +20,7 @@ from app.data.seed_food_catalog import sync_food_catalog
 from app.db.session import SessionLocal, get_db
 from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions, feedback, diary, diary_foods
 from app.routers import agent  # Frente G (Agente Nuvi)
-from app.routers import water, reminders, push  # Frente A (água e lembretes)
+from app.routers import water, reminders, push, internal  # Frente A (água e lembretes)
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -200,6 +200,7 @@ app.include_router(agent.router, prefix="/agent", tags=["agent"])
 app.include_router(water.router, prefix="/water", tags=["water"])
 app.include_router(reminders.router, prefix="/reminders", tags=["reminders"])
 app.include_router(push.router, prefix="/push", tags=["push"])
+app.include_router(internal.router, prefix="/internal", tags=["internal"])
 
 @app.get("/")
 def read_root():
