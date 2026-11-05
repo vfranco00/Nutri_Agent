@@ -10,10 +10,12 @@ import { sectionTitleForPath } from "../../lib/navItems";
 import { SideNav } from "./SideNav";
 import { BottomTabBar } from "./BottomTabBar";
 import { AccountMenu } from "./AccountMenu";
+import { useWaveOncePerSession } from "./useWaveOncePerSession";
 
 /** Casca do app: menu lateral (≥768 px), barra inferior (<768 px), busca rápida e tema. */
-export function AppShell({ children, logoWave = false }: { children: ReactNode; logoWave?: boolean | "once" }) {
+export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const logoWave = useWaveOncePerSession();
   const [isDark, setIsDark] = useState(() => {
     if (typeof window === "undefined") return true;
     return (
@@ -50,7 +52,7 @@ export function AppShell({ children, logoWave = false }: { children: ReactNode; 
 
       <div className="flex h-screen flex-1 flex-col md:ml-64">
         <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b border-line bg-bg px-4 md:px-6">
-          <div className="md:hidden">
+          <div className="md:hidden" data-splash-target>
             <NuviLogo size={26} tone={isDark ? "dark" : "light"} wave={logoWave} />
           </div>
           <h1 className="hidden truncate text-base font-extrabold md:block">{sectionTitleForPath(location.pathname)}</h1>

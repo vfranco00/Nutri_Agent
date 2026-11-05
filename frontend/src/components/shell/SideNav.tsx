@@ -21,7 +21,7 @@ export function SideNav({ isDark, toggleTheme, logoWave = false }: SideNavProps)
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col border-r border-line bg-card md:flex">
-      <div className="flex h-16 items-center px-5">
+      <div className="flex h-16 items-center px-5" data-splash-target>
         <NuviLogo size={28} tone={isDark ? "dark" : "light"} wave={logoWave} />
       </div>
 
