@@ -4,7 +4,11 @@ uvicorn[standard]>=0.29.0
 pydantic-settings>=2.2.0
 
 # Database
-sqlalchemy>=2.0.29
+# Teto em 2.1 de propósito: a 2.1 troca o driver padrão de `postgresql://` para o
+# psycopg 3 (aqui só existe o psycopg2) e deixa de instalar o greenlet, que o
+# `migrations/env.py` importa. Sem o teto, uma instalação nova não sobe.
+sqlalchemy>=2.0.29,<2.1
+greenlet>=3.0
 alembic>=1.13.1
 psycopg2-binary
 
