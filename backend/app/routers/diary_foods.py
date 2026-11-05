@@ -26,6 +26,7 @@ from app.models.user import User
 from app.schemas.diary import FoodOption, FoodResolveRequest, FoodSearchResponse
 from app.schemas.diary_registro import (
     BARCODE_PATTERN,
+    QuickFoodList,
     UserFoodCreate,
     UserFoodList,
     UserFoodResponse,
@@ -232,6 +233,30 @@ def _commit_ou_409(db: Session) -> None:
     except IntegrityError:
         db.rollback()
         raise _barcode_em_uso()
+
+
+@router.get("/recent", response_model=QuickFoodList)
+@limiter.limit("120/minute")
+def alimentos_recentes(
+    request: Request,
+    limit: int = Query(default=20, ge=1, le=50),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Distintos por `food_ref`, do mais recente ao mais antigo. Só leitura, sem rede."""
+    return QuickFoodList(items=diary_registro.recentes(db, current_user.id, limit))
+
+
+@router.get("/frequent", response_model=QuickFoodList)
+@limiter.limit("120/minute")
+def alimentos_frequentes(
+    request: Request,
+    limit: int = Query(default=20, ge=1, le=50),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Últimos 30 dias, por contagem decrescente (empate: o mais recente primeiro)."""
+    return QuickFoodList(items=diary_registro.frequentes(db, current_user.id, limit))
 
 
 @router.get("/mine", response_model=UserFoodList)

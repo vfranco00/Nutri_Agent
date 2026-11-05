@@ -11,7 +11,12 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from app.schemas.diary import _validar_nome_alimento
+from app.schemas.diary import (
+    DiaryUnitType,
+    FoodOption,
+    MealSlotType,
+    _validar_nome_alimento,
+)
 
 # EAN-8, UPC-A (12), EAN-13 e GTIN-14. Só dígitos: o código não é texto livre.
 BARCODE_RE = re.compile(r"^[0-9]{8,14}$")
@@ -114,3 +119,22 @@ class UserFoodResponse(BaseModel):
 
 class UserFoodList(BaseModel):
     items: list[UserFoodResponse]
+
+
+# --------------------------------------------------------------------------------------
+# Recentes e frequentes
+# --------------------------------------------------------------------------------------
+
+
+class QuickFood(BaseModel):
+    """Alimento já resolvido, com a quantidade/unidade/refeição da entrada mais recente."""
+
+    food: FoodOption
+    quantity: float
+    unit: DiaryUnitType
+    meal_slot: MealSlotType
+    count: int
+
+
+class QuickFoodList(BaseModel):
+    items: list[QuickFood]
