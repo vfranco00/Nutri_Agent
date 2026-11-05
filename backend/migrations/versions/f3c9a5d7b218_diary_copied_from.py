@@ -4,7 +4,7 @@ Torna "Repetir dia" idempotente. Coluna nula, sem FK. Downgrade só remove a col
 índice; nenhuma entrada é apagada.
 
 Revision ID: f3c9a5d7b218
-Revises: a1c3e5f70901
+Revises: b2d4f6a81c03
 Create Date: 2026-11-05
 
 """
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = 'f3c9a5d7b218'
-down_revision: Union[str, Sequence[str], None] = 'a1c3e5f70901'
+down_revision: Union[str, Sequence[str], None] = 'b2d4f6a81c03'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
