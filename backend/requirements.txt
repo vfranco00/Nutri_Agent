@@ -1,5 +1,5 @@
 # Core API
-fastapi>=0.110.0
+fastapi>=0.141.1
 uvicorn[standard]>=0.29.0
 pydantic-settings>=2.2.0
 
