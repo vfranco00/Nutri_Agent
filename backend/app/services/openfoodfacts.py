@@ -29,7 +29,7 @@ from sqlalchemy.orm import Session
 
 from app.models.food_cache import FoodCache
 from app.schemas.diary import FoodOption
-from app.services import diary_foods, diary_math
+from app.services import diary_foods, diary_math, diary_registro
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +45,10 @@ NOME_MAX = 120
 _CONTROLE = re.compile(r"[\x00-\x1f\x7f]+")
 _UNIDADES_LIQUIDAS = {"ml", "l", "cl", "dl"}
 
-# Gancho da Frente R: `(db, user_id, code) -> FoodOption | None` para o `mine` do usuário.
-# Fica `None` até o contrato `/diary/foods/mine` com `barcode` estar na main.
-buscar_no_mine: Optional[Callable[[Session, int, str], Optional[FoodOption]]] = None
+# Primeiro passo da cadeia: o alimento pessoal do usuário com esse código (Frente R).
+buscar_no_mine: Callable[[Session, int, str], Optional[FoodOption]] = (
+    diary_registro.opcao_do_mine_por_barcode
+)
 
 
 class BarcodeNotFound(Exception):
@@ -208,10 +209,9 @@ def buscar_por_codigo(db: Session, user_id: int, code: str) -> FoodOption:
         raise BarcodeNotFound()
 
     # (1) alimento pessoal do usuário com esse código (Frente R)
-    if buscar_no_mine is not None:
-        do_mine = buscar_no_mine(db, user_id, code)
-        if do_mine is not None:
-            return do_mine
+    do_mine = buscar_no_mine(db, user_id, code)
+    if do_mine is not None:
+        return do_mine
 
     # (2) cache do próprio usuário
     linha = _ler_cache(db, user_id, code)

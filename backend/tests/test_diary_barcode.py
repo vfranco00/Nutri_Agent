@@ -150,3 +150,26 @@ def test_rs13_router_nao_importa_food_cache():
     # A docstring do módulo já cita o nome para explicar a regra; o que conta é o uso.
     assert "models.food_cache" not in texto
     assert "query(FoodCache" not in texto
+
+
+def test_mine_tem_prioridade_sobre_off(make_user, off_responde, db_session):
+    from app.models.user_food import UserFood
+
+    chamadas = off_responde(corpo=_produto())
+    cli_a = make_user(email="a@example.com")
+    cli_b = make_user(email="b@example.com")
+    a = usuario(db_session, "a@example.com")
+    meu = UserFood(user_id=a.id, name="Pão da padaria", portion_label="1 fatia",
+                   kcal=90.0, barcode=CODIGO)
+    db_session.add(meu)
+    db_session.commit()
+
+    res_a = cli_a.get(URL)
+    assert res_a.status_code == 200, res_a.text
+    assert res_a.json()["food_ref"] == f"mine:{meu.id}"
+    assert chamadas == []
+
+    # O alimento pessoal de A não vale para B: B cai no Open Food Facts.
+    res_b = cli_b.get(URL)
+    assert res_b.json()["food_ref"].startswith("cache:")
+    assert len(chamadas) == 1
