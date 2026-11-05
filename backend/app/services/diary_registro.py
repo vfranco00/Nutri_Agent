@@ -10,6 +10,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.diary import DiaryEntry
@@ -275,3 +276,104 @@ def frequentes(db: Session, user_id: int, limit: int) -> list[QuickFood]:
     # sort estável: no empate de contagem, fica a ordem de recência
     grupos.sort(key=lambda g: -g[1])
     return _montar_quick(db, user_id, grupos, limit)
+
+
+# --------------------------------------------------------------------------------------
+# Copiar / repetir dia
+# --------------------------------------------------------------------------------------
+
+
+class TetoDiarioEstourado(Exception):
+    """O dia de destino passaria de `MAX_ENTRADAS_POR_DIA` (RS-11). Nada foi gravado."""
+
+    def __init__(self, usadas: int):
+        super().__init__(usadas)
+        self.usadas = usadas
+
+
+def contar_do_dia(db: Session, user_id: int, dia: date) -> int:
+    return (
+        db.query(func.count(DiaryEntry.id))
+        .filter(DiaryEntry.user_id == user_id, DiaryEntry.entry_date == dia)
+        .scalar()
+    ) or 0
+
+
+def _origens_ja_copiadas(db: Session, user_id: int, to_date: date, ids: list[int]) -> set[int]:
+    if not ids:
+        return set()
+    linhas = (
+        db.query(DiaryEntry.copied_from_entry_id)
+        .filter(
+            DiaryEntry.user_id == user_id,
+            DiaryEntry.entry_date == to_date,
+            DiaryEntry.copied_from_entry_id.in_(ids),
+        )
+        .all()
+    )
+    return {l[0] for l in linhas}
+
+
+def _clonar(origem: DiaryEntry, to_date: date) -> DiaryEntry:
+    """Copia o SNAPSHOT (não resolve o `food_ref` de novo): sem rede e sem depender de o
+    alimento ainda existir."""
+    return DiaryEntry(
+        user_id=origem.user_id,
+        entry_date=to_date,
+        meal_slot=origem.meal_slot,
+        food_ref=origem.food_ref,
+        food_name=origem.food_name,
+        source=origem.source,
+        base_unit=origem.base_unit,
+        quantity=origem.quantity,
+        unit=origem.unit,
+        kcal_per_base_unit=origem.kcal_per_base_unit,
+        protein_per_base_unit=origem.protein_per_base_unit,
+        carbs_per_base_unit=origem.carbs_per_base_unit,
+        fat_per_base_unit=origem.fat_per_base_unit,
+        calories_total=origem.calories_total,
+        protein_g_total=origem.protein_g_total,
+        carbs_g_total=origem.carbs_g_total,
+        fat_g_total=origem.fat_g_total,
+        copied_from_entry_id=origem.id,
+    )
+
+
+def copiar_dia(
+    db: Session,
+    user_id: int,
+    from_date: date,
+    to_date: date,
+    meal_slot: Optional[str] = None,
+) -> int:
+    """Copia as entradas de `from_date` (ou só de um slot) para `to_date`. Devolve quantas
+    foram criadas.
+
+    Idempotente: origens já copiadas para o destino são puladas, e o índice único
+    `(user_id, entry_date, copied_from_entry_id)` fecha a corrida entre duas abas — o
+    `IntegrityError` dá rollback e a cópia roda UMA vez mais, quando tudo já existe.
+    Atômica: estourar o teto do dia não grava nada.
+    """
+    for _ in range(2):
+        q = db.query(DiaryEntry).filter(
+            DiaryEntry.user_id == user_id, DiaryEntry.entry_date == from_date
+        )
+        if meal_slot is not None:
+            q = q.filter(DiaryEntry.meal_slot == meal_slot)
+        origens = q.order_by(DiaryEntry.id).all()
+        ja = _origens_ja_copiadas(db, user_id, to_date, [o.id for o in origens])
+        novas = [o for o in origens if o.id not in ja]
+        if not novas:
+            return 0
+        usadas = contar_do_dia(db, user_id, to_date)
+        if usadas + len(novas) > diary_math.MAX_ENTRADAS_POR_DIA:
+            raise TetoDiarioEstourado(usadas)
+        for origem in novas:
+            db.add(_clonar(origem, to_date))
+        try:
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            continue
+        return len(novas)
+    return 0

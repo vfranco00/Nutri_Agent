@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, Float, ForeignKey, Index, Integer, String
+from sqlalchemy import Date, DateTime, Float, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base
@@ -21,7 +21,15 @@ class DiaryEntry(Base):
     # RS-11 e o CASCADE da exclusão de conta pela coluna líder.
     # NÃO existe (user_id, entry_date, meal_slot): meal_slot tem 6 valores e o dia inteiro
     # cabe em 60 linhas — um terceiro nível só engordaria o INSERT.
-    __table_args__ = (Index("ix_diary_entries_user_date", "user_id", "entry_date"),)
+    # Único (user_id, entry_date, copied_from_entry_id): é o que torna "Repetir dia"
+    # idempotente mesmo com duas abas ao mesmo tempo. NULL não colide (nos dois bancos),
+    # então entradas digitadas à mão não são afetadas.
+    __table_args__ = (
+        Index("ix_diary_entries_user_date", "user_id", "entry_date"),
+        UniqueConstraint(
+            "user_id", "entry_date", "copied_from_entry_id", name="uq_diary_entries_copy"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     # NOT NULL é requisito de segurança, não higiene (RS-06): uma linha órfã escapa de
@@ -60,6 +68,10 @@ class DiaryEntry(Base):
     protein_g_total: Mapped[float | None] = mapped_column(Float, nullable=True)
     carbs_g_total: Mapped[float | None] = mapped_column(Float, nullable=True)
     fat_g_total: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    # Id da entrada de origem quando esta linha nasceu de "copiar/repetir dia". Referência
+    # FRACA, sem FK (como `food_ref`): apagar a origem não pode apagar nem bloquear a cópia.
+    copied_from_entry_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.utcnow

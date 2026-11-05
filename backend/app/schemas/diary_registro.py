@@ -6,7 +6,7 @@ Extensão do contrato do ADR-0001, num arquivo próprio para não engordar
 """
 
 import re
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -15,6 +15,8 @@ from app.schemas.diary import (
     DiaryUnitType,
     FoodOption,
     MealSlotType,
+    _FOOD_REF_RE,
+    _validar_janela_data,
     _validar_nome_alimento,
 )
 
@@ -138,3 +140,55 @@ class QuickFood(BaseModel):
 
 class QuickFoodList(BaseModel):
     items: list[QuickFood]
+
+
+# --------------------------------------------------------------------------------------
+# Copiar dia e lote
+# --------------------------------------------------------------------------------------
+
+
+class DiaryCopyRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    from_date: date
+    to_date: date
+    meal_slot: Optional[MealSlotType] = None
+
+    @field_validator("to_date")
+    @classmethod
+    def destino_na_janela(cls, v: date) -> date:
+        return _validar_janela_data(v)
+
+    @model_validator(mode="after")
+    def datas_diferentes(self) -> "DiaryCopyRequest":
+        if self.from_date == self.to_date:
+            raise ValueError("A origem e o destino não podem ser o mesmo dia.")
+        return self
+
+
+class DiaryBatchItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    food_ref: str = Field(max_length=180)
+    quantity: float = Field(gt=0, le=10_000)
+    unit: DiaryUnitType
+
+    @field_validator("food_ref")
+    @classmethod
+    def formato_do_ref(cls, v: str) -> str:
+        if not _FOOD_REF_RE.match(v):
+            raise ValueError("Referência de alimento inválida.")
+        return v
+
+
+class DiaryBatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    entry_date: date
+    meal_slot: MealSlotType
+    items: list[DiaryBatchItem] = Field(min_length=1, max_length=30)
+
+    @field_validator("entry_date")
+    @classmethod
+    def data_na_janela(cls, v: date) -> date:
+        return _validar_janela_data(v)

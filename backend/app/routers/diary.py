@@ -41,6 +41,7 @@ from app.schemas.diary import (
     DiaryPlanBindingResponse,
     DiarySummaryResponse,
 )
+from app.schemas.diary_registro import DiaryBatchRequest, DiaryCopyRequest
 from app.services import diary_foods, diary_math, diary_plan, diary_registro
 
 router = APIRouter()
@@ -193,17 +194,24 @@ def _contar_do_dia(db: Session, user_id: int, dia: date) -> int:
 # ======================================================================================
 
 
-@router.post("", response_model=DiaryDay, status_code=status.HTTP_201_CREATED)
-@limiter.limit("60/minute")
-def criar_entrada(
-    request: Request,
-    payload: DiaryEntryCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """A ordem de execução é contrato: ela decide qual erro o cliente vê."""
+def _montar_entrada(
+    db: Session,
+    user_id: int,
+    entry_date: date,
+    meal_slot: str,
+    food_ref: str,
+    quantity: float,
+    unit: str,
+    usadas: int | None = None,
+) -> DiaryEntry:
+    """Passos (2) a (5) da criação, SEM commit e SEM `db.add`. `POST /diary` e o lote usam
+    esta função: os mesmos erros, na mesma ordem.
+
+    `usadas` é o total do dia JÁ contando as entradas montadas antes desta no mesmo lote;
+    `None` conta no banco.
+    """
     # (2) resolver food_ref — validação Pydantic (1) já aconteceu
-    opcao = _resolver_food_ref(db, payload.food_ref, current_user.id)
+    opcao = _resolver_food_ref(db, food_ref, user_id)
     if opcao is None:
         raise HTTPException(
             status_code=404,
@@ -214,7 +222,7 @@ def criar_entrada(
         )
 
     # (3) compatibilidade unidade × alimento
-    if not diary_math.unidade_compativel(payload.unit, opcao.base_unit):
+    if not diary_math.unidade_compativel(unit, opcao.base_unit):
         raise HTTPException(
             status_code=422,
             detail={
@@ -224,37 +232,37 @@ def criar_entrada(
         )
 
     # (4) teto do RS-11
-    usadas = _contar_do_dia(db, current_user.id, payload.entry_date)
+    if usadas is None:
+        usadas = _contar_do_dia(db, user_id, entry_date)
     if usadas >= diary_math.MAX_ENTRADAS_POR_DIA:
         raise _teto_diario_atingido(usadas)
 
     # (5) cálculo no servidor. RS-10: `calories_total` nunca é recebido do cliente —
     #     o `extra="forbid"` do schema já devolveu 422 se ele tentou mandar.
     kcal, proteina = diary_math.calcular(
-        opcao.kcal_per_base_unit, opcao.protein_per_base_unit, payload.quantity, payload.unit
+        opcao.kcal_per_base_unit, opcao.protein_per_base_unit, quantity, unit
     )
     _, carbo = diary_math.calcular(
-        opcao.kcal_per_base_unit, opcao.carbs_per_base_unit, payload.quantity, payload.unit
+        opcao.kcal_per_base_unit, opcao.carbs_per_base_unit, quantity, unit
     )
     _, gordura = diary_math.calcular(
-        opcao.kcal_per_base_unit, opcao.fat_per_base_unit, payload.quantity, payload.unit
+        opcao.kcal_per_base_unit, opcao.fat_per_base_unit, quantity, unit
     )
     if kcal > diary_math.TETO_KCAL_ENTRADA:
         raise _quantidade_implausivel()
     if kcal <= 0.0 and (opcao.kcal_per_base_unit or 0.0) > 0.0:
         raise _porcao_sem_energia()
 
-    # (6) INSERT e recomposição do dia
-    entrada = DiaryEntry(
-        user_id=current_user.id,
-        entry_date=payload.entry_date,
-        meal_slot=payload.meal_slot,
-        food_ref=payload.food_ref,
+    return DiaryEntry(
+        user_id=user_id,
+        entry_date=entry_date,
+        meal_slot=meal_slot,
+        food_ref=food_ref,
         food_name=opcao.name,
         source=opcao.source,
         base_unit=opcao.base_unit,
-        quantity=payload.quantity,
-        unit=payload.unit,
+        quantity=quantity,
+        unit=unit,
         kcal_per_base_unit=opcao.kcal_per_base_unit,
         protein_per_base_unit=opcao.protein_per_base_unit,
         carbs_per_base_unit=opcao.carbs_per_base_unit,
@@ -264,6 +272,27 @@ def criar_entrada(
         carbs_g_total=carbo,
         fat_g_total=gordura,
     )
+
+
+@router.post("", response_model=DiaryDay, status_code=status.HTTP_201_CREATED)
+@limiter.limit("60/minute")
+def criar_entrada(
+    request: Request,
+    payload: DiaryEntryCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """A ordem de execução é contrato: ela decide qual erro o cliente vê."""
+    entrada = _montar_entrada(
+        db,
+        current_user.id,
+        payload.entry_date,
+        payload.meal_slot,
+        payload.food_ref,
+        payload.quantity,
+        payload.unit,
+    )
+    # (6) INSERT e recomposição do dia
     db.add(entrada)
     db.commit()
     db.refresh(entrada)
@@ -274,6 +303,59 @@ def criar_entrada(
         "diary_entry_created user_id=%s entry_id=%s", current_user.id, entrada.id
     )
     return diary_plan.montar_dia(db, current_user.id, entrada.entry_date)
+
+
+@router.post("/copy", response_model=DiaryDay)
+@limiter.limit("30/minute")
+def copiar_dia(
+    request: Request,
+    payload: DiaryCopyRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Copia (ou repete) um dia, ou só um slot, para outro dia. Devolve o dia de destino.
+    Dia de origem vazio é 200 com o destino intacto. Sem LLM e sem rede."""
+    try:
+        criadas = diary_registro.copiar_dia(
+            db, current_user.id, payload.from_date, payload.to_date, payload.meal_slot
+        )
+    except diary_registro.TetoDiarioEstourado as e:
+        raise _teto_diario_atingido(e.usadas)
+    logger.info("diary_copy user_id=%s criadas=%s", current_user.id, criadas)
+    return diary_plan.montar_dia(db, current_user.id, payload.to_date)
+
+
+@router.post("/batch", response_model=DiaryDay, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
+def criar_em_lote(
+    request: Request,
+    payload: DiaryBatchRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Carrinho do Registrar e do Agente. ATÔMICO: um item inválido recusa o lote inteiro
+    e nada é gravado."""
+    usadas = _contar_do_dia(db, current_user.id, payload.entry_date)
+    if usadas + len(payload.items) > diary_math.MAX_ENTRADAS_POR_DIA:
+        raise _teto_diario_atingido(usadas)
+    novas = []
+    for item in payload.items:
+        novas.append(
+            _montar_entrada(
+                db,
+                current_user.id,
+                payload.entry_date,
+                payload.meal_slot,
+                item.food_ref,
+                item.quantity,
+                item.unit,
+                usadas=usadas + len(novas),
+            )
+        )
+    db.add_all(novas)
+    db.commit()
+    logger.info("diary_batch user_id=%s criadas=%s", current_user.id, len(novas))
+    return diary_plan.montar_dia(db, current_user.id, payload.entry_date)
 
 
 @router.get("", response_model=DiaryDay)
@@ -507,7 +589,7 @@ def editar_entrada(
     )
     if kcal > diary_math.TETO_KCAL_ENTRADA:
         raise _quantidade_implausivel()
-    if kcal <= 0.0 and (opcao.kcal_per_base_unit or 0.0) > 0.0:
+    if kcal <= 0.0 and (entrada.kcal_per_base_unit or 0.0) > 0.0:
         raise _porcao_sem_energia()
 
     entrada.entry_date = nova_data
