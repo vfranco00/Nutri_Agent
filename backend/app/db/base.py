@@ -35,5 +35,6 @@ from app.models.feedback import FeedbackTicket  # noqa: F401
 from app.models.food_catalog import FoodCatalog  # noqa: F401
 from app.models.diary import DiaryEntry, DiaryPlanBinding  # noqa: F401
 from app.models.user_food import UserFood  # noqa: F401
+from app.models.water import WaterEntry  # noqa: F401
 
 __all__ = ["Base"]
