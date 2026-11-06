@@ -193,8 +193,6 @@ export interface MealPlan {
   days: MealPlanDay[];
 }
 
-// =====================================================================}
-
 // ============================================================================
 // DIÁRIO ALIMENTAR — contrato do ADR-0001 (docs/adr/0001-diario-alimentar.md).
 // Espelha os schemas Pydantic de backend/app/schemas/diary.py.
@@ -471,7 +469,9 @@ export interface AgentParseResponse {
   date: string;
   meal_slot: MealSlot | null;
   items: AgentParsedItem[];
-=======
+}
+
+// ============================================================================
 // Registro rápido (Frente R): alimento pessoal, recentes, cópia, lote e
 // refeição pronta. Espelha `backend/app/schemas/diary_registro.py`.
 // ============================================================================
