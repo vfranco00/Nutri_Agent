@@ -1,5 +1,6 @@
 import { Bot, ChefHat, Clock, Flame, Star } from "lucide-react";
 import type { Recipe } from "../../types";
+import { rotuloKcal } from "../../lib/recipeLabels";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -52,7 +53,7 @@ export function RecipeCard({ recipe, onOpen, onToggleFavorite, showNew }: Recipe
       </b>
       <span className="mx-0.5 mt-0.5 flex items-center gap-3 text-[11.5px] font-semibold text-mut">
         <span className="flex items-center gap-1">
-          <Flame className="h-3 w-3" aria-hidden /> {Math.round(recipe.calories || 0)} kcal
+          <Flame className="h-3 w-3" aria-hidden /> {rotuloKcal(recipe.calories)}
         </span>
         {recipe.prep_time ? (
           <span className="flex items-center gap-1">

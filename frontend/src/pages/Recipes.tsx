@@ -1,3 +1,4 @@
+import { rotuloCategoria, rotuloKcal, semDuplicadas } from "../lib/recipeLabels";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Target, ChefHat } from "lucide-react";
@@ -150,7 +151,7 @@ export function Recipes() {
             <Target className="h-5 w-5 text-act-text" /> Escolhidas para Você
           </h2>
           <div className="flex snap-x gap-3 overflow-x-auto pb-2">
-            {recommendations.map((recipe) => (
+            {semDuplicadas(recommendations).map((recipe) => (
               <button
                 key={recipe.id}
                 type="button"
@@ -158,10 +159,10 @@ export function Recipes() {
                 className="min-w-[260px] snap-center rounded-3xl border border-line bg-card p-4 text-left active:scale-[.97]"
               >
                 <div className="mb-1 flex items-start justify-between gap-2">
-                  <span className="max-w-[140px] truncate rounded-md bg-act-soft px-1.5 py-0.5 text-[9.5px] font-black uppercase tracking-wide text-act-text">
-                    {recipe.category || "Geral"}
+                  <span className="max-w-[140px] truncate rounded-md bg-act-soft px-1.5 py-0.5 text-[9.5px] font-black tracking-wide text-act-text">
+                    {rotuloCategoria(recipe.category)}
                   </span>
-                  <span className="text-xs font-semibold text-mut">{Math.round(recipe.calories || 0)} kcal</span>
+                  <span className="text-xs font-semibold text-mut">{rotuloKcal(recipe.calories)}</span>
                 </div>
                 <h3 className="line-clamp-1 text-sm font-extrabold text-ink">{recipe.title}</h3>
                 <p className="mt-1 line-clamp-2 h-8 text-xs leading-relaxed text-mut">
