@@ -27,6 +27,7 @@ export function AlimentoForm() {
   const [params] = useSearchParams();
 
   const [carregando, setCarregando] = useState(editando);
+  const [naoExiste, setNaoExiste] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [apagando, setApagando] = useState(false);
@@ -44,9 +45,9 @@ export function AlimentoForm() {
         });
         setCarregando(false);
       })
-      .catch((e) => {
+      .catch(() => {
         if (!ativo) return;
-        setErro(mensagemDeErro(e, "Não encontramos esse alimento."));
+        setNaoExiste(true);
         setCarregando(false);
       });
     return () => { ativo = false; };
@@ -91,6 +92,16 @@ export function AlimentoForm() {
   }
 
   if (carregando) return null;
+
+  if (naoExiste) {
+    return (
+      <div className="mx-auto max-w-lg space-y-4 text-center">
+        <h1 className="text-2xl font-black tracking-tight">Alimento não encontrado</h1>
+        <p className="text-sm text-mut">Ele pode ter sido apagado ou o endereço mudou.</p>
+        <Button onClick={() => navigate(ROUTES.alimentos)}>Voltar para Meus alimentos</Button>
+      </div>
+    );
+  }
 
   const campo = (rotulo: string, k: keyof typeof f, extra: Record<string, unknown> = {}) => (
     <label className="block text-sm font-bold">

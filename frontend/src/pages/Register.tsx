@@ -13,6 +13,7 @@ import { POLICY_VERSION_ACEITA } from "../lib/consents";
 import { PasswordInput } from "../components/PasswordInput";
 import { BouncingDots } from "../components/BouncingDots";
 import { Button } from "../components/ui/Button";
+import { limparMensagemValidacao } from "../lib/mensagemValidacao";
 import { AuthShell } from "../components/auth/AuthShell";
 import { AUTH_CAMPO, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/authTheme";
 
@@ -25,7 +26,7 @@ function extractErrorMessage(err: any, fallback: string): string {
   if (typeof detail === "string") return detail;
   if (Array.isArray(detail)) {
     const first = detail[0];
-    return first?.msg || fallback;
+    return limparMensagemValidacao(first?.msg) || fallback;
   }
   return fallback;
 }

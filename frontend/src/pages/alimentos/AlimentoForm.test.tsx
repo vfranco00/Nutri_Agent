@@ -25,6 +25,13 @@ beforeEach(() => { api.get.mockReset(); api.post.mockReset(); api.patch.mockRese
 afterEach(() => act(() => __limparToasts()));
 
 describe("AlimentoForm", () => {
+  it("id inexistente mostra 'Alimento não encontrado' e não o formulário", async () => {
+    api.get.mockRejectedValue({ response: { status: 404, data: { detail: "Não encontrado" } } });
+    montar("/alimentos/9999");
+    expect(await screen.findByText("Alimento não encontrado")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Salvar" })).toBeNull();
+  });
+
   it("novo com ?barcode= preenche o código e envia macro em branco como null", async () => {
     api.post.mockResolvedValue({ data: { id: 1 } });
     montar("/alimentos/novo?barcode=7891097000123");

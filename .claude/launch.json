@@ -27,7 +27,7 @@
         "http.server",
         "4173",
         "--directory",
-        "/Users/franco/Projects/Personal Projects/nutri-agent/docs/design"
+        "/Users/franco/Projects/Personal Projects/nuvi/docs/design"
       ],
       "port": 4173
     },
@@ -36,7 +36,7 @@
       "runtimeExecutable": "bash",
       "runtimeArgs": [
         "-c",
-        "cd \"/Users/franco/Projects/Personal Projects/nutri-agent/frontend\" && VITE_API_URL=http://localhost:8001 npx vite --port 5190 --strictPort"
+        "cd \"/Users/franco/Projects/Personal Projects/nuvi/frontend\" && VITE_API_URL=http://localhost:8000 npx vite --port 5190 --strictPort"
       ],
       "port": 5190
     }

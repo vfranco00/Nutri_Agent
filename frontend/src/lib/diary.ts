@@ -1,3 +1,4 @@
+import { limparMensagemValidacao } from "./mensagemValidacao";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -453,7 +454,7 @@ export function extractDiaryErrorMessage(err: unknown, fallback: string): string
   if (Array.isArray(detail)) {
     // Só `msg`. Nunca `input` (RS-12), nunca `loc` renderizado cru.
     const primeiro = detail[0] as { msg?: string } | undefined;
-    return primeiro?.msg || fallback;
+    return limparMensagemValidacao(primeiro?.msg) || fallback;
   }
 
   return fallback;
