@@ -5,6 +5,22 @@ Se esse nome já estiver ocupado, o endereço será `https://meunuvi-api.vercel.
 
 Os valores dos segredos **não** estão neste guia. Os que foram gerados (`SECRET_KEY` opcional, `VAPID_*`, `CRON_SECRET`) estão no arquivo `segredos-nuvi.txt` que te passei.
 
+## 0. Criar o projeto `nuvi-api` (só você consegue: o acesso do Claude à Vercel é só de leitura)
+
+1. vercel.com → **Add New… → Project** → importe o repositório **`vfranco00/nuvi`**.
+2. **Project Name:** `nuvi-api`. **Root Directory:** `backend` (clique em Edit e escolha a pasta). **Framework Preset:** FastAPI (ou "Other", se não aparecer).
+3. Antes de clicar em **Deploy**, abra **Environment Variables** e cadastre as quatro que não são segredo:
+
+| Nome | Valor |
+|---|---|
+| `ENVIRONMENT` | `production` |
+| `FRONTEND_URL` | `https://meunuvi.vercel.app` |
+| `CORS_ORIGINS` | `https://meunuvi.vercel.app,https://app-nuvi.vercel.app,https://nutri-agent-topaz.vercel.app` |
+| `TRUSTED_PROXY_COUNT` | `1` |
+
+4. Cadastre também os segredos da seção 1 abaixo nessa mesma tela e só então clique em **Deploy**.
+5. Confira o endereço em Settings → Domains. Se não for `nuvi-api.vercel.app`, me diga qual é.
+
 ## 1. Variáveis secretas no projeto `nuvi-api` (Vercel)
 
 Vercel → projeto `nuvi-api` → Settings → Environment Variables → ambiente **Production**.
