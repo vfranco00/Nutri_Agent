@@ -39,5 +39,6 @@ from app.models.saved_meal import SavedMeal, SavedMealItem  # noqa: F401
 from app.models.water import WaterEntry  # noqa: F401
 from app.models.reminder import Reminder  # noqa: F401
 from app.models.push_subscription import PushSubscription  # noqa: F401
+from app.models.consent import Consent  # noqa: F401
 
 __all__ = ["Base"]

@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+from app.models.consent import Consent
 from typing import List
 
 from app.db.session import get_db
@@ -12,6 +14,8 @@ from app.models.subscription import Subscription
 # CORREÇÃO AQUI: Importamos UserResponse em vez de User
 from app.schemas.user import LeaderboardEntry, UserCreate, UserResponse
 from app.schemas.subscription import SubscriptionResponse, AdminSetPlanRequest
+from app.core.legal import POLICY_VERSION
+from app.services import consents as consent_svc
 from app.services.email import send_verification_email
 from app.services.subscription import get_subscription_status
 
@@ -20,6 +24,12 @@ router = APIRouter()
 @router.post("/", response_model=UserResponse)
 @limiter.limit("10/hour")
 def create_user(request: Request, user: UserCreate, db: Session = Depends(get_db)):
+    if user.accepted_policy_version != POLICY_VERSION or user.consent_saude is not True:
+        raise HTTPException(
+            status_code=422,
+            detail="É preciso aceitar a Política de Privacidade e autorizar o tratamento "
+                   "dos dados de saúde para criar a conta.",
+        )
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -38,6 +48,8 @@ def create_user(request: Request, user: UserCreate, db: Session = Depends(get_db
         is_verified=False,
     )
     db.add(db_user)
+    db.flush()
+    consent_svc.record(db, db_user.id, "saude", True, "cadastro", request, commit=False)
     db.commit()
     db.refresh(db_user)
 
@@ -167,7 +179,21 @@ def get_leaderboard(
     autenticação qualquer um na internet dispara essa query e lê a base de usuários.
     O DTO devolve só primeiro nome + pontuação — ver schemas/user.py::LeaderboardEntry.
     """
-    users = db.query(User).order_by(User.score.desc()).limit(limit).all()
+    # Só aparece quem autorizou (finalidade "ranking"; padrão: oculto — LGPD Art. 7º, I).
+    ultimo = (
+        db.query(func.max(Consent.id))
+        .filter(Consent.purpose == "ranking")
+        .group_by(Consent.user_id)
+        .subquery()
+    )
+    users = (
+        db.query(User)
+        .join(Consent, Consent.user_id == User.id)
+        .filter(Consent.id.in_(select(ultimo)), Consent.granted.is_(True))
+        .order_by(User.score.desc())
+        .limit(limit)
+        .all()
+    )
     return [
         LeaderboardEntry(
             id=u.id,

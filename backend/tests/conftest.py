@@ -8,6 +8,8 @@ from app.main import app  # importa todos os routers/models, registra tudo no Ba
 from app.db.base import Base
 from app.db.session import get_db
 from app.core.limiter import limiter
+from app.core.legal import POLICY_VERSION
+from app.models.consent import Consent
 from app.models.user import User
 from app.models.subscription import Subscription
 
@@ -78,10 +80,12 @@ def make_user(client, db_session):
     """Registra um usuário via API, marca como verificado direto no banco de teste
     (sem precisar decodificar token) e devolve um TestClient já autenticado."""
 
-    def _make(email="user@example.com", password="strongpassword123", full_name="Test User", superuser=False, plan="starter"):
+    def _make(email="user@example.com", password="strongpassword123", full_name="Test User", superuser=False, plan="starter",
+              consents=("ia", "push", "ranking")):
         res = client.post(
             "/users/",
-            json={"email": email, "password": password, "full_name": full_name},
+            json={"email": email, "password": password, "full_name": full_name,
+                  "accepted_policy_version": POLICY_VERSION, "consent_saude": True},
         )
         assert res.status_code == 200, res.text
 
@@ -90,6 +94,9 @@ def make_user(client, db_session):
         if superuser:
             user.is_superuser = True
         db_session.add(Subscription(user_id=user.id, plan=plan, status="active"))
+        for finalidade in consents:
+            db_session.add(Consent(user_id=user.id, purpose=finalidade, granted=True,
+                                   policy_version=POLICY_VERSION, source="perfil"))
         db_session.commit()
 
         login_res = client.post("/auth/login", data={"username": email, "password": password})
@@ -101,3 +108,7 @@ def make_user(client, db_session):
         return auth_client
 
     return _make
+
+
+# Campos de aceite exigidos por POST /users/ (L1.1). Use `**ACEITE` em payloads de cadastro.
+ACEITE = {"accepted_policy_version": POLICY_VERSION, "consent_saude": True}

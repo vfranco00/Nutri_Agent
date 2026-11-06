@@ -8,8 +8,11 @@ from app.services.subscription_lifecycle import (
 )
 
 
+from tests.conftest import ACEITE
+
+
 def _make_subscribed_user(db_session, client, email, plan, current_period_end, expiry_warned_at=None):
-    res = client.post("/users/", json={"email": email, "password": "strongpassword123", "full_name": "T"})
+    res = client.post("/users/", json={"email": email, "password": "strongpassword123", "full_name": "T", **ACEITE})
     assert res.status_code == 200, res.text
     user = db_session.query(User).filter(User.email == email).first()
     user.is_verified = True

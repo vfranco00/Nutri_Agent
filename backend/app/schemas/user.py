@@ -15,6 +15,10 @@ class UserCreate(UserBase):
     # de alguns megabytes prende um worker inteiro derivando o hash — negação de
     # serviço barata pro atacante e cara pro servidor, numa rota pública.
     password: str = Field(min_length=8, max_length=128)
+    # LGPD Art. 8º/11: o cadastro só existe com o aceite da política vigente e o
+    # consentimento específico para dado de saúde. Validado na rota (422).
+    accepted_policy_version: str = Field(max_length=32)
+    consent_saude: bool
 
 # Usado para atualizar
 class UserUpdate(UserBase):

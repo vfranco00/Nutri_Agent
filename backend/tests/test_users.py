@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 import random
 import string
+from tests.conftest import ACEITE
 
 client = TestClient(app)
 
@@ -14,7 +15,8 @@ def test_create_user():
     payload = {
         "email": email,
         "password": "strongpassword123",
-        "full_name": "Test User"
+        "full_name": "Test User",
+        **ACEITE,
     }
     
     response = client.post("/users/", json=payload)
@@ -32,7 +34,8 @@ def test_create_user_duplicate_email():
     payload = {
         "email": email,
         "password": "strongpassword123",
-        "full_name": "User One"
+        "full_name": "User One",
+        **ACEITE,
     }
     client.post("/users/", json=payload)
     
@@ -55,6 +58,7 @@ def test_create_user_ignores_is_superuser_in_payload():
             "full_name": "Tentativa de Escalada",
             "is_superuser": True,
             "is_active": False,
+            **ACEITE,
         },
     )
     assert response.status_code == 200

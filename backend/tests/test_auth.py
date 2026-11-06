@@ -1,6 +1,7 @@
 from app.core.limiter import limiter
 from app.core.security import create_email_verification_token, create_password_reset_token
 from app.models.user import User
+from tests.conftest import ACEITE
 
 
 def _reset_token_for(db_session, email: str) -> str:
@@ -51,7 +52,7 @@ def test_protected_route_rejects_token_without_sub_claim(client):
 
 def test_login_success(client, make_user):
     make_user(email="login2@example.com", password="strongpassword123")
-    res = client.post("/auth/login", data={"username": "login2@example.com", "password": "strongpassword123"})
+    res = client.post("/auth/login", data={"username": "login2@example.com", "password": "strongpassword123", **ACEITE})
     assert res.status_code == 200
     assert "access_token" in res.json()
 
@@ -64,7 +65,7 @@ def test_login_records_last_login_at(client, make_user, db_session):
     first_login = user.last_login_at
     assert first_login is not None
 
-    client.post("/auth/login", data={"username": "ultimologin@example.com", "password": "strongpassword123"})
+    client.post("/auth/login", data={"username": "ultimologin@example.com", "password": "strongpassword123", **ACEITE})
 
     db_session.refresh(user)
     assert user.last_login_at >= first_login
@@ -76,21 +77,21 @@ def test_login_blocked_when_account_disabled(client, make_user, db_session):
     user.is_active = False
     db_session.commit()
 
-    res = client.post("/auth/login", data={"username": "banned@example.com", "password": "strongpassword123"})
+    res = client.post("/auth/login", data={"username": "banned@example.com", "password": "strongpassword123", **ACEITE})
     assert res.status_code == 403
     assert res.json()["detail"]["code"] == "ACCOUNT_DISABLED"
 
 
 def test_login_blocked_when_email_not_verified(client, db_session):
     # Cadastra sem passar pelo fixture make_user, que já marca is_verified=True
-    client.post("/users/", json={"email": "unverified@example.com", "password": "strongpassword123"})
-    res = client.post("/auth/login", data={"username": "unverified@example.com", "password": "strongpassword123"})
+    client.post("/users/", json={"email": "unverified@example.com", "password": "strongpassword123", **ACEITE})
+    res = client.post("/auth/login", data={"username": "unverified@example.com", "password": "strongpassword123", **ACEITE})
     assert res.status_code == 403
     assert res.json()["detail"]["code"] == "EMAIL_NOT_VERIFIED"
 
 
 def test_verify_email_with_valid_token(client, db_session):
-    client.post("/users/", json={"email": "toverify@example.com", "password": "strongpassword123"})
+    client.post("/users/", json={"email": "toverify@example.com", "password": "strongpassword123", **ACEITE})
     token = create_email_verification_token("toverify@example.com")
 
     res = client.get("/auth/verify-email", params={"token": token})

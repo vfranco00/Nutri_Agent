@@ -21,6 +21,9 @@ from app.db.session import SessionLocal, get_db
 from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions, feedback, diary, diary_foods
 from app.routers import agent  # Frente G (Agente Nuvi)
 from app.routers import water, reminders, push, internal  # Frente A (água e lembretes)
+from app.routers import consents  # LGPD
+from app.services.consents import ConsentRequired, require_consent
+from fastapi import Depends
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -114,6 +117,12 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(ConsentRequired)
+async def consent_required_handler(request: Request, exc: ConsentRequired):
+    """Recurso que depende de uma finalidade que o usuário não autorizou (LGPD Art. 8º)."""
+    return JSONResponse(status_code=403, content={"detail": "consent_required", "purpose": exc.purpose})
+
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
@@ -186,7 +195,7 @@ app.include_router(profiles.router, prefix="/profiles", tags=["profiles"])
 app.include_router(recipes.router, prefix="/recipes", tags=["recipes"])
 app.include_router(ingredients.router, prefix="/ingredients", tags=["ingredients"])
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
-app.include_router(ai.router, prefix="/ai", tags=["ai"])
+app.include_router(ai.router, prefix="/ai", tags=["ai"], dependencies=[Depends(require_consent("ia"))])
 app.include_router(shopping.router, prefix="/shopping", tags=["shopping"])
 app.include_router(meal_plans.router, prefix="/meal-plans", tags=["meal-plans"])
 app.include_router(subscriptions.router, prefix="/subscriptions", tags=["subscriptions"])
@@ -196,7 +205,8 @@ app.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
 # do resultado da busca.
 app.include_router(diary_foods.router, prefix="/diary/foods", tags=["diary"])
 app.include_router(diary.router, prefix="/diary", tags=["diary"])
-app.include_router(agent.router, prefix="/agent", tags=["agent"])
+app.include_router(agent.router, prefix="/agent", tags=["agent"], dependencies=[Depends(require_consent("ia"))])
+app.include_router(consents.router, prefix="/consents", tags=["consents"])
 app.include_router(water.router, prefix="/water", tags=["water"])
 app.include_router(reminders.router, prefix="/reminders", tags=["reminders"])
 app.include_router(push.router, prefix="/push", tags=["push"])
