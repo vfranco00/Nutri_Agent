@@ -2,6 +2,8 @@ import re
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Literal, Optional
 
+from app.core.legal import MSG_MENOR_DE_IDADE
+
 GenderType = Literal["male", "female"]
 ActivityLevelType = Literal["sedentary", "lightly_active", "moderately_active", "very_active", "super_active"]
 GoalType = Literal["lose_weight", "maintain", "gain_muscle"]
@@ -37,11 +39,25 @@ class ProfileBase(BaseModel):
             raise ValueError("Este campo deve conter texto (ex: nomes de alimentos), não apenas números ou símbolos.")
         return v
 
+def _exigir_maior_de_idade(v: int) -> int:
+    if v < 18:
+        raise ValueError(MSG_MENOR_DE_IDADE)
+    return v
+
+
 class ProfileCreate(ProfileBase):
-    pass
+    # 18+ só na ENTRADA: perfis antigos com idade menor ainda precisam ser lidos pela
+    # ProfileResponse (herda de ProfileBase) sem estourar.
+    @field_validator("age")
+    @classmethod
+    def maior_de_idade(cls, v: int) -> int:
+        return _exigir_maior_de_idade(v)
 
 class ProfileUpdate(ProfileBase):
-    pass
+    @field_validator("age")
+    @classmethod
+    def maior_de_idade(cls, v: int) -> int:
+        return _exigir_maior_de_idade(v)
 
 class ProfileResponse(ProfileBase):
     id: int

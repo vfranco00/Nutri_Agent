@@ -119,3 +119,19 @@ def test_origem_invalida_422(make_user):
 
 def test_consentimentos_exigem_login(client):
     assert client.get("/consents/me").status_code == 401
+
+
+PERFIL = {"age": 30, "weight": 70, "height": 175, "gender": "male",
+          "activity_level": "sedentary", "goal": "maintain"}
+
+
+def test_idade_menor_de_18_422(make_user):
+    c = make_user(email="menor@example.com")
+    for idade in (1, 17):
+        r = c.put("/profiles/me", json={**PERFIL, "age": idade})
+        assert r.status_code == 422, r.text
+        assert "O Nuvi é para maiores de 18 anos." in r.text
+    assert c.put("/profiles/me", json={**PERFIL, "age": 18}).status_code == 200
+    r = c.put("/profiles/me", json={**PERFIL, "age": 17})
+    assert r.status_code == 422
+    assert "maiores de 18" in r.text

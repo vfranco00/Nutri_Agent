@@ -102,7 +102,7 @@ def test_dispatch_envia_na_janela(db_session, make_user, enviados):
     assert (res.reminders, res.sent, res.removed, res.failed) == (1, 1, 0, 0)
     assert len(enviados) == 1
     payload = enviados[0][1]
-    assert payload["title"] == "Hora do almoço"
+    assert payload["title"] == "Hora de registrar seu almoço"
     assert payload["tag"] == "nuvi-almoco"
     assert payload["url"] == "/hoje"
 

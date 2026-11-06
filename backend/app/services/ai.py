@@ -5,6 +5,7 @@ import unicodedata
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.core.config import settings
+from app.core.logging_config import safe_snippet
 from app.core.normalize import normalizar_base_unit
 from app.schemas.profile import ProfileResponse
 from app.models.food_cache import FoodCache
@@ -12,7 +13,8 @@ from app.data.taco_foods import TACO_PER_100G, TACO_PER_UNIT
 
 logger = logging.getLogger(__name__)
 
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={settings.GEMINI_API_KEY}"
+# A chave vai no cabeçalho `x-goog-api-key`, nunca na URL: URL aparece em traceback e log.
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
 
 # Abaixo do teto de request da plataforma (Render corta em ~100s). Com 120s, o proxy
 # cortava ANTES do httpx desistir: o usuário via erro, a chamada ao Gemini já tinha sido
@@ -37,12 +39,17 @@ def call_gemini_parts(parts: list[dict], timeout: float = GEMINI_TIMEOUT_SECONDS
     payload = {"contents": [{"parts": parts}]}
     try:
         with httpx.Client() as client:
-            response = client.post(GEMINI_URL, json=payload, timeout=timeout)
+            response = client.post(
+                GEMINI_URL,
+                json=payload,
+                headers={"x-goog-api-key": settings.GEMINI_API_KEY},
+                timeout=timeout,
+            )
             if response.status_code != 200:
                 # Distinguir 401/403 (chave inválida) de 429 (cota) de 5xx (lado deles)
                 # é a diferença entre corrigir em minutos e depurar no escuro.
                 logger.error(
-                    "Gemini respondeu %s: %s", response.status_code, response.text[:500]
+                    "Gemini respondeu %s: %s", response.status_code, safe_snippet(response.text)
                 )
                 return None
             data = response.json()
@@ -55,13 +62,16 @@ def call_gemini_parts(parts: list[dict], timeout: float = GEMINI_TIMEOUT_SECONDS
                 )
             # Sem candidates normalmente é bloqueio do filtro de segurança do modelo —
             # silenciar isso fazia parecer erro de rede.
-            logger.warning("Gemini respondeu 200 sem candidates: %s", str(data)[:500])
+            logger.warning(
+                "Gemini respondeu 200 sem candidates: %s",
+                safe_snippet(data.get("promptFeedback", "")),
+            )
             return None
     except httpx.TimeoutException:
         logger.error("Gemini estourou o timeout de %ss", timeout)
         return None
     except httpx.HTTPError as exc:
-        logger.error("Falha de rede ao chamar o Gemini: %s", exc)
+        logger.error("Falha de rede ao chamar o Gemini: %s", type(exc).__name__)
         return None
     except (KeyError, IndexError, TypeError, ValueError) as exc:
         # Formato de resposta inesperado. Antes caía no mesmo `except:` de um timeout.

@@ -24,13 +24,15 @@ logger = logging.getLogger(__name__)
 
 WINDOW = timedelta(minutes=5)
 
+# Texto GENÉRICO de propósito: a tela de bloqueio aparece para terceiros, então a
+# notificação nunca leva número, meta nem dado de saúde (LGPD Art. 11; G-20).
 _TEXTOS = {
-    "cafe": ("Hora do café da manhã", "Registre o que você comeu.", "/hoje"),
-    "almoco": ("Hora do almoço", "Registre o que você comeu.", "/hoje"),
-    "lanche": ("Hora do lanche", "Registre o que você comeu.", "/hoje"),
-    "jantar": ("Hora do jantar", "Registre o que você comeu.", "/hoje"),
-    "agua": ("Hora de beber água", "Um copo agora ajuda a bater a meta.", "/hoje"),
-    "peso": ("Hora de se pesar", "Anote seu peso de hoje.", "/progresso"),
+    "cafe": ("Hora de registrar seu café da manhã", "Abra o Nuvi.", "/hoje"),
+    "almoco": ("Hora de registrar seu almoço", "Abra o Nuvi.", "/hoje"),
+    "lanche": ("Hora de registrar seu lanche", "Abra o Nuvi.", "/hoje"),
+    "jantar": ("Hora de registrar seu jantar", "Abra o Nuvi.", "/hoje"),
+    "agua": ("Hora de beber água", "Abra o Nuvi.", "/hoje"),
+    "peso": ("Hora de registrar seu peso", "Abra o Nuvi.", "/progresso"),
 }
 
 

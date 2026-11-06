@@ -3,6 +3,7 @@ import logging
 import httpx
 
 from app.core.config import settings
+from app.core.logging_config import safe_snippet
 from app.core.plan_limits import PLAN_LABELS, PLAN_PRICES_BRL
 from app.models.user import User
 
@@ -47,11 +48,11 @@ def create_subscription_checkout(user: User, plan: str) -> str | None:
                 timeout=15.0,
             )
             if response.status_code >= 300:
-                logger.error("Erro ao criar assinatura pro user %s: %s %s", user.id, response.status_code, response.text)
+                logger.error("Erro ao criar assinatura pro user %s: %s %s", user.id, response.status_code, safe_snippet(response.text))
                 return None
             return response.json().get("init_point")
     except httpx.HTTPError as e:
-        logger.error("Falha de conexão com o Mercado Pago: %s", e)
+        logger.error("Falha de conexão com o Mercado Pago: %s", type(e).__name__)
         return None
 
 

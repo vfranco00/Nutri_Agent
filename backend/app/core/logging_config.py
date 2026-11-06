@@ -11,6 +11,7 @@ quebram entrada multilinha em eventos separados, o que picota stack trace.
 """
 
 import logging
+import re
 import sys
 
 from app.core.config import settings
@@ -40,3 +41,14 @@ def setup_logging() -> None:
     # Estes dois são barulhentos em DEBUG e não agregam no dia a dia.
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
+
+
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+
+
+def safe_snippet(texto: object, limite: int = 200) -> str:
+    """Trecho de resposta de TERCEIRO para log: curto e sem e-mail.
+
+    Corpos de erro de Brevo/Mercado Pago/Gemini podem ecoar o e-mail ou pedaço do que
+    enviamos; o log sobrevive à exclusão da conta (LGPD Art. 46)."""
+    return _EMAIL_RE.sub("[e-mail]", str(texto))[:limite]
