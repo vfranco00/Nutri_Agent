@@ -6,6 +6,7 @@ import {
   Coffee,
   Cookie,
   Crown,
+  MoreHorizontal,
   Moon,
   Package,
   Plus,
@@ -36,6 +37,8 @@ import { FaixaDeDias } from "../components/hoje/FaixaDeDias";
 import { Medidor } from "../components/hoje/Medidor";
 import { CartaoAgente } from "../components/hoje/CartaoAgente";
 import { HojeSlots } from "../components/hoje/HojeSlots";
+import { DiaMenuButton } from "../components/diary/DiaMenuButton";
+import { MenuRefeicao } from "../components/diary/MenusDoDiario";
 import { PullToRefresh } from "../components/PullToRefresh";
 import { ROUTES } from "../routes";
 import type { DiaryDay, DiaryDaySlot, MealSlot, Profile, User } from "../types";
@@ -151,7 +154,10 @@ export function Hoje() {
           </p>
         </div>
 
-        <FaixaDeDias date={diary.date} onSelect={diary.goToDate} />
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1"><FaixaDeDias date={diary.date} onSelect={diary.goToDate} /></div>
+          <DiaMenuButton data={diary.date} day={diary.day} />
+        </div>
 
         {/* Estado assíncrono anunciado — sem isto o leitor de tela não sabe que o dia trocou. */}
         <p role="status" aria-live="polite" className="sr-only">
@@ -318,7 +324,10 @@ function LinhaRefeicao({
         </span>
       </div>
       {temRegistro ? (
-        <b className="text-[15px] tabular-nums">{formatKcal(slot.logged_calories)}</b>
+        <>
+          <b className="text-[15px] tabular-nums">{formatKcal(slot.logged_calories)}</b>
+          {slot.entries.length > 0 && <MenuDaRefeicao slot={slot} />}
+        </>
       ) : (
         <>
           {temPlano && (
@@ -505,5 +514,18 @@ function MenuConta({
         </button>
       </div>
     </Sheet>
+  );
+}
+
+/** "⋯" da refeição do Hoje: copiar, salvar como pronta e apagar. Não abre o Diário ao tocar. */
+function MenuDaRefeicao({ slot }: { slot: DiaryDaySlot }) {
+  const [aberto, setAberto] = useState(false);
+  return (
+    <span onClick={(e) => e.stopPropagation()}>
+      <button type="button" onClick={() => setAberto(true)} aria-label={`Menu de ${slot.label}`} className="flex h-[34px] w-[34px] items-center justify-center rounded-xl bg-soft text-ink active:scale-[.97]">
+        <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden="true" />
+      </button>
+      <MenuRefeicao aberto={aberto} onFechar={() => setAberto(false)} nome={slot.label} slot={slot.slot} data={slot.entries[0].entry_date} entradas={slot.entries} />
+    </span>
   );
 }

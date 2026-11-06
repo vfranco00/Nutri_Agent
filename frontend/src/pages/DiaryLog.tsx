@@ -6,6 +6,7 @@ import {
   Coffee,
   Cookie,
   Loader2,
+  MoreHorizontal,
   Moon,
   Pencil,
   Plus,
@@ -31,6 +32,10 @@ import {
 import { useDiaryDay } from "../lib/useDiaryDay";
 import { useAtualizarDia } from "../lib/useAtualizar";
 import { PullToRefresh } from "../components/PullToRefresh";
+import { SwipeRow } from "../components/diary/SwipeRow";
+import { MenuRefeicao } from "../components/diary/MenusDoDiario";
+import { DiaMenuButton } from "../components/diary/DiaMenuButton";
+import { apagarComDesfazer } from "../components/diary/apagarComDesfazer";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Sheet } from "../components/ui/Sheet";
@@ -46,6 +51,7 @@ import {
   MEAL_SLOT_LABELS,
   MEAL_SLOT_ORDER,
   type DiaryDay,
+  type DiaryDaySlot,
   type DiaryEntry,
   type DiaryUnit,
   type FoodBaseUnit,
@@ -243,10 +249,13 @@ export function DiaryLog() {
                 </>
               )}
             </span>
-            <Button onClick={() => abrirAdicionar()} className="px-3 py-1.5 text-xs">
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              Adicionar alimento
-            </Button>
+            <div className="flex items-center gap-2">
+              <DiaMenuButton data={diary.date} day={dia} />
+              <Button onClick={() => abrirAdicionar()} className="px-3 py-1.5 text-xs">
+                <Plus aria-hidden="true" className="h-4 w-4" />
+                Adicionar alimento
+              </Button>
+            </div>
           </div>
         )}
 
@@ -643,6 +652,8 @@ function LoggedList({
                 {s.label}
                 {temEntradas && <span className="tabular-nums"> · {formatKcal(s.logged_calories)}</span>}
               </h2>
+              <div className="flex items-center gap-1.5">
+              {temEntradas && <MenuDaRefeicao slot={s} />}
               <button
                 type="button"
                 onClick={() => onAdd(s.slot)}
@@ -651,6 +662,7 @@ function LoggedList({
               >
                 <Plus aria-hidden="true" className="h-[18px] w-[18px]" />
               </button>
+              </div>
             </div>
 
             {temEntradas ? (
@@ -661,7 +673,9 @@ function LoggedList({
                       <EntryEditForm entry={e} submitting={mutating} onCancel={onCancelEdit} onSave={onSave} />
                     </li>
                   ) : (
-                    <li key={e.id} className="flex items-center gap-2.5 border-b border-line px-3.5 py-3 last:border-b-0">
+                    <li key={e.id} className="border-b border-line last:border-b-0">
+                    <SwipeRow label={e.food_name} disabled={mutating} onDelete={() => void apagarComDesfazer(e)}>
+                    <div className="flex items-center gap-2.5 px-3.5 py-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <b className="text-sm">{e.food_name}</b>
@@ -692,6 +706,8 @@ function LoggedList({
                       >
                         <X aria-hidden="true" className="h-4 w-4" />
                       </button>
+                    </div>
+                    </SwipeRow>
                     </li>
                   ),
                 )}
@@ -806,5 +822,19 @@ function EntryEditForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+
+/** Botão "⋯" da refeição com o menu de copiar, salvar como pronta e apagar. */
+function MenuDaRefeicao({ slot }: { slot: DiaryDaySlot }) {
+  const [aberto, setAberto] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setAberto(true)} aria-label={`Menu de ${slot.label}`} className="flex h-8 w-8 items-center justify-center rounded-xl bg-soft text-ink active:scale-[.97]">
+        <MoreHorizontal aria-hidden="true" className="h-4 w-4" />
+      </button>
+      <MenuRefeicao aberto={aberto} onFechar={() => setAberto(false)} nome={slot.label} slot={slot.slot} data={slot.entries[0].entry_date} entradas={slot.entries} />
+    </>
   );
 }
