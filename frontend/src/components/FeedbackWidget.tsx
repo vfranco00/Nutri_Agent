@@ -49,10 +49,11 @@ export function FeedbackWidget() {
     <>
       <button
         onClick={handleOpen}
-        className="fixed bottom-28 right-4 md:bottom-6 md:right-6 z-40 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg shadow-green-900/30 transition-all hover:scale-105"
+        className="fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+68px+10px)] right-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-act text-nuvi-tinta shadow-lg transition-transform duration-[140ms] ease-out active:scale-[.97] md:bottom-6 md:right-6 md:h-12 md:w-12"
         title="Ajuda e feedback"
+        aria-label="Ajuda e feedback"
       >
-        <MessageCircleQuestionIcon className="h-6 w-6" />
+        <MessageCircleQuestionIcon className="h-5 w-5 md:h-6 md:w-6" />
       </button>
 
       {isOpen && (
