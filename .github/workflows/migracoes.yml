@@ -1,0 +1,69 @@
+# Migrações do banco (Alembic) para o backend na Vercel, que não roda `alembic upgrade`
+# no deploy (o Dockerfile do Render rodava).
+#
+# Segredo: `DATABASE_URL` em Settings > Secrets and variables > Actions. Use a conexão
+# DIRETA ou o SESSION pooler do Supabase (porta 5432), nunca o pooler de transação
+# (6543), que não suporta bem DDL/migrações. Runner do GitHub é IPv4: se a conexão
+# direta não resolver, use o session pooler (host ...pooler.supabase.com:5432).
+name: Migrações
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/migrations/**"
+      - "backend/app/models/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migracoes
+  cancel-in-progress: false
+
+jobs:
+  migrar:
+    name: alembic upgrade head
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Verificar segredo
+        id: segredo
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning::Segredo DATABASE_URL ainda não cadastrado no GitHub; nada a fazer."
+            echo "pular=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.segredo.outputs.pular != 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        if: steps.segredo.outputs.pular != 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version-file: backend/.python-version
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar dependências
+        if: steps.segredo.outputs.pular != 'true'
+        run: pip install -r requirements.txt
+
+      - name: Rodar migrações
+        if: steps.segredo.outputs.pular != 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # A Settings exige estas; o alembic só usa DATABASE_URL.
+          SECRET_KEY: migracao-nao-usado
+          GEMINI_API_KEY: migracao-nao-usado
+        run: alembic upgrade head
