@@ -139,7 +139,7 @@ export function CodigoDeBarras() {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[#141210] text-[#FFF6EC]">
-      <header className="flex items-center justify-between px-4 pb-2 pt-4">
+      <header className="flex items-center justify-between px-4 pb-2 pt-[calc(1rem+var(--safe-top))]">
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -198,7 +198,7 @@ export function CodigoDeBarras() {
         <p className="mt-1.5 text-xs text-[#a39a90]">De 8 a 14 números, como está embaixo das barras.</p>
       </form>
 
-      <div className="mx-auto mt-4 w-full max-w-md px-6 pb-10" aria-live="polite">
+      <div className="mx-auto mt-4 w-full max-w-md px-6 pb-[calc(2.5rem+var(--safe-bottom))]" aria-live="polite">
         {resultado.tipo === "buscando" && <p className="text-sm text-[#a39a90]">Procurando…</p>}
         {resultado.tipo === "nao_achou" && (
           <div className="rounded-2xl bg-white/10 p-4">

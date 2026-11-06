@@ -100,6 +100,15 @@
   --bar: #1C1712;
   --bar-ink: #A39586;
   --bar-on: #FFF6EC;
+
+  /* Áreas seguras do iPhone (barra de status, home indicator). Fora do iOS valem 0.
+     Para testar no navegador: document.documentElement.style.setProperty('--safe-top','47px'). */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* Barra inferior flutuante (celular): altura, respiro de baixo e o espaço que ela ocupa. */
+  --tabbar-h: 68px;
+  --tabbar-gap: max(14px, var(--safe-bottom));
+  --tabbar-space: calc(var(--tabbar-h) + var(--tabbar-gap));
 }
 
 .dark {
@@ -132,6 +141,28 @@
 
   html {
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Alvo de toque mínimo de 44 px no celular sem mexer no desenho: o botão continua do
+     tamanho que é, e um ::after invisível amplia só a área que responde ao dedo.
+     Fica na camada base: qualquer utilitário (absolute, fixed, sticky) ainda vence. */
+  @media (max-width: 767px) {
+    button:not(.lp button):not(:disabled),
+    [role="button"]:not(.lp [role="button"]),
+    .hit44 {
+      position: relative;
+    }
+    button:not(.lp button):not(:disabled)::after,
+    [role="button"]:not(.lp [role="button"])::after,
+    .hit44::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
   }
 }
 

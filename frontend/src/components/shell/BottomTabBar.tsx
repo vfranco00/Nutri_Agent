@@ -31,7 +31,7 @@ function Tab({ aba, pathname }: { aba: Aba; pathname: string }) {
     <NavLink
       to={aba.to}
       aria-current={ativa ? "page" : undefined}
-      className={`flex w-14 flex-col items-center gap-[3px] text-[10.5px] font-bold active:scale-[.97] ${
+      className={`flex h-full w-14 flex-col items-center justify-center gap-[3px] text-[10.5px] font-bold active:scale-[.97] ${
         ativa ? "text-bar-on" : "text-bar-ink"
       }`}
     >
@@ -46,24 +46,28 @@ export function BottomTabBar() {
   const navigate = useNavigate();
   const location = useLocation();
   return (
-    <nav
-      aria-label="Principal"
-      className="fixed inset-x-3.5 bottom-[max(14px,env(safe-area-inset-bottom))] z-30 flex h-[68px] items-center justify-around rounded-[26px] bg-bar px-1.5 md:hidden"
-    >
-      {ESQUERDA.map((a) => (
-        <Tab key={a.to} aba={a} pathname={location.pathname} />
-      ))}
-      <button
-        type="button"
-        aria-label="Registrar"
-        onClick={() => openRegistrar(navigate, location)}
-        className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-act text-on-act active:scale-[.97]"
+    <>
+      {/* Tapa o vão de baixo da barra flutuante (home indicator): o conteúdo não aparece por trás. */}
+      <div aria-hidden="true" className="fixed inset-x-0 bottom-0 z-20 h-[var(--tabbar-gap)] bg-bg md:hidden" />
+      <nav
+        aria-label="Principal"
+        className="fixed inset-x-4 bottom-[var(--tabbar-gap)] z-30 flex h-[var(--tabbar-h)] items-center justify-around rounded-[26px] bg-bar px-1.5 md:hidden"
       >
-        <Plus className="h-6 w-6" strokeWidth={2.6} aria-hidden="true" />
-      </button>
-      {DIREITA.map((a) => (
-        <Tab key={a.to} aba={a} pathname={location.pathname} />
-      ))}
-    </nav>
+        {ESQUERDA.map((a) => (
+          <Tab key={a.to} aba={a} pathname={location.pathname} />
+        ))}
+        <button
+          type="button"
+          aria-label="Registrar"
+          onClick={() => openRegistrar(navigate, location)}
+          className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-act text-on-act active:scale-[.97]"
+        >
+          <Plus className="h-6 w-6" strokeWidth={2.6} aria-hidden="true" />
+        </button>
+        {DIREITA.map((a) => (
+          <Tab key={a.to} aba={a} pathname={location.pathname} />
+        ))}
+      </nav>
+    </>
   );
 }

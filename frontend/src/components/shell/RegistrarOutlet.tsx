@@ -38,7 +38,7 @@ export function RegistrarOutlet() {
         role="dialog"
         aria-modal="true"
         aria-label="Registrar"
-        className="registrar-sheet absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-[28px] bg-card text-ink md:inset-x-auto md:right-0 md:top-0 md:h-full md:max-h-none md:w-[440px] md:rounded-none md:rounded-l-[28px]"
+        className="registrar-sheet absolute inset-x-0 bottom-0 flex pb-[var(--safe-bottom)] md:pb-0 max-h-[92dvh] flex-col rounded-t-[28px] bg-card text-ink md:inset-x-auto md:right-0 md:top-0 md:h-full md:max-h-none md:w-[440px] md:rounded-none md:rounded-l-[28px]"
       >
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-line md:hidden" aria-hidden="true" />
         <header className="flex items-center justify-between px-5 pb-2 pt-3">

@@ -378,7 +378,7 @@ export function Agente() {
           e.preventDefault();
           void enviar();
         }}
-        className="sticky bottom-24 z-10 flex items-center gap-1.5 rounded-[22px] bg-card py-1.5 pl-2 pr-1.5 shadow-lg md:bottom-4"
+        className="sticky bottom-[calc(var(--tabbar-space)+8px)] z-10 flex items-center gap-1.5 rounded-[22px] bg-card py-1.5 pl-2 pr-1.5 shadow-lg md:bottom-4"
       >
         <input
           ref={fotoRef}

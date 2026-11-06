@@ -131,7 +131,7 @@ export function Hoje() {
           <Link
             to={ROUTES.lembretes}
             aria-label="Lembretes"
-            className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-card text-ink active:scale-[.97]"
+            className="hit44 flex h-10 w-10 items-center justify-center rounded-[14px] bg-card text-ink active:scale-[.97]"
           >
             <Bell className="h-5 w-5" aria-hidden="true" />
           </Link>

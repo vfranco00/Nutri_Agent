@@ -43,7 +43,7 @@ export function Sheet({ open, onOpenChange, title, description, children, classN
                 </Drawer.Close>
               </div>
               {description ? <Drawer.Description className="px-5 pb-2 text-sm text-mut">{description}</Drawer.Description> : null}
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-8">{children}</div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(2rem+var(--safe-bottom))]">{children}</div>
             </Drawer.Content>
           </Drawer.Popup>
         </Drawer.Viewport>

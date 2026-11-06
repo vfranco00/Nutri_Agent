@@ -205,7 +205,7 @@ export function Profile() {
       )}
 
       <PageTitle a="Suas" b="metas" />
-      <a href="/perfil/privacidade" className="-mt-2 mb-6 inline-block text-sm font-extrabold text-act-text underline">
+      <a href="/perfil/privacidade" className="hit44 -mt-2 mb-6 inline-block text-sm font-extrabold text-act-text underline">
         Privacidade e meus dados
       </a>
 

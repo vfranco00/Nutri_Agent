@@ -23,7 +23,7 @@ describe("FeedbackWidget", () => {
     renderEm("/");
     const b = screen.getByRole("button", { name: /ajuda e feedback/i });
     expect(b.className).toContain("h-10");
-    expect(b.className).toContain("68px");
+    expect(b.className).toContain("tabbar-space");
     expect(b.className).toContain("bg-act");
     expect(b.className).not.toMatch(/green|bottom-28/);
   });

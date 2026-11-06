@@ -6,7 +6,7 @@ import { useAuthTheme } from "./authTheme";
 export function AuthShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   const dark = useAuthTheme();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg p-4 text-ink">
+    <div className="flex min-h-dvh items-center justify-center bg-bg p-4 pb-[calc(1rem+var(--safe-bottom))] pt-[calc(1rem+var(--safe-top))] text-ink">
       <div className={`w-full ${wide ? "max-w-lg" : "max-w-md"}`}>
         <div className="mb-6 flex justify-center">
           <NuviLogo size={40} tone={dark ? "dark" : "light"} />

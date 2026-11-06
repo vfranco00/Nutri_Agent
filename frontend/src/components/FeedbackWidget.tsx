@@ -56,7 +56,7 @@ export function FeedbackWidget() {
       {mostrarBotao && (
       <button
         onClick={handleOpen}
-        className="fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+68px+10px)] right-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-act text-nuvi-tinta shadow-lg transition-transform duration-[140ms] ease-out active:scale-[.97] md:bottom-6 md:right-6 md:h-12 md:w-12"
+        className="fixed bottom-[calc(var(--tabbar-space)+10px)] right-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-act text-nuvi-tinta shadow-lg transition-transform duration-[140ms] ease-out active:scale-[.97] md:bottom-6 md:right-6 md:h-12 md:w-12"
         title="Ajuda e feedback"
         aria-label="Ajuda e feedback"
       >

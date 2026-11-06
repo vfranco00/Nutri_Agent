@@ -7,7 +7,7 @@ export function Documento({ source }: { source: string }) {
   useAuthTheme();
   return (
     <div className="min-h-dvh bg-bg text-ink">
-      <main className="mx-auto max-w-2xl px-4 py-8">
+      <main className="mx-auto max-w-2xl px-4 pb-[calc(2rem+var(--safe-bottom))] pt-[calc(2rem+var(--safe-top))]">
         <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-act-text">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Voltar
         </Link>

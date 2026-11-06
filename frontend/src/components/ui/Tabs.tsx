@@ -8,7 +8,7 @@ export function Tabs(props: ComponentProps<typeof BaseTabs.Root>) {
 }
 
 export function TabsList({ className, ...rest }: ComponentProps<typeof BaseTabs.List>) {
-  return <BaseTabs.List className={cn("flex gap-1.5 overflow-x-auto", className)} {...rest} />;
+  return <BaseTabs.List className={cn("-my-[5px] flex gap-1.5 overflow-x-auto py-[5px]", className)} {...rest} />;
 }
 
 export function TabsTab({ className, ...rest }: ComponentProps<typeof BaseTabs.Tab>) {

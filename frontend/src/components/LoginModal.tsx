@@ -28,7 +28,7 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-80 flex items-center justify-center p-4 bg-nuvi-tinta/60 animate-fadeIn"
+      className="fixed inset-0 z-80 flex items-center justify-center p-4 pb-[max(1rem,var(--safe-bottom))] pt-[max(1rem,var(--safe-top))] bg-nuvi-tinta/60 overflow-y-auto animate-fadeIn"
       onClick={onClose}
     >
       <div

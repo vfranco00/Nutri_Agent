@@ -5,6 +5,7 @@
 .lp{font-family:"DM Sans",system-ui,sans-serif;background:#EDE5DC;color:var(--ink)}
 .lp .wm{font-family:"Nunito",sans-serif;font-weight:900;letter-spacing:-.04em}
 .lp a{color:inherit}
+.lp{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .lp .pick{position:sticky;top:0;z-index:100;display:flex;gap:6px;justify-content:center;padding:10px;background:#EDE5DC;flex-wrap:wrap}
 .lp .pick button{font:800 13px "DM Sans";border:0;border-radius:999px;padding:9px 14px;background:#fff;cursor:pointer;color:var(--ink)}
 .lp .pick button[aria-pressed=true]{background:var(--ink);color:#fff}

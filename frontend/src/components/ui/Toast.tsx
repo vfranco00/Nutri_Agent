@@ -5,7 +5,7 @@ export function Toaster() {
   const itens = useToasts();
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-28 z-[90] flex flex-col items-center gap-2 px-4 md:bottom-6"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--tabbar-space)+12px)] z-[90] flex flex-col items-center gap-2 px-4 md:bottom-6"
       role="region"
       aria-label="Avisos"
     >

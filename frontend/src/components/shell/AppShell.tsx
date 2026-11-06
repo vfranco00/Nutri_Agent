@@ -55,11 +55,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const toggleTheme = () => setIsDark((d) => !d);
 
   return (
-    <div className="flex min-h-screen bg-bg text-ink">
+    <div className="flex min-h-dvh bg-bg text-ink">
       <SessionWatcher />
       <SideNav isDark={isDark} toggleTheme={toggleTheme} logoWave={logoWave} />
 
-      <div className="flex h-screen min-w-0 flex-1 flex-col md:ml-64">
+      <div className="flex h-dvh min-w-0 flex-1 flex-col pt-[var(--safe-top)] md:ml-64">
         <header
           className={`sticky top-0 z-20 h-16 shrink-0 items-center gap-3 border-b border-line bg-bg px-4 md:flex md:px-6 ${
             location.pathname === ROUTES.hoje ? "hidden" : "flex"
@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 pb-32 md:p-8 md:pb-8">
+        <main className="flex-1 overflow-y-auto p-4 pb-[calc(var(--tabbar-space)+24px)] md:p-8 md:pb-8">
           <div className="mx-auto max-w-7xl">
             <SubscriptionExpiryBanner />
             <OnboardingGate>{children}</OnboardingGate>

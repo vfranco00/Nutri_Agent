@@ -62,7 +62,7 @@ export function Comunidade() {
         </section>
       )}
 
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+      <div className="mb-[15px] -mt-[5px] flex gap-2 overflow-x-auto py-[5px]">
         {Object.entries(CATEGORIES).map(([key, label]) => (
           <button
             key={key}
