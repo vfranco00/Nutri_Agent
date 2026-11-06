@@ -222,7 +222,7 @@ export function Agente() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-2xl flex-col">
+    <div className="mx-auto flex max-w-2xl flex-col md:min-h-[calc(100dvh-var(--safe-top)-128px)]">
       <div className="flex items-center gap-3 py-2">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-soft">
           <NuviSlice size={30} face="normal" />
@@ -233,7 +233,7 @@ export function Agente() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 pb-4" aria-live="polite">
+      <div className="flex flex-1 flex-col gap-2 pb-[72px] md:pb-4" aria-live="polite">
         {msgs.map((m) => {
           if (m.tipo === "eu")
             return (
@@ -378,7 +378,7 @@ export function Agente() {
           e.preventDefault();
           void enviar();
         }}
-        className="sticky bottom-[calc(var(--tabbar-space)+8px)] z-10 flex items-center gap-1.5 rounded-[22px] bg-card py-1.5 pl-2 pr-1.5 shadow-lg md:bottom-4"
+        className="fixed inset-x-4 bottom-[calc(var(--tabbar-space)+8px)] z-10 mx-auto flex max-w-2xl md:sticky md:inset-x-auto md:-bottom-4 md:-mb-4 md:max-w-none items-center gap-1.5 rounded-[22px] bg-card py-1.5 pl-2 pr-1.5 shadow-lg"
       >
         <input
           ref={fotoRef}
