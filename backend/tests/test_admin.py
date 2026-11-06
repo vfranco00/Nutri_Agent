@@ -25,8 +25,8 @@ def test_metrics_reflects_known_data(make_user):
     assert data["users_by_plan"]["pro"] == 1
     assert data["users_by_plan"]["starter"] == 2
     assert data["is_estimate"] is True
-    # MRR = 1 plus (29.9) + 1 pro (59.9)
-    assert data["mrr_estimate_brl"] == 89.8
+    # MRR = 1 plus (19.9) + 1 pro (29.9)
+    assert data["mrr_estimate_brl"] == 49.8
 
 
 def test_metrics_normalizes_meal_swap_event_types(make_user, db_session):
@@ -224,7 +224,7 @@ def test_overview_reflects_users_and_conversion(make_user):
     assert data["paying_users"] == 2
     # Conversão = 2/3 ≈ 66.7%
     assert data["conversion_rate"] == 66.7
-    assert data["mrr_estimate_brl"] == 89.8
+    assert data["mrr_estimate_brl"] == 49.8
     # make_user faz login interno, então esses usuários contam como ativos em 24h.
     assert data["active_24h"] >= 1
 
@@ -287,8 +287,8 @@ def test_finance_computes_revenue_arpu_and_status(make_user, db_session):
     data = admin_client.get("/admin/finance").json()
     assert data["revenue_confirmed_brl"] == 29.9
     assert data["paying_users"] == 1
-    # ARPU = MRR (29.9) / pagantes (1)
-    assert data["arpu_brl"] == 29.9
+    # ARPU = MRR (19.9, preço do Plus) / pagantes (1)
+    assert data["arpu_brl"] == 19.9
     assert data["avg_ticket_brl"] == 29.9
     status_map = {s["key"]: s["count"] for s in data["payments_by_status"]}
     assert status_map["approved"] == 1

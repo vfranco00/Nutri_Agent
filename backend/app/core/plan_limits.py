@@ -62,4 +62,4 @@ PLAN_LIMITS: dict[str, dict] = {
 
 PLAN_LABELS = {"starter": "Starter", "plus": "Plus", "pro": "Pro"}
 
-PLAN_PRICES_BRL = {"starter": 0, "plus": 29.9, "pro": 59.9}
+PLAN_PRICES_BRL = {"starter": 0, "plus": 19.9, "pro": 29.9}

@@ -25,7 +25,7 @@ const PLANS = [
   {
     id: "plus" as const,
     name: "Plus",
-    price: "R$ 29,90/mês",
+    price: "R$ 19,90/mês",
     highlight: true,
     features: [
       "1 cardápio semanal + cardápio diário todo dia",
@@ -38,7 +38,7 @@ const PLANS = [
   {
     id: "pro" as const,
     name: "Pro",
-    price: "R$ 59,90/mês",
+    price: "R$ 29,90/mês",
     features: [
       "Cardápios ilimitados (semanal e diário)",
       "Chef IA ilimitado",
