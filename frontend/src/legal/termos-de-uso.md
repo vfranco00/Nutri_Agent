@@ -3,9 +3,9 @@
 > **Rascunho para revisão jurídica.** Este texto ainda não foi aprovado por advogado e não deve ser tratado como versão final.
 
 - **Versão:** `2026-11-v1`
-- **Vigência:** a partir de [[DATA_DE_PUBLICACAO]]
-- **Responsável pelo Nuvi:** [[CONTROLADOR]], CNPJ [[CNPJ]]
-- **Contato do encarregado:** [[ENCARREGADO_NOME]], [[ENCARREGADO_EMAIL]]
+- **Vigência:** a partir de 06/11/2026
+- **Responsável pelo Nuvi:** Franco (pessoa física)
+- **Contato do encarregado:** Franco, victorfranco02@outlook.com
 
 ## 1. O que é o Nuvi
 
@@ -54,13 +54,13 @@ Os dados, textos e fotos que você registra continuam sendo seus. Você nos auto
 
 ## 8. Propriedade do Nuvi
 
-O aplicativo, a marca, o design e o código são de [[CONTROLADOR]] ou de quem nos licencia. Você recebe um direito pessoal, não exclusivo e revogável de usar o app. Nada aqui transfere propriedade intelectual.
+O aplicativo, a marca, o design e o código são de Franco ou de quem nos licencia. Você recebe um direito pessoal, não exclusivo e revogável de usar o app. Nada aqui transfere propriedade intelectual.
 
 ## 9. Disponibilidade e responsabilidade
 
 - Buscamos manter o Nuvi no ar, mas ele pode ter interrupções, manutenção ou falhas de terceiros (servidores, IA, pagamentos).
 - Informações nutricionais vêm de tabelas públicas, do Open Food Facts e da IA, e podem estar incompletas ou desatualizadas.
-- Na medida permitida pela lei, não respondemos por decisões de saúde tomadas apenas com base no app. Isto **não limita** direitos que a lei do consumidor não permite limitar. Limites exatos de responsabilidade: [[A_DEFINIR_COM_ADVOGADO]].
+- Na medida permitida pela lei, não respondemos por decisões de saúde tomadas apenas com base no app. Isto **não limita** direitos que a lei do consumidor não permite limitar.
 
 ## 10. Seus dados e seus direitos
 
@@ -72,12 +72,12 @@ Podemos alterar estes Termos. Mudanças relevantes serão avisadas no app ou por
 
 | Versão | Data | O que mudou |
 |---|---|---|
-| `2026-11-v1` | [[DATA_DE_PUBLICACAO]] | primeira versão |
+| `2026-11-v1` | 06/11/2026 | primeira versão |
 
 ## 12. Lei aplicável e foro
 
-Valem as leis do Brasil. Para consumidores, o foro é o do seu domicílio. Para os demais casos: [[A_DEFINIR_FORO]].
+Valem as leis do Brasil. Para consumidores, o foro é o do seu domicílio. Para os demais casos, o foro do domicílio do réu.
 
 ## 13. Contato
 
-[[CONTROLADOR]], CNPJ [[CNPJ]]. Dúvidas sobre dados pessoais: [[ENCARREGADO_NOME]], [[ENCARREGADO_EMAIL]]. Suporte geral: [[A_DEFINIR_EMAIL_DE_SUPORTE]].
+Franco (pessoa física). Dúvidas sobre dados pessoais: Franco, victorfranco02@outlook.com. Suporte geral: victorfranco02@outlook.com.

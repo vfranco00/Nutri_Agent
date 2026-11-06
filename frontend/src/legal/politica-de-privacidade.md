@@ -3,9 +3,9 @@
 > **Rascunho para revisão jurídica.** Este texto ainda não foi aprovado por advogado e não deve ser tratado como versão final.
 
 - **Versão:** `2026-11-v1`
-- **Vigência:** a partir de [[DATA_DE_PUBLICACAO]]
-- **Controlador:** [[CONTROLADOR]], CNPJ [[CNPJ]]
-- **Encarregado pela proteção de dados:** [[ENCARREGADO_NOME]], [[ENCARREGADO_EMAIL]]
+- **Vigência:** a partir de 06/11/2026
+- **Controlador:** Franco (pessoa física)
+- **Encarregado pela proteção de dados:** Franco, victorfranco02@outlook.com
 
 ## Resumo em um minuto
 
@@ -19,9 +19,9 @@
 
 ## 1. Quem é o controlador
 
-O controlador, responsável pelas decisões sobre os seus dados, é [[CONTROLADOR]], CNPJ [[CNPJ]], endereço [[ENDERECO_DO_CONTROLADOR]].
+O controlador, responsável pelas decisões sobre os seus dados, é Franco, pessoa física, responsável pelo Nuvi.
 
-O encarregado pela proteção de dados é [[ENCARREGADO_NOME]]. Fale com ele em [[ENCARREGADO_EMAIL]] para dúvidas, reclamações e pedidos sobre os seus dados.
+O encarregado pela proteção de dados é Franco. Fale com ele em victorfranco02@outlook.com para dúvidas, reclamações e pedidos sobre os seus dados.
 
 ## 2. Quais dados coletamos, para quê e com que base legal
 
@@ -56,7 +56,7 @@ Quando você permite a finalidade `ia` e usa um recurso de IA, enviamos ao Googl
 
 Sem o seu e-mail, nome ou identificador de conta. A foto **não é guardada** pelo Nuvi: ela é lida na memória e descartada. Evite fotografar rostos, documentos ou o ambiente da sua casa.
 
-O Google está fora do Brasil (a confirmar o país exato), então isso é uma **transferência internacional**. Ela só acontece com o seu consentimento específico. Como o Google trata esse conteúdo depende do plano contratado pelo Nuvi: [[A_CONFIRMAR_PLANO_GEMINI]].
+O Google trata esses dados fora do Brasil, então isso é uma **transferência internacional**. Ela só acontece com o seu consentimento específico. Como o Google trata esse conteúdo depende do plano da API: no plano gratuito, o Google pode usá-lo para melhorar os próprios produtos; no plano pago, não usa.
 
 As sugestões da IA são geradas automaticamente. Você pode ajustar qualquer meta, cardápio ou registro à mão, e pode pedir revisão (veja o item 8).
 
@@ -68,11 +68,11 @@ Contratamos empresas que tratam dados em nosso nome, sob nossas instruções. Es
 
 | Empresa | Para quê | Que dados | País |
 |---|---|---|---|
-| Google (Gemini) | IA | ver item 3 | EUA ou outro (a confirmar) |
-| Supabase | banco de dados | todos os dados da conta | [[A_CONFIRMAR_REGIAO_SUPABASE]] |
-| Render | servidor da API | tráfego e registros técnicos | [[A_CONFIRMAR_REGIAO_RENDER]] |
+| Google (Gemini) | IA | ver item 3 | fora do Brasil |
+| Supabase | banco de dados | todos os dados da conta | pode ser fora do Brasil |
+| Render | servidor da API | tráfego e registros técnicos | pode ser fora do Brasil |
 | Vercel | hospedagem do site e do app | IP e navegador dos visitantes | rede global (EUA) |
-| Brevo | e-mails de verificação, recuperação de senha e avisos | e-mail, nome e link do e-mail | UE (a confirmar) |
+| Brevo | e-mails de verificação, recuperação de senha e avisos | e-mail, nome e link do e-mail | União Europeia |
 | Mercado Pago | cobrança da assinatura | e-mail do pagador, plano e valor | Brasil |
 | Open Food Facts | consulta de código de barras | o código lido (vem do nosso servidor, não do seu aparelho) | UE (França) |
 | FCM (Google), Mozilla ou Apple | entrega de notificações push, conforme o navegador | endereço da assinatura e metadados de entrega, **sem texto de saúde** | EUA e outros |
@@ -85,7 +85,7 @@ Em caso de venda, fusão ou transferência do Nuvi para outra empresa, **informa
 
 ## 5. Transferência internacional
 
-Alguns operadores ficam fora do Brasil. Para eles usamos, conforme o caso: cláusulas-padrão contratuais aprovadas pela ANPD (Resolução CD/ANPD 19/2024) ou o seu consentimento específico (LGPD, Art. 33, VIII). Status por operador: **a confirmar** (ver [[LINK_DA_MATRIZ_DE_OPERADORES]]).
+Alguns operadores ficam fora do Brasil. Para eles usamos, conforme o caso: cláusulas-padrão contratuais aprovadas pela ANPD (Resolução CD/ANPD 19/2024) ou o seu consentimento específico (LGPD, Art. 33, VIII).
 
 ## 6. Por quanto tempo guardamos
 
@@ -98,10 +98,10 @@ Alguns operadores ficam fora do Brasil. Para eles usamos, conforme o caso: cláu
 | Chamados de atendimento já fechados | 24 meses |
 | Assinaturas de notificação sem envio bem-sucedido | 90 dias |
 | Pagamentos | 5 anos (obrigação fiscal), depois de **anonimizados** ao excluir a conta |
-| Registros técnicos (IP, navegador) | prazo dos provedores: [[A_CONFIRMAR_PRAZO_DE_LOGS]] |
-| Cópias de segurança (backup) | [[A_CONFIRMAR_RETENCAO_DE_BACKUP]]; dados excluídos podem permanecer em backup por esse tempo |
+| Registros técnicos (IP, navegador) | prazo dos provedores: até 30 dias |
+| Cópias de segurança (backup) | até 30 dias; dados excluídos podem permanecer em backup por esse tempo |
 
-Contas inativas: [[A_DEFINIR_PRAZO_DE_CONTA_INATIVA]].
+Contas inativas: depois de 12 meses sem acesso, avisamos por e-mail; depois de 24 meses sem acesso, a conta pode ser excluída.
 
 ## 7. Cookies e armazenamento no seu aparelho
 
@@ -129,7 +129,7 @@ Você pode, a qualquer momento:
 - **opor-se** a tratamento feito por legítimo interesse;
 - **reclamar** à ANPD (www.gov.br/anpd).
 
-Para o que o app não resolver sozinho, escreva a [[ENCARREGADO_EMAIL]]. Respondemos em até **15 dias**.
+Para o que o app não resolver sozinho, escreva a victorfranco02@outlook.com. Respondemos em até **15 dias**.
 
 **Ao excluir a conta:** apagamos perfil, diário, peso, água, lembretes, receitas, cardápios, listas, consentimentos e chamados; cancelamos a assinatura no Mercado Pago; e **anonimizamos** os pagamentos (guardamos só valor, data e identificador do pagamento, que a lei fiscal exige).
 
@@ -153,9 +153,9 @@ Quando mudarmos finalidades, bases legais, operadores ou prazos de modo relevant
 
 | Versão | Data | O que mudou |
 |---|---|---|
-| `2026-11-v1` | [[DATA_DE_PUBLICACAO]] | primeira versão |
+| `2026-11-v1` | 06/11/2026 | primeira versão |
 
 ## 13. Contato
 
-Controlador: [[CONTROLADOR]], CNPJ [[CNPJ]].
-Encarregado: [[ENCARREGADO_NOME]], [[ENCARREGADO_EMAIL]].
+Controlador: Franco (pessoa física).
+Encarregado: Franco, victorfranco02@outlook.com.
