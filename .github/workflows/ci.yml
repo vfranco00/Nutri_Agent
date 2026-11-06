@@ -2,8 +2,8 @@
 #
 # Os pipelines de deploy (Render e Vercel) foram removidos: exigiam secrets de
 # produção que não estavam cadastrados e travavam a entrega sem oferecer nada em
-# troca enquanto isso. Consequência a ter em mente: o deploy e o
-# `alembic upgrade head` voltaram a ser manuais. Se as integrações Git nativas do
+# troca enquanto isso. O `alembic upgrade head` roda sozinho no início do container
+# (CMD do backend/Dockerfile), a cada deploy. Se as integrações Git nativas do
 # Render e da Vercel estiverem ligadas, elas continuam publicando a cada push —
 # só que sem passar por este gate.
 #

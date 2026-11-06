@@ -36,4 +36,9 @@ EXPOSE 8000
 # reexecução de código a partir de qualquer escrita no diretório da aplicação.
 # O ambiente local não perde nada: docker-compose.yml sobrescreve o command e continua
 # subindo com --reload.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+#
+# As migrações rodam antes do servidor, a cada deploy: `alembic upgrade head` é
+# idempotente (sem migração nova, não faz nada). Se uma migração falhar, o processo
+# sai antes de subir o uvicorn, o health check do Render não passa e a versão
+# anterior continua no ar. O `exec` faz o uvicorn virar o PID 1 e receber o SIGTERM.
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000"]
