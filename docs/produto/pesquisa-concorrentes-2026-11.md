@@ -1,12 +1,12 @@
 # Pesquisa de concorrentes — apps de acompanhamento nutricional
 
 - **Data**: 2026-11-05
-- **Objetivo**: comparar o NutriAgent com os apps do ramo (MyFitnessPal e outros) e decidir o que falta para ele ficar completo e vendável.
+- **Objetivo**: comparar o Nuvi com os apps do ramo (MyFitnessPal e outros) e decidir o que falta para ele ficar completo e vendável.
 - **Ressalva sobre as fontes**: boa parte dos comparativos de 2026 é publicada por apps concorrentes (Nutrola, NutriScan, Fitia, MyNetDiary) e puxa a sardinha para si. Os números de preço, precisão e receita abaixo são indicativos; os **temas** (o que os usuários pedem e do que reclamam) se repetem em fontes independentes e são o que vale.
 
 ---
 
-## 1. Onde o NutriAgent está hoje
+## 1. Onde o Nuvi está hoje
 
 | Já tem | Não tem |
 |---|---|
@@ -37,18 +37,18 @@
   3. **Base cheia de erro**: entradas enviadas por usuários com macros errados.
   4. Redesign de 2026 colocou **mais toques** na tarefa principal (registrar comida); travamentos e logouts.
 
-> Lição: o NutriAgent ganha cliente do MFP sendo **rápido para registrar, sem anúncio e com dado confiável**. A partição do `food_cache` por procedência (ADR-0001, D-1) já é exatamente a defesa contra o problema nº 3 deles — isso é argumento de venda.
+> Lição: o Nuvi ganha cliente do MFP sendo **rápido para registrar, sem anúncio e com dado confiável**. A partição do `food_cache` por procedência (ADR-0001, D-1) já é exatamente a defesa contra o problema nº 3 deles — isso é argumento de venda.
 
 ### Cronometer
 - **Forte em**: precisão. Base curada (sem entrada livre de usuário), **~80 micronutrientes**, apontado nos comparativos como o mais preciso.
 - **Público**: quem leva a sério (atletas, dietas terapêuticas, veganos acompanhando B12/ferro).
-- **Lição**: micronutriente vira diferencial barato para quem já tem a TACO — **a TACO tem fibra, sódio, cálcio, ferro, vitamina C etc.** e hoje o NutriAgent só usa kcal + macros.
+- **Lição**: micronutriente vira diferencial barato para quem já tem a TACO — **a TACO tem fibra, sódio, cálcio, ferro, vitamina C etc.** e hoje o Nuvi só usa kcal + macros.
 
 ### MacroFactor
 - **Forte em**: **gasto calórico adaptativo**. Com o peso registrado e o que a pessoa comeu, o algoritmo estima o gasto real e **reajusta a meta toda semana** (check-in semanal). Funciona mesmo se a pessoa não seguir a meta à risca — não pune.
 - **Outros**: diário em linha do tempo (sem número fixo de refeições), base verificada, código de barras, leitura de rótulo por IA, criação de alimento por IA.
 - **Modelo**: sem plano gratuito; só assinatura.
-- **Lição**: o NutriAgent já tem os dois ingredientes (histórico de peso + diário). Falta a conta. É a feature com mais cara de "coach" e justifica o plano Pro.
+- **Lição**: o Nuvi já tem os dois ingredientes (histórico de peso + diário). Falta a conta. É a feature com mais cara de "coach" e justifica o plano Pro.
 
 ### Lose It!
 - **Forte em**: simplicidade para iniciante; registro rápido; foto (Snap It); precisão melhor que o MFP nos testes.
@@ -67,7 +67,7 @@
 
 ### Fitia (América Latina, YC)
 - **Forte em**: registro por **foto, voz, texto e código de barras**; plano alimentar e lista de compras no Premium; equipe de nutrição que confere marcas contra a embalagem; base de órgãos governamentais para genéricos; integração com Apple Saúde, Health Connect, Strava, Garmin, Fitbit, Oura, WHOOP.
-- **Lição**: é o concorrente **mais parecido** com o NutriAgent (cardápio + lista de compras + IA + América Latina). Precisa ser estudado de perto.
+- **Lição**: é o concorrente **mais parecido** com o Nuvi (cardápio + lista de compras + IA + América Latina). Precisa ser estudado de perto.
 
 ### Cal AI e os apps de "caloria por foto"
 - Cal AI: crescimento explosivo com marketing de influenciador, comprado pelo MFP. Dezenas de apps brasileiros iguais na App Store (Olho no Prato, Dieta.ai, Kaloria...).
@@ -80,7 +80,7 @@
 
 ### Plataformas para nutricionista (Dietbox, WebDiet)
 - Vendem para o **profissional**; o paciente usa um app grátis com plano alimentar, diário, lembrete de água e chat.
-- **Lição**: é um segundo mercado (B2B2C). O NutriAgent poderia ter um modo "nutricionista acompanha o paciente" — o diário dele já é o dado que o profissional quer ver.
+- **Lição**: é um segundo mercado (B2B2C). O Nuvi poderia ter um modo "nutricionista acompanha o paciente" — o diário dele já é o dado que o profissional quer ver.
 
 ### WhatsApp
 - Não achei produto brasileiro consolidado de "registrar refeição pelo WhatsApp com IA"; há demanda (vagas de freelancer pedindo exatamente isso, e-books de nutricionistas usando foto no WhatsApp manualmente).
@@ -92,7 +92,7 @@
 
 ✅ tem · 💰 só no pago · ❌ não tem
 
-| Recurso | NutriAgent | MFP | Cronometer | MacroFactor | YAZIO | Fitia |
+| Recurso | Nuvi | MFP | Cronometer | MacroFactor | YAZIO | Fitia |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|
 | Diário por refeição | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Base de alimentos brasileira (TACO) | ✅ | ❌ | parcial | ❌ | parcial | ✅ |

@@ -1,4 +1,4 @@
-# 🍎 NutriAgent — AI Nutrition Assistant
+# 🍊 Nuvi — AI Nutrition Assistant
 
 > Plataforma inteligente de planejamento alimentar, receitas e lista de compras automatizada via Inteligência Artificial.
 
@@ -9,7 +9,7 @@
 ![Docker](https://img.shields.io/badge/Infra-Docker-2496ED)
 
 ## 📋 Sobre o Projeto
-O **NutriAgent** não é apenas um CRUD de receitas. É um assistente nutricional completo que utiliza **Generative AI (LLM)** para:
+O **Nuvi** não é apenas um CRUD de receitas. É um assistente nutricional completo que utiliza **Generative AI (LLM)** para:
 1.  Criar cardápios semanais baseados no metabolismo e preferências do usuário.
 2.  Gerar receitas criativas baseadas nos ingredientes que o usuário tem em casa.
 3.  Transformar planos alimentares automaticamente em listas de compras consolidadas.

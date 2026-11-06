@@ -37,7 +37,7 @@ describe("AuthContext", () => {
 
     await user.click(screen.getByText("Login"));
 
-    expect(localStorage.getItem("nutri_token")).toBe("fake-token-123");
+    expect(localStorage.getItem("nuvi_token")).toBe("fake-token-123");
     await waitFor(() =>
       expect(screen.getByTestId("user-email")).toHaveTextContent("user@example.com"),
     );
@@ -47,8 +47,8 @@ describe("AuthContext", () => {
     // Regressão: um plano gerado pelo usuário A não pode sobreviver no localStorage
     // pro próximo usuário que logar no mesmo navegador.
     vi.mocked(api.get).mockResolvedValue({ data: { email: "user@example.com" } });
-    localStorage.setItem("nutri_token", "token-existente");
-    localStorage.setItem("nutri_current_plan", JSON.stringify({ days: [] }));
+    localStorage.setItem("nuvi_token", "token-existente");
+    localStorage.setItem("nuvi_current_plan", JSON.stringify({ days: [] }));
 
     const user = userEvent.setup();
     render(
@@ -59,7 +59,7 @@ describe("AuthContext", () => {
 
     await user.click(screen.getByText("Logout"));
 
-    expect(localStorage.getItem("nutri_token")).toBeNull();
-    expect(localStorage.getItem("nutri_current_plan")).toBeNull();
+    expect(localStorage.getItem("nuvi_token")).toBeNull();
+    expect(localStorage.getItem("nuvi_current_plan")).toBeNull();
   });
 });

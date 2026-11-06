@@ -19,7 +19,7 @@ def get_password_hash(password: str) -> str:
 # Hash descartável, calculado uma vez na subida do processo, usado só pra gastar o
 # mesmo tempo de CPU do Argon2 quando o email do login não existe (ver
 # routers/auth.py::login_for_access_token).
-_DUMMY_HASH = pwd_context.hash("nutriagent-dummy-password-for-constant-time-login")
+_DUMMY_HASH = pwd_context.hash("nuvi-dummy-password-for-constant-time-login")
 
 
 def verify_dummy_password(plain_password: str) -> bool:

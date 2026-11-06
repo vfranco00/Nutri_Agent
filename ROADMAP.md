@@ -1,4 +1,4 @@
-# 🗺️ Roadmap de Desenvolvimento - NutriAgent
+# 🗺️ Roadmap de Desenvolvimento - Nuvi
 
 > **Status do Projeto:** Backend da Sprint 4 Finalizado (Core Domain).
 > **Versão Atual:** 0.4.0 (MVP Backend Complete)

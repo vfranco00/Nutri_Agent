@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function checkUser() {
-    const token = localStorage.getItem('nutri_token');
+    const token = localStorage.getItem("nuvi_token");
     if (!token) {
       setLoading(false);
       return;
@@ -37,14 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function login(token: string) {
-    localStorage.setItem('nutri_token', token);
+    localStorage.setItem("nuvi_token", token);
     checkUser();
   }
 
   function logout() {
-    localStorage.removeItem('nutri_token');
+    localStorage.removeItem("nuvi_token");
     // Evita que dados de sessão (ex: plano alimentar gerado) vazem para o próximo usuário que logar neste navegador
-    localStorage.removeItem('nutri_current_plan');
+    localStorage.removeItem("nuvi_current_plan");
     setUser(null);
   }
 

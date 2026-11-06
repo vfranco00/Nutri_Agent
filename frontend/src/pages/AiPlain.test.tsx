@@ -19,7 +19,7 @@ vi.mock("../lib/SubscriptionContext", () => ({
 }));
 
 beforeEach(() => {
-  localStorage.removeItem("nutri_current_plan");
+  localStorage.removeItem("nuvi_current_plan");
   vi.mocked(api.post).mockReset();
 });
 

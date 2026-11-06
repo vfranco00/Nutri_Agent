@@ -1,13 +1,12 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  // baseURL: import.meta.env.VITE_API_URL || "https://nutriagentbackend-txazatal.b4a.run/",
   baseURL: import.meta.env.VITE_API_URL || "https://nutri-agent-api.onrender.com",
 });
 
 // Antes de cada requisição, verifica se tem token salvo e injeta no header
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('nutri_token');
+  const token = localStorage.getItem("nuvi_token");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -24,8 +23,8 @@ api.interceptors.response.use(
   (error) => {
     const isLoginRequest = error.config?.url?.includes('/auth/login');
     if (error.response?.status === 401 && !isLoginRequest) {
-      localStorage.removeItem('nutri_token');
-      localStorage.removeItem('nutri_current_plan');
+      localStorage.removeItem("nuvi_token");
+      localStorage.removeItem("nuvi_current_plan");
       if (window.location.pathname !== '/') {
         window.location.href = '/?login=1';
       }

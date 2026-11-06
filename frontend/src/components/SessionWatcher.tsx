@@ -19,7 +19,7 @@ export function SessionWatcher() {
 
   useEffect(() => {
     function check() {
-      const token = localStorage.getItem("nutri_token");
+      const token = localStorage.getItem("nuvi_token");
       if (!token) return;
       const expiry = getTokenExpiry(token);
       if (!expiry) return;
@@ -56,7 +56,7 @@ export function SessionWatcher() {
     setRefreshing(true);
     try {
       const res = await api.post("/auth/refresh");
-      localStorage.setItem("nutri_token", res.data.access_token);
+      localStorage.setItem("nuvi_token", res.data.access_token);
       setExpiryTs(null);
     } catch (error) {
       console.error(error);

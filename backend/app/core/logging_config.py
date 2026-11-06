@@ -24,12 +24,12 @@ def setup_logging() -> None:
     """Idempotente — chamar duas vezes não duplica handler (nem duplica linha de log)."""
     root = logging.getLogger()
 
-    if any(getattr(h, "_nutriagent", False) for h in root.handlers):
+    if any(getattr(h, "_nuvi", False) for h in root.handlers):
         return
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter(_LOG_FORMAT, datefmt=_DATE_FORMAT))
-    handler._nutriagent = True  # type: ignore[attr-defined]
+    handler._nuvi = True  # type: ignore[attr-defined]
 
     # DEBUG fora de produção ajuda no desenvolvimento; em produção INFO evita vazar
     # payload em log (o DEBUG do httpx/sqlalchemy é verboso e carrega dado de request).

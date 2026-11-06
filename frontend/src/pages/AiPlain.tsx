@@ -69,7 +69,7 @@ export function AiPlan() {
 
   // 1. PERSISTÊNCIA (Carregar ao abrir)
   useEffect(() => {
-    const savedPlan = localStorage.getItem("nutri_current_plan");
+    const savedPlan = localStorage.getItem("nuvi_current_plan");
     if (savedPlan) {
       try {
         const parsed = JSON.parse(savedPlan);
@@ -81,11 +81,11 @@ export function AiPlan() {
           );
         } else {
           // Se for lixo no localStorage, limpa para não quebrar a tela
-          localStorage.removeItem("nutri_current_plan");
+          localStorage.removeItem("nuvi_current_plan");
         }
       } catch (e) {
         console.error("Erro ao fazer parse do plano salvo");
-        localStorage.removeItem("nutri_current_plan");
+        localStorage.removeItem("nuvi_current_plan");
         console.error(e);
       }
     }
@@ -107,7 +107,7 @@ export function AiPlan() {
       if (response && response.data && Array.isArray(response.data.days)) {
         setPlanData(response.data);
         localStorage.setItem(
-          "nutri_current_plan",
+          "nuvi_current_plan",
           JSON.stringify(response.data),
         );
         setSelectedDayIndex(0);
@@ -128,7 +128,7 @@ export function AiPlan() {
       }
       console.error("Erro no Generate Plan:", error);
       // Se falhar, tenta restaurar o que tinha no localStorage
-      const savedPlan = localStorage.getItem("nutri_current_plan");
+      const savedPlan = localStorage.getItem("nuvi_current_plan");
       if (savedPlan) setPlanData(JSON.parse(savedPlan));
     } finally {
       setLoading(false);
@@ -140,7 +140,7 @@ export function AiPlan() {
   async function handleClearPlan() {
     if (await confirmDialog("Deseja criar um novo plano? O atual será perdido.")) {
       setPlanData(null);
-      localStorage.removeItem("nutri_current_plan");
+      localStorage.removeItem("nuvi_current_plan");
     }
   }
 
@@ -247,7 +247,7 @@ export function AiPlan() {
         ),
       };
       setPlanData(updatedPlan);
-      localStorage.setItem("nutri_current_plan", JSON.stringify(updatedPlan));
+      localStorage.setItem("nuvi_current_plan", JSON.stringify(updatedPlan));
       setSwapInfo({ used: res.data.swaps_used, limit: res.data.swaps_limit });
       // A sugestão mudou — se essa refeição já tinha sido salva antes da troca,
       // o "Salva" ficaria mentindo sobre uma receita que não existe mais.

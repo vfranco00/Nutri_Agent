@@ -4,7 +4,7 @@ import { AlertTriangle, X } from "lucide-react";
 import { useSubscription } from "../lib/SubscriptionContext";
 
 const WARNING_WINDOW_DAYS = 7;
-const DISMISS_KEY = "nutri_expiry_banner_dismissed";
+const DISMISS_KEY = "nuvi_expiry_banner_dismissed";
 
 const PLAN_LABELS: Record<string, string> = { starter: "Starter", plus: "Plus", pro: "Pro" };
 

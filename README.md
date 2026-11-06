@@ -1,4 +1,4 @@
-# 🍎 NutriAgent — AI Nutrition Planner
+# 🍊 Nuvi — AI Nutrition Planner
 
 > Plataforma inteligente para planejamento alimentar personalizado,
 > powered by Google Gemini LLM.
@@ -12,7 +12,7 @@
 
 ## 📋 Sobre o Projeto
 
-O **NutriAgent** é uma aplicação Fullstack que utiliza Inteligência Artificial (Google Gemini) para revolucionar a gestão nutricional pessoal. O sistema não apenas armazena receitas, mas entende ingredientes, calcula calorias automaticamente e gamifica a experiência de cozinhar.
+O **Nuvi** é uma aplicação Fullstack que utiliza Inteligência Artificial (Google Gemini) para revolucionar a gestão nutricional pessoal. O sistema não apenas armazena receitas, mas entende ingredientes, calcula calorias automaticamente e gamifica a experiência de cozinhar.
 
 O diferencial do projeto é seu **sistema híbrido de cálculo nutricional**, que utiliza IA para estimativas gerais e um sistema de *fallback* robusto para produtos brasileiros específicos (ex: Rap10, Requeijão, Tapioca), garantindo precisão onde LLMs costumam alucinar.
 
@@ -70,7 +70,7 @@ O diferencial do projeto é seu **sistema híbrido de cálculo nutricional**, qu
 
 ```bash
 git clone <URL_DO_REPO>
-cd nutriagent
+cd nutri-agent
 
 # Copie o arquivo de exemplo
 cp .env.example .env
@@ -124,7 +124,7 @@ docker compose exec api python -m pytest
 
 ------------------------------------------------------------------------
 
-# 🗺️ Roadmap de Desenvolvimento - NutriAgent
+# 🗺️ Roadmap de Desenvolvimento - Nuvi
 
 Versão Atual: 0.6.0 (AI & Gamification Integrated)
 
