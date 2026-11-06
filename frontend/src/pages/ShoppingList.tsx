@@ -3,21 +3,15 @@ import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
 import type { ShoppingList } from "../types";
-import {
-  Plus,
-  Trash2,
-  Calendar,
-  CheckCircle,
-  Circle,
-  ShoppingCart,
-  Loader2,
-  ArrowLeft,
-  Lock,
-  Sparkles,
-} from "lucide-react";
+import { Check, Loader2, Lock, Plus, Sparkles, Trash2, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { BouncingDots } from "../components/BouncingDots";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Skeleton } from "../components/ui/Skeleton";
+import { ROUTES } from "../routes";
 
 export function ShoppingPage() {
   const navigate = useNavigate();
@@ -163,173 +157,180 @@ export function ShoppingPage() {
     }
   }
 
+  const voltar = (
+    <button
+      type="button"
+      onClick={() => navigate(ROUTES.cardapios)}
+      aria-label="Voltar"
+      className="flex h-10 w-10 flex-none items-center justify-center rounded-[14px] bg-card active:scale-[.97]"
+    >
+      <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+    </button>
+  );
+
   if (subscription && !subscription.shopping_list_access) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
-          </button>
-          <h1 className="text-2xl font-bold text-pink-500 flex items-center gap-2">
-            <ShoppingCart className="h-8 w-8" /> Lista de Compras
+      <div className="mx-auto max-w-2xl space-y-3">
+        <div className="flex items-center gap-3">
+          {voltar}
+          <h1 className="text-[26px] font-black leading-[1.05] tracking-[-0.025em]">
+            Lista <span className="text-act-text">do mercado</span>
           </h1>
         </div>
-
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 text-center">
-          <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-pink-100 dark:bg-pink-500/10 flex items-center justify-center">
-            <Lock className="h-7 w-7 text-pink-600 dark:text-pink-500" />
+        <div className="rounded-3xl bg-card p-8 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-act-soft">
+            <Lock className="h-7 w-7 text-act-text" aria-hidden="true" />
           </div>
-          <h2 className="text-lg font-bold dark:text-white mb-2">
-            Disponível a partir do plano Plus
-          </h2>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">
-            No plano Starter a lista de compras fica bloqueada. Faça upgrade pra organizar suas compras direto do cardápio.
+          <h2 className="mb-2 text-lg font-extrabold">Disponível a partir do plano Plus</h2>
+          <p className="mb-6 text-sm text-mut">
+            No plano Starter a lista de compras fica bloqueada. Faça upgrade pra organizar suas compras direto do
+            cardápio.
           </p>
-          <button
-            onClick={() => navigate("/planos")}
-            className="inline-flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold px-5 py-2.5 rounded-lg transition-colors"
-          >
-            <Sparkles className="h-4 w-4" /> Ver planos
-          </button>
+          <Button onClick={() => navigate(ROUTES.assinatura)}>
+            <Sparkles className="h-4 w-4" aria-hidden="true" /> Ver planos
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
-        </button>
-        <h1 className="text-2xl font-bold text-pink-500 mb-8 flex items-center gap-2">
-          <ShoppingCart className="h-8 w-8" /> Lista de Compras
-        </h1>
+    <div className="mx-auto max-w-3xl space-y-1">
+      <div className="flex items-center gap-3">
+        {voltar}
+        <div>
+          <h1 className="text-[26px] font-black leading-[1.05] tracking-[-0.025em]">
+            Lista <span className="text-act-text">do mercado</span>
+          </h1>
+        </div>
       </div>
 
-      {/* Criar Nova Lista */}
-      <form
-        onSubmit={handleCreateList}
-        className="flex gap-4 mb-8 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs"
-      >
-        <input
+      {/* Criar nova lista */}
+      <form onSubmit={handleCreateList} className="mt-3 flex gap-2 rounded-3xl bg-card p-3">
+        <Input
           type="text"
+          aria-label="Nome da nova lista"
           placeholder="Nome da nova lista (ex: Churrasco de Domingo)"
           value={newListTitle}
           onChange={(e) => setNewListTitle(e.target.value)}
-          className="flex-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 outline-hidden dark:text-white focus:ring-2 focus:ring-pink-500"
         />
-        <button
-          type="submit"
-          disabled={creatingList}
-          className="bg-pink-600 hover:bg-pink-700 text-white px-6 rounded-lg font-bold flex items-center gap-2 disabled:opacity-50"
-        >
-          {creatingList ? <BouncingDots /> : <><Plus className="h-5 w-5" /> Criar</>}
-        </button>
+        <Button type="submit" disabled={creatingList} className="shrink-0">
+          {creatingList ? (
+            <BouncingDots />
+          ) : (
+            <>
+              <Plus className="h-5 w-5" aria-hidden="true" /> Criar
+            </>
+          )}
+        </Button>
       </form>
 
       {loading ? (
-        <div className="flex justify-center">
-          <Loader2 className="animate-spin text-pink-500 h-8 w-8" />
+        <div aria-hidden="true" className="space-y-2 pt-3">
+          <Skeleton className="h-40 rounded-3xl" />
         </div>
       ) : (
-        <div className="space-y-6">
-          {lists.map((list) => (
-            <div
-              key={list.id}
-              className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs overflow-hidden"
-            >
-              {/* Header da Lista */}
-              <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/30 flex justify-between items-center">
-                <div>
-                  <h3 className="font-bold text-lg dark:text-white">
-                    {list.title}
-                  </h3>
-                  <div className="flex items-center gap-1 text-xs text-zinc-500">
-                    <Calendar className="h-3 w-3" />
-                    {format(
-                      new Date(list.created_at),
-                      "dd 'de' MMMM 'às' HH:mm",
-                    )}
+        <div className="space-y-4 pt-3">
+          {lists.length === 0 && (
+            <div className="rounded-3xl border-2 border-dashed border-line p-6 text-center">
+              <p className="text-sm font-extrabold">Nenhuma lista ainda.</p>
+              <p className="mt-1 text-sm text-mut">Crie uma acima ou gere uma a partir do seu cardápio.</p>
+            </div>
+          )}
+          {lists.map((list) => {
+            const feitos = list.items.filter((i) => i.checked).length;
+            const pct = list.items.length ? (feitos / list.items.length) * 100 : 0;
+            return (
+              <section key={list.id} aria-label={list.title}>
+                <div className="flex items-start justify-between gap-3 px-1">
+                  <div className="min-w-0">
+                    <h2 className="truncate text-[17px] font-extrabold">{list.title}</h2>
+                    <p className="text-[13px] font-semibold text-mut">
+                      {list.items.length} itens · {feitos} no carrinho ·{" "}
+                      {format(new Date(list.created_at), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
+                    </p>
                   </div>
-                </div>
-                <button
-                  onClick={() => handleDeleteList(list.id)}
-                  disabled={deletingListId === list.id}
-                  className="p-2 text-zinc-500 hover:text-red-500 transition-colors disabled:opacity-50"
-                >
-                  {deletingListId === list.id ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-
-              {/* Itens */}
-              <div className="p-4 space-y-2">
-                {list.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between group"
-                  >
-                    <div
-                      onClick={() => handleToggleItem(item.id, list.id)}
-                      className="flex items-center gap-3 cursor-pointer select-none flex-1"
-                    >
-                      {item.checked ? (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-zinc-400 dark:text-zinc-600" />
-                      )}
-                      <span
-                        className={`${item.checked ? "text-zinc-400 line-through" : "text-zinc-700 dark:text-zinc-200"} transition-all`}
-                      >
-                        {item.name}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteItem(item.id, list.id)}
-                      className="text-zinc-400 dark:text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-
-                {/* Input de Novo Item */}
-                <div className="flex gap-2 mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
-                  <input
-                    type="text"
-                    placeholder="Adicionar item..."
-                    value={newItemNames[list.id] || ""}
-                    onChange={(e) =>
-                      setNewItemNames({
-                        ...newItemNames,
-                        [list.id]: e.target.value,
-                      })
-                    }
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleAddItem(list.id)
-                    }
-                    className="flex-1 bg-transparent border-b border-zinc-200 dark:border-zinc-700 px-2 py-1 outline-hidden focus:border-pink-500 dark:text-zinc-300 text-sm"
-                  />
                   <button
-                    onClick={() => handleAddItem(list.id)}
-                    className="text-pink-500 hover:text-pink-400"
+                    type="button"
+                    onClick={() => handleDeleteList(list.id)}
+                    disabled={deletingListId === list.id}
+                    aria-label={`Apagar ${list.title}`}
+                    className="flex h-10 w-10 flex-none items-center justify-center rounded-[14px] bg-card text-mut active:scale-[.97] disabled:opacity-50"
                   >
-                    <Plus className="h-5 w-5" />
+                    {deletingListId === list.id ? (
+                      <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Trash2 className="h-5 w-5" aria-hidden="true" />
+                    )}
                   </button>
                 </div>
-              </div>
-            </div>
-          ))}
+
+                <div
+                  role="progressbar"
+                  aria-label="Itens no carrinho"
+                  aria-valuemin={0}
+                  aria-valuemax={list.items.length}
+                  aria-valuenow={feitos}
+                  className="mx-1 my-2.5 h-2 overflow-hidden rounded bg-soft"
+                >
+                  <div className="h-full rounded bg-pos transition-[width] duration-300" style={{ width: `${pct}%` }} />
+                </div>
+
+                <ul className="overflow-hidden rounded-[22px] bg-card">
+                  {list.items.map((item) => (
+                    <li key={item.id} className="flex items-center gap-2.5 border-b border-line px-3.5 py-3">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={item.checked}
+                        onClick={() => handleToggleItem(item.id, list.id)}
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                      >
+                        <span
+                          className={`flex h-6 w-6 flex-none items-center justify-center rounded-lg border-2 ${
+                            item.checked ? "border-pos bg-pos text-nuvi-tinta" : "border-line"
+                          }`}
+                        >
+                          {item.checked && <Check className="h-[15px] w-[15px]" aria-hidden="true" />}
+                        </span>
+                        <span className={`text-sm font-bold ${item.checked ? "text-mut line-through" : ""}`}>
+                          {item.name}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteItem(item.id, list.id)}
+                        aria-label={`Remover ${item.name}`}
+                        className="flex h-7 w-7 flex-none items-center justify-center rounded-lg text-mut"
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    </li>
+                  ))}
+
+                  <li className="flex items-center gap-2 px-3.5 py-2.5">
+                    <input
+                      type="text"
+                      aria-label={`Adicionar item em ${list.title}`}
+                      placeholder="Adicionar item..."
+                      value={newItemNames[list.id] || ""}
+                      onChange={(e) => setNewItemNames({ ...newItemNames, [list.id]: e.target.value })}
+                      onKeyDown={(e) => e.key === "Enter" && handleAddItem(list.id)}
+                      className="min-w-0 flex-1 bg-transparent py-1.5 text-sm font-semibold text-ink placeholder:text-mut focus-visible:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleAddItem(list.id)}
+                      aria-label="Adicionar item"
+                      className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-xl bg-act text-on-act active:scale-[.97]"
+                    >
+                      <Plus className="h-[18px] w-[18px]" aria-hidden="true" />
+                    </button>
+                  </li>
+                </ul>
+              </section>
+            );
+          })}
         </div>
       )}
     </div>
