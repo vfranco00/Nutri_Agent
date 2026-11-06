@@ -64,7 +64,9 @@ describe("DiaryLog — quantidade inicial da porção", () => {
       </MemoryRouter>,
     );
 
-    await user.type(screen.getByLabelText(/buscar alimento/i), "ovo");
+    // A busca mora na folha "Adicionar alimento" (visual Nuvi).
+    await user.click(await screen.findByRole("button", { name: /^Adicionar alimento$/ }));
+    await user.type(await screen.findByLabelText(/buscar alimento/i), "ovo");
     const resultado = await screen.findByRole("button", { name: /Ovo/ }, { timeout: 3000 });
     await user.click(resultado);
 
