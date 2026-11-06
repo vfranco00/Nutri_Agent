@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Markdown } from "../../lib/markdown";
+import { useAuthTheme } from "../../components/auth/authTheme";
 
 export function Documento({ source }: { source: string }) {
+  useAuthTheme();
   return (
     <div className="min-h-dvh bg-bg text-ink">
       <main className="mx-auto max-w-2xl px-4 py-8">

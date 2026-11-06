@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, type MouseEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { LoginModal } from "../components/LoginModal";
+import { useAuthTheme } from "../components/auth/authTheme";
 import { useFeedback } from "../lib/FeedbackContext";
 import { ROUTES } from "../routes";
 import html from "./landing/landing.html?raw";
@@ -18,6 +19,7 @@ export function Landing() {
   const navigate = useNavigate();
   const { openFeedbackModal } = useFeedback();
   const { user } = useAuth();
+  useAuthTheme(); // o modal de login segue o tema salvo; a landing em si é sempre clara
   const [searchParams, setSearchParams] = useSearchParams();
 
   // O modal de login abre via ?login=1 (sessão expirada e redirecionamentos caem aqui).
