@@ -48,6 +48,7 @@ import './lib/consents';
 import { Lembretes } from './pages/perfil/Lembretes';
 import { Agente } from './pages/Agente';
 import { CodigoDeBarras } from './pages/registrar/CodigoDeBarras';
+import { NaoEncontrada } from './pages/NaoEncontrada';
 import type { JSX } from 'react';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
@@ -125,6 +126,9 @@ function AppRoutes() {
         <Route path="/admin/finance" element={<PrivateRoute><AdminRoute><AdminLayout><AdminFinance /></AdminLayout></AdminRoute></PrivateRoute>} />
         <Route path="/admin/usage" element={<PrivateRoute><AdminRoute><AdminLayout><AdminUsage /></AdminLayout></AdminRoute></PrivateRoute>} />
         <Route path="/admin/tickets" element={<PrivateRoute><AdminRoute><AdminLayout><AdminTickets /></AdminLayout></AdminRoute></PrivateRoute>} />
+
+        {/* Qualquer outro endereço: página "não encontrada" em vez de tela em branco */}
+        <Route path="*" element={<NaoEncontrada />} />
       </Routes>
 
       {naFolha && (
