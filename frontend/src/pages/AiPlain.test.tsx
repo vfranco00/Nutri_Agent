@@ -6,6 +6,7 @@ import { AiPlan } from "./AiPlain";
 import { AlertProvider } from "../lib/AlertContext";
 import { api } from "../lib/api";
 
+vi.mock("../lib/ia", () => ({ IA_DISPONIVEL: true }));
 vi.mock("../lib/api", () => ({
   api: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));

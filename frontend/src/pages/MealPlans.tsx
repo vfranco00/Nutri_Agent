@@ -28,6 +28,8 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "../components/ui/Tabs";
 import { toast } from "../components/ui/toastStore";
 import { ROUTES } from "../routes";
+import { IA_DISPONIVEL } from "../lib/ia";
+import { SeloEmBreve } from "../components/EmBreve";
 import type { DiaryDay, DiaryPlanBindingCreate, MealPlan } from "../types";
 
 const ATALHOS: Array<[LucideIcon, string, string]> = [
@@ -37,6 +39,9 @@ const ATALHOS: Array<[LucideIcon, string, string]> = [
   [BookOpen, "Receitas", ROUTES.receitas],
   [Trophy, "Comunidade", ROUTES.comunidade],
 ];
+
+/** Atalhos que dependem da IA: com `IA_DISPONIVEL` falso ficam desabilitados com o selo "Em breve". */
+const ROTAS_IA = new Set<string>([ROUTES.cardapioGerar, ROUTES.chef]);
 
 /**
  * Cardápios: duas abas.
@@ -70,10 +75,12 @@ export function MealPlans() {
               key={to}
               type="button"
               onClick={() => navigate(to)}
-              className="flex shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-2 text-[12.5px] font-bold active:scale-[.97]"
+              disabled={!IA_DISPONIVEL && ROTAS_IA.has(to)}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-2 text-[12.5px] font-bold active:scale-[.97] disabled:pointer-events-none disabled:opacity-60"
             >
               <Icone className="h-[15px] w-[15px]" aria-hidden="true" />
               {nome}
+              {!IA_DISPONIVEL && ROTAS_IA.has(to) ? <SeloEmBreve /> : null}
             </button>
           ))}
           <button
@@ -132,11 +139,16 @@ function Semana({ diary }: { diary: ReturnType<typeof useDiaryDay> }) {
         <div className="rounded-3xl border-2 border-dashed border-line p-6 text-center">
           <p className="text-sm font-extrabold">Nenhum cardápio neste dia.</p>
           <p className="mx-auto mt-1 max-w-xs text-sm text-mut">
-            Gere um cardápio com o Agente ou ative um dos seus cardápios salvos.
+            {IA_DISPONIVEL
+              ? "Gere um cardápio com o Agente ou ative um dos seus cardápios salvos."
+              : "Monte um cardápio ou ative um dos seus cardápios salvos."}
           </p>
-          <Button onClick={() => navigate(ROUTES.cardapioGerar)} className="mt-3">
-            <Sparkles aria-hidden="true" className="h-4 w-4" />
-            Gerar novo cardápio
+          <Button
+            onClick={() => navigate(IA_DISPONIVEL ? ROUTES.cardapioGerar : ROUTES.cardapioNovo)}
+            className="mt-3"
+          >
+            {IA_DISPONIVEL ? <Sparkles aria-hidden="true" className="h-4 w-4" /> : null}
+            {IA_DISPONIVEL ? "Gerar novo cardápio" : "Montar cardápio"}
           </Button>
         </div>
       )}
@@ -264,7 +276,9 @@ function MeusCardapios({ ativoId, onAtivado }: { ativoId: number | null; onAtiva
           <CalendarRange className="mx-auto mb-2 h-9 w-9 text-mut" aria-hidden="true" />
           <p className="text-sm font-extrabold">Você ainda não tem planos alimentares salvos.</p>
           <p className="mt-1 text-sm text-mut">
-            Gere um cardápio com o Agente e salve, ou monte um manualmente com suas receitas.
+            {IA_DISPONIVEL
+              ? "Gere um cardápio com o Agente e salve, ou monte um manualmente com suas receitas."
+              : "Monte um cardápio manualmente com suas receitas."}
           </p>
         </div>
       ) : (
@@ -318,10 +332,16 @@ function MeusCardapios({ ativoId, onAtivado }: { ativoId: number | null; onAtiva
       )}
 
       <div className="flex flex-wrap gap-2 pt-4">
-        <Button onClick={() => navigate(ROUTES.cardapioGerar)} className="flex-1">
-          <Sparkles aria-hidden="true" className="h-4 w-4" />
-          Gerar novo cardápio
-        </Button>
+        {IA_DISPONIVEL ? (
+          <Button onClick={() => navigate(ROUTES.cardapioGerar)} className="flex-1">
+            <Sparkles aria-hidden="true" className="h-4 w-4" />
+            Gerar novo cardápio
+          </Button>
+        ) : (
+          <Button disabled className="flex-1">
+            Gerar novo cardápio <SeloEmBreve />
+          </Button>
+        )}
         <Button
           variant="outline"
           onClick={() =>

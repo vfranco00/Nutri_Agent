@@ -5,6 +5,8 @@ import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
 import { NuviLoader } from "../components/brand/NuviLoader";
 import { PageTitle } from "../components/PageTitle";
+import { EmBreve } from "../components/EmBreve";
+import { IA_DISPONIVEL } from "../lib/ia";
 import { Button } from "../components/ui/Button";
 import { ROUTES } from "../routes";
 import { getRandomTip } from "../lib/tips";
@@ -12,6 +14,23 @@ import { formatInstructions } from "../lib/utils";
 import { ChefHat, Plus, Save, Clock, Flame, Users, Carrot, X } from "lucide-react";
 
 export function AiChef() {
+  return IA_DISPONIVEL ? <AiChefAtivo /> : <AiChefEmBreve />;
+}
+
+function AiChefEmBreve() {
+  const navigate = useNavigate();
+  return (
+    <div className="mx-auto max-w-3xl">
+      <PageTitle a="O que tem" b="na geladeira?" />
+      <EmBreve
+        texto="O Chef IA está em manutenção e volta logo. Enquanto isso, escreva a sua receita à mão."
+        acao={{ label: "Criar receita", onClick: () => navigate(ROUTES.receitaNova) }}
+      />
+    </div>
+  );
+}
+
+function AiChefAtivo() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
   const { getUsage, refreshSubscription } = useSubscription();

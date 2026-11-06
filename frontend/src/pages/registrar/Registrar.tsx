@@ -16,6 +16,7 @@ import {
   mensagemDeErro, NOME_DA_REFEICAO, opcaoDoMeu, padraoDoMais, previa, REFEICOES,
   SLOT_DA_REFEICAO, salvarLote,
 } from "../../lib/registro";
+import { IA_DISPONIVEL } from "../../lib/ia";
 import { ROUTES, refeicaoPorHorario, type Refeicao } from "../../routes";
 import type { DiaryUnit, FoodOption } from "../../types";
 import { PorcaoSheet } from "./PorcaoSheet";
@@ -236,7 +237,14 @@ function Resultados({ busca, emCarrinho, onAbrir, onMais, onFechar }: PropsLista
       </ul>
       {busca.status === "ready" ? (
         <div className="mt-3 flex items-center gap-3 rounded-2xl bg-soft p-3 text-sm">
-          <span className="flex-1">Não achou? <Link to={ROUTES.agente} onClick={onFechar} className="font-extrabold text-act-text">Pedir ao Agente</Link></span>
+          <span className="flex-1">
+            Não achou?{" "}
+            {IA_DISPONIVEL ? (
+              <Link to={ROUTES.agente} onClick={onFechar} className="font-extrabold text-act-text">Pedir ao Agente</Link>
+            ) : (
+              <Link to={ROUTES.alimentoNovo} onClick={onFechar} className="font-extrabold text-act-text">Cadastrar o alimento</Link>
+            )}
+          </span>
         </div>
       ) : null}
     </div>

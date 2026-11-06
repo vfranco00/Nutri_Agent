@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { IA_DISPONIVEL } from "./ia";
 import { api } from "./api";
 import { extractDiaryErrorMessage } from "./diary";
 import type { DiaryUnit, FoodOption, FoodSearchResponse } from "../types";
@@ -84,6 +85,7 @@ export function useFoodSearch(): UseFoodSearchResult {
 
   const resolveWithAi = useCallback(
     async (unit: DiaryUnit) => {
+      if (!IA_DISPONIVEL) throw new Error("A estimativa por IA está em manutenção e volta logo.");
       const limpo = term.trim();
       setResolving(true);
       setError(null);

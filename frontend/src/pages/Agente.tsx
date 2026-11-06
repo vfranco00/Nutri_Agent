@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { EmBreve } from "../components/EmBreve";
+import { IA_DISPONIVEL } from "../lib/ia";
 import { ArrowUp, Camera } from "lucide-react";
 import { NuviSlice } from "../components/brand/NuviSlice";
 import { Button } from "../components/ui/Button";
@@ -81,6 +83,23 @@ const SAUDACAO: Mensagem = {
 };
 
 export function Agente() {
+  return IA_DISPONIVEL ? <AgenteAtivo /> : <AgenteEmBreve />;
+}
+
+function AgenteEmBreve() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  return (
+    <div className="mx-auto max-w-2xl py-2">
+      <EmBreve
+        texto="O Agente Nuvi está em manutenção e volta logo. Enquanto isso, registre pelo diário, pela busca ou pelo código de barras."
+        acao={{ label: "Registrar comida", onClick: () => openRegistrar(navigate, location) }}
+      />
+    </div>
+  );
+}
+
+function AgenteAtivo() {
   const navigate = useNavigate();
   const location = useLocation();
   const [msgs, setMsgs] = useState<Mensagem[]>([SAUDACAO]);

@@ -7,6 +7,7 @@ import { makeDay, makeDayWithSlots, makeEntry } from "../test/diaryFactories";
 import { toIsoDate } from "../lib/diary";
 import type { DiaryDay } from "../types";
 
+vi.mock("../lib/ia", () => ({ IA_DISPONIVEL: true }));
 vi.mock("../lib/api", () => ({
   api: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));

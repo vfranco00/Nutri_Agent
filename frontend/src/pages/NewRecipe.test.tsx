@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { NewRecipe } from "./NewRecipe";
 import { api } from "../lib/api";
 
+vi.mock("../lib/ia", () => ({ IA_DISPONIVEL: true }));
 vi.mock("../lib/api", () => ({ api: { post: vi.fn(), get: vi.fn() } }));
 vi.mock("../lib/AlertContext", () => ({ useAlert: () => ({ showAlert: vi.fn() }) }));
 

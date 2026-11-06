@@ -41,6 +41,7 @@ import { DiaMenuButton } from "../components/diary/DiaMenuButton";
 import { MenuRefeicao } from "../components/diary/MenusDoDiario";
 import { PullToRefresh } from "../components/PullToRefresh";
 import { ROUTES } from "../routes";
+import { IA_DISPONIVEL } from "../lib/ia";
 import type { DiaryDay, DiaryDaySlot, MealSlot, Profile, User } from "../types";
 
 interface WeightData {
@@ -180,7 +181,7 @@ export function Hoje() {
           <div className="grid gap-x-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
             <div className="min-w-0 space-y-2.5">
               {diary.isEmpty && (
-                <EmptyDayCard onRegister={() => irParaRegistro()} onPlan={() => navigate(ROUTES.cardapioGerar)} />
+                <EmptyDayCard onRegister={() => irParaRegistro()} onPlan={() => navigate(ROUTES.cardapioGerar)} onPlanManual={() => navigate(ROUTES.cardapioNovo)} />
               )}
               <EnergiaCard day={diary.day} onFixTarget={() => navigate(ROUTES.perfil)} />
               <HojeSlots.Agua date={diary.date} />
@@ -388,23 +389,36 @@ function ProximoPasso({
 }
 
 /** Vazio de usuário novo: nada registrado e nenhum cardápio no calendário. */
-function EmptyDayCard({ onRegister, onPlan }: { onRegister: () => void; onPlan: () => void }) {
+function EmptyDayCard({
+  onRegister,
+  onPlan,
+  onPlanManual,
+}: {
+  onRegister: () => void;
+  onPlan: () => void;
+  onPlanManual: () => void;
+}) {
   return (
     <section className="rounded-3xl border-2 border-dashed border-line p-5 text-center">
       <h2 className="text-lg font-black">Seu dia está em branco — vamos preencher?</h2>
       <p className="mx-auto mt-1.5 max-w-md text-sm text-mut">
-        Registre o que você comeu e o medidor começa a se desenhar aqui. Se preferir, gere um cardápio e o dia já nasce
-        planejado.
+        Registre o que você comeu e o medidor começa a se desenhar aqui. {IA_DISPONIVEL ? "Se preferir, gere um cardápio e o dia já nasce planejado." : "Se preferir, monte um cardápio e o dia já nasce planejado."}
       </p>
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         <Button onClick={onRegister}>
           <Plus aria-hidden="true" className="h-4 w-4" />
           Registrar primeira refeição
         </Button>
-        <Button variant="outline" onClick={onPlan}>
-          <Sparkles aria-hidden="true" className="h-4 w-4" />
-          Gerar um cardápio
-        </Button>
+        {IA_DISPONIVEL ? (
+          <Button variant="outline" onClick={onPlan}>
+            <Sparkles aria-hidden="true" className="h-4 w-4" />
+            Gerar um cardápio
+          </Button>
+        ) : (
+          <Button variant="outline" onClick={onPlanManual}>
+            Montar um cardápio
+          </Button>
+        )}
       </div>
     </section>
   );

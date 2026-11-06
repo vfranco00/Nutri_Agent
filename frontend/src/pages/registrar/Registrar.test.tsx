@@ -7,6 +7,7 @@ import { __limparToasts } from "../../components/ui/toastStore";
 import { Registrar } from "./Registrar";
 
 const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), delete: vi.fn(), patch: vi.fn() }));
+vi.mock("../../lib/ia", () => ({ IA_DISPONIVEL: true }));
 vi.mock("../../lib/api", () => ({ api }));
 
 const dia = (ids: number[]) => ({

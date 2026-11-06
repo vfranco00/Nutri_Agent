@@ -7,6 +7,7 @@ import { api } from "../lib/api";
 import { Toaster } from "../components/ui/Toast";
 import type { AgentParseResponse, FoodOption } from "../types";
 
+vi.mock("../lib/ia", () => ({ IA_DISPONIVEL: true }));
 vi.mock("../lib/api", () => ({ api: { get: vi.fn(), post: vi.fn() } }));
 
 const food = (ref: string, name: string, k: number, base: "g" | "un" = "un"): FoodOption => ({

@@ -37,6 +37,8 @@ import { MenuRefeicao } from "../components/diary/MenusDoDiario";
 import { DiaMenuButton } from "../components/diary/DiaMenuButton";
 import { apagarComDesfazer } from "../components/diary/apagarComDesfazer";
 import { Button } from "../components/ui/Button";
+import { SeloEmBreve } from "../components/EmBreve";
+import { IA_DISPONIVEL } from "../lib/ia";
 import { Input } from "../components/ui/Input";
 import { Sheet } from "../components/ui/Sheet";
 import { Skeleton } from "../components/ui/Skeleton";
@@ -351,6 +353,7 @@ function FoodSearchPanel({
   const [erroResolve, setErroResolve] = useState<string | null>(null);
 
   async function estimar() {
+    if (!IA_DISPONIVEL) return;
     setErroResolve(null);
     try {
       const opcao = await busca.resolveWithAi(unidadeResolve);
@@ -434,9 +437,12 @@ function FoodSearchPanel({
         <div className="mt-3 rounded-[22px] border-2 border-dashed border-line p-4">
           <p className="text-sm font-extrabold">Não achamos “{busca.term.trim()}” na tabela.</p>
           <p className="mt-1 text-xs text-mut">
-            Podemos estimar os valores com IA. O resultado fica marcado como estimativa e conta na sua cota do plano.
+            {IA_DISPONIVEL
+              ? "Podemos estimar os valores com IA. O resultado fica marcado como estimativa e conta na sua cota do plano."
+              : "A estimativa por IA está em manutenção. Tente outro nome, leia o código de barras ou cadastre o alimento."}
           </p>
 
+          {IA_DISPONIVEL ? (<>
           <fieldset className="mt-3">
             <legend className="text-xs font-semibold text-mut">Como você mede esse alimento?</legend>
             <div className="mt-1.5 flex gap-1.5">
@@ -466,6 +472,11 @@ function FoodSearchPanel({
             )}
             Estimar com IA
           </Button>
+          </>) : (
+            <Button variant="outline" disabled className="mt-3 px-3 py-2">
+              Estimar com IA <SeloEmBreve />
+            </Button>
+          )}
         </div>
       )}
 

@@ -9,6 +9,8 @@ import { PageTitle } from '../components/PageTitle';
 import { Button } from '../components/ui/Button';
 import { Switch } from '../components/ui/Switch';
 import { ROUTES } from '../routes';
+import { IA_DISPONIVEL } from '../lib/ia';
+import { SeloEmBreve } from '../components/EmBreve';
 
 interface IngredientInput { name: string; quantity: string; unit: string; calories?: number; }
 
@@ -44,6 +46,7 @@ export function NewRecipe() {
 
   async function calculateIngredientCalories(index: number) {
     const ing = ingredients[index];
+    if (!IA_DISPONIVEL) return;
     if (!ing.name || !ing.quantity || !ing.unit) return;
     if (ing.calories && ing.calories > 0) return;
 
@@ -119,8 +122,8 @@ export function NewRecipe() {
               <input type="number" value={prepTime} onChange={e => setPrepTime(e.target.value)} className={CAMPO} />
             </div>
             <div className="space-y-2">
-              <label className={ROTULO}><Flame className="h-4 w-4" /> Calorias</label>
-              <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className={CAMPO} placeholder="Auto" />
+              <label className={ROTULO}><Flame className="h-4 w-4" /> Calorias {!IA_DISPONIVEL && <SeloEmBreve className="ml-1" />}</label>
+              <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className={CAMPO} placeholder={IA_DISPONIVEL ? "Auto" : "Digite"} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 [&>*]:min-w-0">

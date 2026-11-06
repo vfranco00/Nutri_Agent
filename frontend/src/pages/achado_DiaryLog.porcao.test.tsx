@@ -21,6 +21,7 @@ import { api } from "../lib/api";
 import { makeDay, makeFood } from "../test/diaryFactories";
 import { toIsoDate } from "../lib/diary";
 
+vi.mock("../lib/ia", () => ({ IA_DISPONIVEL: true }));
 vi.mock("../lib/api", () => ({
   api: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));

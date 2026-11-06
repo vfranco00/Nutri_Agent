@@ -7,6 +7,8 @@ import { NuviLoader } from "../components/brand/NuviLoader";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Sheet } from "../components/ui/Sheet";
+import { EmBreve } from "../components/EmBreve";
+import { IA_DISPONIVEL } from "../lib/ia";
 import { ROUTES } from "../routes";
 import type { AiPlanResponse, DailyPlan } from "../types";
 import {
@@ -29,6 +31,25 @@ function detalheDoErro(error: unknown): DetalheErro {
 }
 
 export function AiPlan() {
+  return IA_DISPONIVEL ? <AiPlanAtivo /> : <AiPlanEmBreve />;
+}
+
+function AiPlanEmBreve() {
+  const navigate = useNavigate();
+  return (
+    <div className="mx-auto max-w-3xl space-y-3">
+      <h1 className="text-[26px] font-black leading-[1.05] tracking-[-0.025em]">
+        Monte meu <span className="text-act-text">cardápio</span>
+      </h1>
+      <EmBreve
+        texto="Gerar cardápio com IA está em manutenção e volta logo. Enquanto isso, monte o seu cardápio à mão com as suas receitas."
+        acao={{ label: "Montar cardápio", onClick: () => navigate(ROUTES.cardapioNovo) }}
+      />
+    </div>
+  );
+}
+
+function AiPlanAtivo() {
   const navigate = useNavigate();
   const { showAlert, confirmDialog } = useAlert();
   const { subscription, getUsage, refreshSubscription } = useSubscription();
