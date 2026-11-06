@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nuvi · Landing final</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..900&family=Nunito:wght@900&display=swap" rel="stylesheet">
+<style>
+:root{--or:#E8590C;--orT:#C2410C;--gomo:#FF9A52;--cream:#FFF6EC;--ink:#1C1712;--mut:#7A6A58;--dark:#1A120B;--card2:#261B13;--pos:#3FA34D;--posT:#2F7A33;--line:#EADCCB;
+ --eo:cubic-bezier(0.23,1,0.32,1);--eio:cubic-bezier(0.77,0,0.175,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",system-ui,sans-serif;background:#EDE5DC;color:var(--ink)}
+.wm{font-family:"Nunito",sans-serif;font-weight:900;letter-spacing:-.04em}
+a{color:inherit}
+/* seletor de direção */
+.pick{position:sticky;top:0;z-index:100;display:flex;gap:6px;justify-content:center;padding:10px;background:#EDE5DC;flex-wrap:wrap}
+.pick button{font:800 13px "DM Sans";border:0;border-radius:999px;padding:9px 14px;background:#fff;cursor:pointer;color:var(--ink)}
+.pick button[aria-pressed=true]{background:var(--ink);color:#fff}
+.dir{display:block}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+@media (max-width:640px){.wrap{padding:0 16px}}
+.nav{display:flex;align-items:center;gap:26px;height:76px}
+.nav .logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav .logo svg{width:30px;height:30px}.nav .logo .wm{font-size:27px}
+.nav .links{display:flex;gap:22px;margin-left:auto;font-weight:600;font-size:15px}
+.nav .links a{text-decoration:none;opacity:.8}
+.btn{display:inline-flex;align-items:center;gap:8px;font:800 16px "DM Sans";border:0;border-radius:16px;padding:15px 22px;background:var(--or);color:var(--ink);cursor:pointer;text-decoration:none;transition:transform 140ms var(--eo)}
+.btn:active{transform:scale(.97)}
+.btn.sm{padding:11px 16px;font-size:14px;border-radius:13px}
+.btn.ink{background:var(--ink);color:var(--cream)}
+.btn.cream{background:var(--cream);color:var(--ink)}
+.note{font-size:13.5px;color:var(--mut);margin-top:12px}
+@media (max-width:760px){.nav .links{display:none}.nav .btn{margin-left:auto}}
+
+/* ============ A · PRATO ANOTADO ============ */
+#A{background:var(--cream)}
+.a-hero{display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:center;padding:30px 0 70px}
+.a-hero h1{font-size:clamp(52px,7.4vw,108px);line-height:.92;letter-spacing:-.055em;font-weight:800}
+.a-hero h1 em{font-style:normal;color:var(--orT)}
+.a-hero p.lead{font-size:20px;line-height:1.5;color:var(--mut);max-width:500px;margin:26px 0 30px}
+.a-hero p.lead b{color:var(--ink)}
+.plate{position:relative;aspect-ratio:1;max-width:600px;width:100%;justify-self:end}
+.plate svg.prato{width:100%;height:100%;display:block}
+.tag{position:absolute;background:#fff;border-radius:14px;padding:8px 12px;font-size:13px;line-height:1.25;box-shadow:0 1px 0 var(--line),0 10px 30px rgba(28,23,18,.08);white-space:nowrap;
+ opacity:0;transform:translateY(8px);transition:opacity 260ms var(--eo),transform 260ms var(--eo)}
+.tag b{display:block;font-size:14px}.tag span{color:var(--mut)}.tag i{font-style:normal;font-weight:800;color:var(--orT)}
+.tag.show{opacity:1;transform:none}
+.tag .src{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--posT);background:#E3F3E1;border-radius:6px;padding:1px 5px;margin-left:4px;vertical-align:1px}
+.total{position:absolute;right:-2%;bottom:3%;transform:translateY(10px);background:var(--ink);color:var(--cream);border-radius:20px;padding:12px 16px 12px 12px;display:flex;align-items:center;gap:12px;opacity:0;transition:opacity 300ms var(--eo),transform 300ms var(--eo);white-space:nowrap}
+.total.show{opacity:1;transform:none}
+.total svg{width:58px;height:32px}
+.total b{font-size:20px}.total small{display:block;font-size:12px;color:#CDBFAE}
+@media (max-width:900px){.a-hero{grid-template-columns:1fr}.plate{justify-self:center;max-width:460px}.tag{font-size:11.5px;padding:6px 9px}.tag b{font-size:12px}}
+
+.marquee{border-block:1px solid var(--line);overflow:hidden;padding:18px 0;background:#fff}
+.marquee .track{display:flex;gap:12px;width:max-content;animation:mq 50s linear infinite}
+.marquee span{background:var(--cream);border-radius:999px;padding:9px 16px;font-weight:700;font-size:15px;white-space:nowrap}
+.marquee span i{font-style:normal;color:var(--mut);font-weight:600;margin-left:6px}
+@keyframes mq{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee .track{animation:none}}
+
+.a-ways{padding:100px 0}
+.a-ways h2,.sec-h{font-size:clamp(36px,4.6vw,64px);letter-spacing:-.045em;line-height:1;font-weight:800;max-width:900px}
+.a-ways h2 em,.sec-h em{font-style:normal;color:var(--orT)}
+.rows{margin-top:56px;border-top:2px solid var(--ink)}
+.row{display:grid;grid-template-columns:90px 1.1fr 1fr;gap:24px;padding:30px 0;border-bottom:1px solid var(--line);align-items:start}
+.row .n{font-size:15px;font-weight:800;color:var(--orT)}
+.row h3{font-size:30px;letter-spacing:-.03em;line-height:1.05}
+.row p{color:var(--mut);font-size:17px;line-height:1.5}
+.row .ex{font-weight:700;color:var(--ink);background:#fff;border-radius:12px;padding:10px 14px;display:inline-block;margin-top:10px;font-size:15px}
+@media (max-width:760px){.row{grid-template-columns:1fr;gap:8px}}
+
+.photo{position:relative;justify-self:end;width:100%;max-width:640px}
+.photo img{width:100%;height:auto;display:block;border-radius:32px;aspect-ratio:4/3;object-fit:cover;box-shadow:0 30px 60px rgba(28,23,18,.18)}
+.ph-img{position:relative}.pin{position:absolute;width:0;height:0}
+.pin>i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(232,89,12,.9);opacity:0;transition:opacity 200ms var(--eo)}
+.pin .tag{left:14px;top:-22px}
+.pin.esq .tag{left:auto;right:14px}
+.pin.show>i{opacity:1}
+.credit{font-size:11px;color:var(--mut);margin-top:10px;text-align:right}
+.credit a{color:var(--mut)}
+@media (max-width:900px){.photo{justify-self:center}.pin .tag{top:-18px}}
+@media (max-width:640px){.pin.l .tag{left:14px;right:auto;top:12px}.pin.baixo{display:none}.pin.mr .tag{left:auto;right:14px}.photo .total{position:relative;right:auto;bottom:auto;margin-top:14px;display:inline-flex}}
+/* ============ B · FALA QUE EU ANOTO ============ */
+#B{background:var(--dark);color:#F3EFE9}
+#B .nav .links a{opacity:.7}
+.b-hero{padding:100px 0 100px;display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center}
+.b-kicker{font-size:15px;font-weight:700;color:var(--gomo);margin-bottom:18px}
+.b-line{font-size:clamp(44px,6.2vw,92px);line-height:.98;letter-spacing:-.05em;font-weight:800;min-height:2.95em}
+.b-line .typed{color:var(--cream)}
+.b-line .pre{color:#7E6D5C}
+.caret{display:inline-block;width:.06em;height:.82em;background:var(--or);vertical-align:-.06em;margin-left:.04em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.b-try{margin-top:30px;display:flex;gap:10px;max-width:620px;background:var(--card2);border-radius:18px;padding:8px}
+.b-try input{flex:1;background:transparent;border:0;color:#F3EFE9;font:500 17px "DM Sans";padding:10px 12px;outline:none;min-width:0}
+.b-try input::placeholder{color:#8E7D6B}
+.b-sub{color:#B9A892;font-size:17px;line-height:1.5;margin-top:22px;max-width:560px}
+.reply{background:var(--cream);color:var(--ink);border-radius:28px;padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.reply .hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.reply .hd svg{width:38px;height:38px}
+.reply .hd b{font-size:15px}.reply .hd small{display:block;color:var(--mut);font-size:12.5px}
+.items{display:flex;flex-direction:column;gap:6px;min-height:200px}
+.it{display:flex;justify-content:space-between;gap:10px;background:#fff;border-radius:14px;padding:11px 14px;font-size:15px;opacity:0;transform:translateY(6px);transition:opacity 220ms var(--eo),transform 220ms var(--eo)}
+.it.show{opacity:1;transform:none}
+.it span{color:var(--mut);font-size:13px;display:block}
+.it b{white-space:nowrap}
+.gbar{margin-top:14px;background:#fff;border-radius:18px;padding:12px 14px}
+.gbar .row2{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700}
+.gbar .tr{height:12px;background:#F3E4D4;border-radius:9px;margin-top:8px;overflow:hidden}
+.gbar .fl{height:100%;width:0;background:var(--or);border-radius:9px;transition:width 450ms var(--eio)}
+.reply .acts{display:flex;gap:8px;margin-top:12px}
+.reply .acts .btn{flex:1;justify-content:center}
+@media (max-width:900px){.b-hero{grid-template-columns:1fr}.b-line{min-height:3.95em}}
+.b-snap{background:var(--cream);color:var(--ink);padding:100px 0}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:50px}
+.trio > div{background:#fff;border-radius:28px;padding:26px;min-height:300px;display:flex;flex-direction:column}
+.trio h3{font-size:26px;letter-spacing:-.03em;margin-top:auto}
+.trio p{color:var(--mut);margin-top:8px;line-height:1.45}
+.trio .vis{flex:1;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+@media (max-width:860px){.trio{grid-template-columns:1fr}}
+
+/* ============ C · LARANJA INTEIRA ============ */
+#C{background:var(--or);color:var(--ink)}
+#C .nav .btn{background:var(--ink);color:var(--cream)}
+.c-hero{position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:center;min-height:calc(100vh - 140px);padding-bottom:40px}
+.c-hero h1{font-size:clamp(60px,9vw,140px);line-height:.86;letter-spacing:-.06em;font-weight:800;color:var(--cream)}
+.c-hero h1 span{color:var(--ink)}
+.c-hero p{font-size:20px;line-height:1.5;max-width:460px;margin:26px 0 30px;font-weight:500}
+.bigslice{position:relative;width:min(640px,100%);aspect-ratio:1;justify-self:end}
+.bigslice svg{width:100%;height:100%;overflow:visible}
+.bigslice .g{transform-box:view-box;transform-origin:50px 50px;transition:transform 320ms var(--eo),fill 200ms ease;cursor:pointer}
+.feat{position:absolute;left:50%;bottom:-2%;transform:translateX(-50%);min-width:280px;max-width:90%;text-align:center;pointer-events:none;background:var(--ink);color:var(--cream);border-radius:22px;padding:14px 20px;box-shadow:0 20px 50px rgba(28,23,18,.25)}
+.feat .k{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gomo)}
+.feat b{display:block;font-size:clamp(20px,2.4vw,30px);letter-spacing:-.03em;line-height:1.05;margin:4px 0}
+.feat small{font-size:14px;color:#CDBFAE;line-height:1.35;display:block}
+.feat .hub{display:none}
+@media (max-width:900px){.c-hero{grid-template-columns:1fr;gap:30px}.bigslice{justify-self:center}}
+.c-snap{background:var(--cream);padding:100px 0}
+.c-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.phone{width:300px;height:610px;border:10px solid #0E0C0B;border-radius:46px;background:var(--cream);overflow:hidden;margin:0 auto;box-shadow:0 40px 80px rgba(28,23,18,.18);padding:40px 14px 0;display:flex;flex-direction:column;gap:10px}
+.ph-card{background:#fff;border-radius:20px;padding:12px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px}
+.facts b{display:block;font-size:44px;letter-spacing:-.04em;line-height:1}
+.facts span{color:var(--mut);font-size:15px}
+@media (max-width:860px){.c-grid{grid-template-columns:1fr}}
+
+/* ============ comum: planos e rodapé ============ */
+.plans{padding:90px 0;background:#fff}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.plan{border:1.5px solid var(--line);border-radius:26px;padding:26px;display:flex;flex-direction:column;gap:12px}
+.plan.hl{border:2px solid var(--ink)}
+.plan .pr{font-size:42px;font-weight:800;letter-spacing:-.04em}.plan .pr small{font-size:15px;color:var(--mut);font-weight:600}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:7px;color:var(--mut);font-size:15px;margin-bottom:8px}
+.plan ul li:before{content:"— ";color:var(--orT)}
+.plan .btn{margin-top:auto;justify-content:center}
+@media (max-width:860px){.pgrid{grid-template-columns:1fr}}
+.foot{background:var(--ink);color:#CDBFAE;padding:60px 0 40px;font-size:14px}
+.foot .big{font-size:clamp(60px,14vw,200px);color:var(--cream);line-height:.8;margin-bottom:30px}
+.foot .row3{display:flex;gap:24px;flex-wrap:wrap;justify-content:space-between}
+.foot a{text-decoration:none}
+.anti{max-width:1240px;margin:0 auto;padding:30px 28px 60px;font-size:14px;color:var(--mut)}
+.anti b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<!-- ===================== A ===================== -->
+<section class="dir" id="A">
+  <div class="wrap">
+    <nav class="nav"><a class="logo" href="#"><span class="slot-logo"></span><span class="wm">nuvi</span></a>
+      <div class="links"><a href="#">Como funciona</a><a href="#">Planos</a><a href="#">Entrar</a></div><a class="btn sm" href="#">Começar grátis</a></nav>
+    <div class="a-hero">
+      <div>
+        <h1>Arroz, feijão e a <em>conta certa.</em></h1>
+        <p class="lead">O Nuvi conhece a comida daqui. São <b>mais de 600 alimentos da tabela TACO</b>, do pão de queijo ao açaí. Você diz o que comeu, e ele anota as calorias e os macros.</p>
+        <a class="btn" href="#">Começar grátis</a>
+        <p class="note">Grátis para sempre no plano Starter. Sem cartão.</p>
+      </div>
+      <div class="photo" id="plate"><div class="ph-img">
+        <img src="img/prato-arroz-feijao.jpg" alt="Prato de almoço brasileiro: arroz branco, feijão carioca, abobrinha grelhada e verdura refogada" width="1500" height="1125">
+        <div class="pin" style="left:39%;top:44%"><i></i><div class="tag"><b>Feijão carioca<span class="src">TACO</span></b><span>2 conchas · </span><i>152 kcal</i></div></div>
+        <div class="pin l" style="left:27%;top:74%"><i></i><div class="tag"><b>Arroz branco cozido<span class="src">TACO</span></b><span>4 col. de sopa · </span><i>164 kcal</i></div></div>
+        <div class="pin mr esq" style="left:63%;top:22%"><i></i><div class="tag"><b>Abobrinha grelhada<span class="src">TACO</span></b><span>100 g · </span><i>15 kcal</i></div></div>
+        <div class="pin mr baixo" style="left:66%;top:70%"><i></i><div class="tag"><b>Escarola refogada</b><span>1 porção · </span><i>30 kcal</i></div></div>
+        </div><div class="total" id="totalA"><svg viewBox="0 0 100 54"><path d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#3A2C20" stroke-width="10" stroke-linecap="round"/><path class="arcA" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#E8590C" stroke-width="10" stroke-linecap="round" style="transition:stroke-dashoffset 450ms var(--eio)"/></svg><div><b>361 kcal</b><small>cabe no seu dia: faltam 1.639</small></div></div>
+        <p class="credit">Foto: Mike Peel, <a href="https://commons.wikimedia.org/wiki/File:Rice,_beans_and_vegetables_in_Brazil.jpg">CC BY-SA 4.0</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="marquee"><div class="track" id="mq"></div></div>
+  </section>
+
+<!-- ===================== B ===================== -->
+<section class="dir" id="B">
+  <div class="wrap">
+    
+    <div class="b-hero">
+      <div>
+        <p class="b-kicker">Ou nem precisa procurar</p>
+        <div class="b-line" aria-live="polite"><span class="pre">Comi </span><span class="typed" id="typed"></span><span class="caret"></span></div>
+        <form class="b-try" id="tryB"><input id="tryIn" placeholder="Experimente: comi tapioca com queijo e café" aria-label="Escreva o que você comeu"><button class="btn sm" type="submit">Anotar</button></form>
+        <p class="b-sub">Sem procurar item por item. O Nuvi separa o que você escreveu, acha na tabela TACO e mostra quanto ainda cabe no seu dia.</p>
+      </div>
+      <div class="reply">
+        <div class="hd"><span class="slot-masc"></span><div><b>Anotei no almoço</b><small>confira antes de salvar</small></div></div>
+        <div class="items" id="itemsB"></div>
+        <div class="gbar"><div class="row2"><span>Seu dia</span><span id="kB">0 / 2.000 kcal</span></div><div class="tr"><div class="fl" id="flB"></div></div></div>
+        <div class="acts"><a class="btn sm" href="#">Confirmar</a><a class="btn sm ink" href="#" style="background:#EFE3D5;color:var(--ink)">Ajustar</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="b-snap"><div class="wrap">
+    <h2 class="sec-h">Ou do jeito que <em>preferir.</em></h2>
+    <div class="trio">
+      <div><div class="vis"><svg viewBox="0 0 160 90" width="200"><rect x="10" y="10" width="140" height="70" rx="10" fill="#FFF6EC"/><g fill="#1C1712"><rect x="26" y="22" width="4" height="46"/><rect x="34" y="22" width="2" height="46"/><rect x="40" y="22" width="6" height="46"/><rect x="50" y="22" width="2" height="46"/><rect x="56" y="22" width="4" height="46"/><rect x="64" y="22" width="2" height="46"/><rect x="70" y="22" width="6" height="46"/><rect x="80" y="22" width="2" height="46"/><rect x="86" y="22" width="4" height="46"/><rect x="94" y="22" width="6" height="46"/><rect x="104" y="22" width="2" height="46"/><rect x="110" y="22" width="4" height="46"/><rect x="118" y="22" width="2" height="46"/><rect x="124" y="22" width="6" height="46"/></g><rect x="16" y="44" width="128" height="3" fill="#E8590C"/></svg></div><h3>Código de barras</h3><p>Rótulo lido na hora. Grátis em todos os planos.</p></div>
+      <div><div class="vis" style="font-size:15px;flex-direction:column;gap:6px;align-items:stretch"><span style="background:#FFF6EC;border-radius:12px;padding:9px 12px">Arroz branco cozido <b style="float:right">164</b></span><span style="background:#FFF6EC;border-radius:12px;padding:9px 12px">Feijão carioca <b style="float:right">76</b></span><span style="background:#FFF6EC;border-radius:12px;padding:9px 12px">Pão de queijo <b style="float:right">99</b></span></div><h3>Busca na TACO</h3><p>A tabela oficial brasileira, com porção de casa: concha, colher, fatia.</p></div>
+      <div><div class="vis"><span class="slot-masc-big"></span></div><h3>Foto do prato</h3><p>Manda a foto, o Agente sugere os itens, você confirma.</p></div>
+    </div>
+  </div></div>
+</section>
+
+
+
+<!-- comum -->
+<section class="plans"><div class="wrap">
+  <h2 class="sec-h">Um plano para o <em>tamanho da sua rotina.</em></h2>
+  <div class="pgrid">
+    <div class="plan"><b style="font-size:20px">Starter</b><div class="pr">R$ 0</div><ul><li>Diário com a tabela TACO e código de barras</li><li>2 cardápios por mês</li><li>Chef IA 5x por semana</li><li>Até 10 receitas próprias</li></ul><a class="btn ink" href="#">Começar grátis</a></div>
+    <div class="plan hl"><b style="font-size:20px">Plus</b><div class="pr">R$ 29,90 <small>/mês</small></div><ul><li>1 cardápio semanal + diário todo dia</li><li>Chef IA 30x por mês</li><li>Lista de compras liberada</li><li>Até 50 receitas próprias</li></ul><a class="btn" href="#">Assinar o Plus</a></div>
+    <div class="plan"><b style="font-size:20px">Pro</b><div class="pr">R$ 59,90 <small>/mês</small></div><ul><li>Cardápios ilimitados</li><li>Chef IA ilimitado</li><li>Planos alimentares ilimitados</li><li>Receitas próprias ilimitadas</li></ul><a class="btn ink" href="#">Assinar o Pro</a></div>
+  </div>
+</div></section>
+<footer class="foot"><div class="wrap"><div class="big wm">nuvi</div><div class="row3"><span>Nuvi não substitui orientação médica ou de nutricionista.</span><span><a href="#">Política de Privacidade</a> · <a href="#">Termos de Uso</a> · <a href="#">Ajuda</a></span></div></div></footer>
+<p class="anti"><b>O que tiramos por ter cara de IA:</b> “com IA” no título, brilhinhos, fundo roxo ou degradê, o celular inclinado ao lado de dois botões, a grade de 6 recursos com ícone, depoimentos inventados. No lugar: comida brasileira de verdade, o produto funcionando e frases que só o Nuvi poderia dizer.</p>
+
+<script>
+const R=Math.PI/180;
+function wedge(cx,cy,ri,ro,a0,a1){const p=(r,a)=>`${(cx+r*Math.cos(a*R)).toFixed(2)} ${(cy+r*Math.sin(a*R)).toFixed(2)}`;return `M${p(ri,a0)} L${p(ro,a0)} A${ro} ${ro} 0 0 1 ${p(ro,a1)} L${p(ri,a1)} A${ri} ${ri} 0 0 0 ${p(ri,a0)} Z`}
+function slice(rind,cut,gomo,face){let g='';for(let i=0;i<8;i++){const a=i*45-90;g+=`<path d="${wedge(50,50,6,31,a+5,a+40)}" fill="${gomo}"/>`}
+ const f=face?'<circle cx="42" cy="48" r="5.5" fill="#fff"/><circle cx="58" cy="48" r="5.5" fill="#fff"/><circle cx="43.1" cy="48.8" r="2.9" fill="#1C1712"/><circle cx="59.1" cy="48.8" r="2.9" fill="#1C1712"/><path d="M43 60 Q50 66 57 60" fill="none" stroke="#1C1712" stroke-width="3.6" stroke-linecap="round"/>':'';
+ return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="41" fill="${rind}"/><circle cx="50" cy="50" r="35" fill="${cut}"/>${g}${f}</svg>`}
+document.querySelectorAll('.slot-logo').forEach(e=>e.outerHTML=slice('#E8590C','#FFF6EC','#FF9A52').replace('<svg','<svg width="30" height="30"'));
+document.querySelectorAll('.slot-logo-dark').forEach(e=>e.outerHTML=slice('#FF6A26','#1A120B','#FFB07A').replace('<svg','<svg width="30" height="30"'));
+document.querySelectorAll('.slot-logo-or').forEach(e=>e.outerHTML=slice('#FFF6EC','#E8590C','#FFF6EC').replace('<svg','<svg width="30" height="30"'));
+document.querySelectorAll('.slot-masc').forEach(e=>e.outerHTML=slice('#E8590C','#FFF6EC','#FF9A52',1).replace('<svg','<svg width="38" height="38"'));
+document.querySelectorAll('.slot-masc-big').forEach(e=>e.outerHTML=slice('#E8590C','#fff','#FF9A52',1).replace('<svg','<svg width="130" height="130"'));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+
+/* A: grãos, feijões, farofa e etiquetas */
+(function(){let s='';for(let i=0;i<70;i++){const x=128+Math.random()*130,y=128+Math.random()*92;const dx=(x-190)/70,dy=(y-180)/50;if(dx*dx+dy*dy>1)continue;s+=`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="4.5" ry="2" transform="rotate(${(Math.random()*180).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`}
+ s='';for(let i=0;i<40;i++){const x=270+Math.random()*120,y=118+Math.random()*125;const dx=(x-332)/58,dy=(y-180)/60;if(dx*dx+dy*dy>1)continue;s+=`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="6" ry="4" transform="rotate(${(Math.random()*180).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`}
+ s='';for(let i=0;i<60;i++){const x=170+Math.random()*90,y=384+Math.random()*52;const dx=(x-218)/46,dy=(y-410)/24;if(dx*dx+dy*dy>1)continue;s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.6"/>`}
+ const foods=[['Pão de queijo','99 kcal'],['Tapioca com queijo','214 kcal'],['Açaí 300 ml','262 kcal'],['Feijoada','346 kcal'],['Cuscuz nordestino','113 kcal'],['Coxinha','283 kcal'],['Banana-prata','98 kcal'],['Café com leite','86 kcal'],['Moqueca de peixe','188 kcal'],['Pamonha','171 kcal'],['Brigadeiro','71 kcal'],['Mandioca cozida','125 kcal']];
+ const h=foods.map(([n,k])=>`<span>${n}<i>${k}</i></span>`).join('');document.getElementById('mq').innerHTML=h+h;})();
+let timers=[];const T=(f,ms)=>timers.push(setTimeout(f,ms));
+function clear(){timers.forEach(clearTimeout);timers=[]}
+function startA(){const tags=[...document.querySelectorAll('#A .tag')],tot=document.getElementById('totalA'),arc=document.querySelector('.arcA');
+ tags.forEach(t=>t.classList.remove('show'));tot.classList.remove('show');arc.style.strokeDashoffset=100;
+ tags.forEach(t=>t.parentElement.classList.remove('show'));tags.forEach((t,i)=>T(()=>{t.classList.add('show');t.parentElement.classList.add('show')},reduce?0:500+i*420));T(()=>{tot.classList.add('show');T(()=>arc.style.strokeDashoffset=100-18,60)},reduce?0:500+tags.length*420+200)}
+
+/* B: digitação e resposta */
+const DB={arroz:['Arroz branco cozido','4 col. de sopa',164],feij:['Feijão carioca','1 concha',76],bife:['Bife grelhado','100 g',219],salad:['Salada de alface e tomate','1 prato',22],ovo:['Ovo mexido','2 unidades',190],'pão':['Pão francês','1 unidade',150],pao:['Pão francês','1 unidade',150],tapioca:['Tapioca','1 média',142],queijo:['Queijo minas','1 fatia',72],'café':['Café com leite','1 xícara',86],cafe:['Café com leite','1 xícara',86],'açaí':['Açaí','300 ml',262],acai:['Açaí','300 ml',262],banana:['Banana-prata','1 unidade',98],frango:['Peito de frango grelhado','100 g',159],farofa:['Farofa','2 col. de sopa',81],cuscuz:['Cuscuz','1 pedaço',113],iogurte:['Iogurte natural','1 pote',105]};
+const LINES=['arroz, feijão, bife e salada','2 ovos mexidos e um pão francês','tapioca com queijo e café','um açaí com banana'];
+function parse(t){t=t.toLowerCase();const out=[],seen=new Set();Object.keys(DB).forEach(k=>{if(t.includes(k)&&!seen.has(DB[k][0])){seen.add(DB[k][0]);out.push(DB[k])}});return out}
+function showItems(list){const box=document.getElementById('itemsB'),fl=document.getElementById('flB'),kB=document.getElementById('kB');box.innerHTML='';fl.style.width='0%';let tot=0;
+ if(!list.length){box.innerHTML='<div class="it show">Não achei na TACO.<span>No app, você busca o item ou cria o seu.</span></div>';kB.textContent='0 / 2.000 kcal';return}
+ list.forEach((d,i)=>{const el=document.createElement('div');el.className='it';el.innerHTML=`<div>${d[0]}<span>${d[1]} · TACO</span></div><b>${d[2]} kcal</b>`;box.appendChild(el);T(()=>{el.classList.add('show');tot+=d[2];kB.textContent=`${tot.toLocaleString('pt-BR')} / 2.000 kcal`;fl.style.width=Math.min(100,tot/20)+'%'},reduce?0:i*260)})}
+let li=0;
+function typeLine(){const s=LINES[li%LINES.length],el=document.getElementById('typed');el.textContent='';showItems([]);document.getElementById('itemsB').innerHTML='';
+ let i=0;const step=()=>{el.textContent=s.slice(0,++i);if(i<s.length)T(step,reduce?0:45);else{T(()=>showItems(parse(s)),250);T(()=>{li++;typeLine()},4200)}};T(step,400)}
+function startB(){typeLine()}
+document.getElementById('tryB').onsubmit=e=>{e.preventDefault();clear();const v=document.getElementById('tryIn').value.replace(/^comi\s*/i,'');document.getElementById('typed').textContent=v;showItems(parse(v))};
+
+
+
+startA();startB();
+</script>
+</body>
+</html>
