@@ -28,17 +28,17 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-80 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-80 flex items-center justify-center p-4 bg-nuvi-tinta/60 animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-800 p-8"
+        className="relative w-full max-w-md bg-card rounded-3xl border border-line p-6 sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-mut hover:text-ink"
         >
           <X className="h-5 w-5" />
         </button>

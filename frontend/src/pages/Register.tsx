@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
-import { POLICY_VERSION_ACEITA } from "../lib/consents";
 import {
   User,
   Mail,
@@ -10,8 +9,11 @@ import {
   CheckCircle2,
   MailCheck,
 } from "lucide-react";
+import { POLICY_VERSION_ACEITA } from "../lib/consents";
 import { PasswordInput } from "../components/PasswordInput";
 import { BouncingDots } from "../components/BouncingDots";
+import { Button } from "../components/ui/Button";
+import { AuthShell, AUTH_CAMPO, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/AuthShell";
 
 // A API pode devolver `detail` como string (erro de negócio) ou como lista de
 // erros de validação do Pydantic (422) — trata os dois formatos com segurança
@@ -77,155 +79,123 @@ export function Register() {
 
   if (registered) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8 text-center">
-          <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center">
-            <MailCheck className="h-7 w-7 text-green-500" />
+      <AuthShell>
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-pos-soft">
+            <MailCheck className="h-7 w-7 text-pos-text" />
           </div>
-          <h1 className="text-2xl font-bold text-green-500 mb-2">
-            Quase lá!
-          </h1>
-          <p className="text-zinc-400 mb-6">
-            Enviamos um link de confirmação para <strong>{email}</strong>.
+          <h1 className="mb-2 text-2xl font-black tracking-tight text-ink">Quase lá!</h1>
+          <p className="mb-6 text-mut">
+            Enviamos um link de confirmação para <strong className="text-ink">{email}</strong>.
             Verifique sua caixa de entrada (e o spam) e confirme seu email
             antes de entrar.
           </p>
           <a
             href="/?login=1"
-            className="inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors"
+            className="inline-block w-full rounded-2xl bg-act py-3 text-sm font-extrabold text-nuvi-tinta"
           >
             Ir para o Login
           </a>
         </div>
-      </div>
+      </AuthShell>
     );
   }
 
+  const senhasDiferentes = Boolean(confirmPassword) && password !== confirmPassword;
+
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-zinc-900 rounded-xl shadow-2xl border border-zinc-800 p-8">
-        <div className="text-center mb-8">
-          <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-16 w-auto object-contain mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-green-500 mb-2">
-            Crie sua Conta
-          </h1>
-          <p className="text-zinc-400">
-            Comece sua jornada saudável hoje
-          </p>
-        </div>
-
-        <form onSubmit={handleRegister} className="space-y-5">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300 ml-1">Nome Completo</label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
-                placeholder="Seu Nome"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300 ml-1">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
-                placeholder="seu@email.com"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300 ml-1">Senha</label>
-            <PasswordInput
-              icon={<Lock className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
-              placeholder="••••••••"
-            />
-          </div>
-
-          {/* Campo Confirmar Senha */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300 ml-1">Confirmar Senha</label>
-            <PasswordInput
-              icon={<CheckCircle2 className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />}
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`w-full bg-zinc-800 border text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-hidden focus:ring-2 placeholder-zinc-500 transition-all
-                ${
-                  confirmPassword && password !== confirmPassword
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-zinc-700 focus:ring-green-500 focus:border-transparent"
-                }`}
-              placeholder="••••••••"
-            />
-            {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-red-400 ml-1">
-                As senhas não conferem.
-              </p>
-            )}
-          </div>
-
-          <p className="text-xs text-zinc-400 ml-1">Para maiores de 18 anos.</p>
-
-          <label className="flex items-start gap-3 text-sm text-zinc-300">
-            <input type="checkbox" checked={aceitaPolitica} onChange={(e) => setAceitaPolitica(e.target.checked)} className="mt-0.5 h-5 w-5 accent-green-600" />
-            <span>
-              Li e aceito a <Link to="/privacidade" target="_blank" className="underline text-green-400">Política de Privacidade</Link> e os{" "}
-              <Link to="/termos" target="_blank" className="underline text-green-400">Termos de Uso</Link>
-            </span>
-          </label>
-
-          <label className="flex items-start gap-3 rounded-lg border border-green-600/50 bg-green-600/10 p-3 text-sm font-medium text-zinc-100">
-            <input type="checkbox" checked={consenteSaude} onChange={(e) => setConsenteSaude(e.target.checked)} className="mt-0.5 h-5 w-5 accent-green-600" />
-            <span>Autorizo o tratamento dos meus dados de saúde (peso, medidas, diário) para calcular metas e registrar refeições</span>
-          </label>
-
-          {error && (
-            <div className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-md border border-red-400/20">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed group"
-          >
-            {loading ? (
-              <BouncingDots />
-            ) : (
-              <>
-                Cadastrar <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
-        </form>
-
-        <div className="mt-8 text-center text-sm text-zinc-500">
-          Já tem uma conta?{" "}
-          <a
-            href="/?login=1"
-            className="text-green-500 hover:text-green-400 hover:underline"
-          >
-            Fazer Login
-          </a>
-        </div>
+    <AuthShell>
+      <div className="mb-8 text-center">
+        <h1 className="mb-1 text-[26px] font-black leading-tight tracking-tight text-ink">
+          Crie sua <span className="text-act-text">conta</span>
+        </h1>
+        <p className="text-sm text-mut">Comece sua jornada saudável hoje</p>
       </div>
-    </div>
+
+      <form onSubmit={handleRegister} className="space-y-5">
+        <div className="space-y-2">
+          <label className={AUTH_ROTULO}>Nome Completo</label>
+          <div className="relative">
+            <User className={AUTH_ICONE} />
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={AUTH_CAMPO}
+              placeholder="Seu Nome"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className={AUTH_ROTULO}>Email</label>
+          <div className="relative">
+            <Mail className={AUTH_ICONE} />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={AUTH_CAMPO}
+              placeholder="seu@email.com"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className={AUTH_ROTULO}>Senha</label>
+          <PasswordInput
+            icon={<Lock className={AUTH_ICONE} />}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={AUTH_CAMPO_SENHA}
+            placeholder="••••••••"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className={AUTH_ROTULO}>Confirmar Senha</label>
+          <PasswordInput
+            icon={<CheckCircle2 className={AUTH_ICONE} />}
+            required
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={`${AUTH_CAMPO_SENHA} ${senhasDiferentes ? "border-act-text" : ""}`}
+            placeholder="••••••••"
+          />
+          {senhasDiferentes && <p className="ml-1 text-xs font-semibold text-act-text">As senhas não conferem.</p>}
+        </div>
+
+        <p className="ml-1 text-xs text-mut">Para maiores de 18 anos.</p>
+
+        <label className="flex items-start gap-3 text-sm text-ink">
+          <input type="checkbox" checked={aceitaPolitica} onChange={(e) => setAceitaPolitica(e.target.checked)} className="mt-0.5 h-5 w-5 accent-nuvi-laranja" />
+          <span>
+            Li e aceito a <Link to="/privacidade" target="_blank" className="font-extrabold text-act-text underline">Política de Privacidade</Link> e os{" "}
+            <Link to="/termos" target="_blank" className="font-extrabold text-act-text underline">Termos de Uso</Link>
+          </span>
+        </label>
+
+        <label className="flex items-start gap-3 rounded-2xl border-2 border-act bg-act-soft p-3 text-sm font-semibold text-ink">
+          <input type="checkbox" checked={consenteSaude} onChange={(e) => setConsenteSaude(e.target.checked)} className="mt-0.5 h-5 w-5 accent-nuvi-laranja" />
+          <span>Autorizo o tratamento dos meus dados de saúde (peso, medidas, diário) para calcular metas e registrar refeições</span>
+        </label>
+
+        {error && <div className={AUTH_ERRO}>{error}</div>}
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? <BouncingDots /> : <>Cadastrar <ArrowRight className="h-5 w-5" /></>}
+        </Button>
+      </form>
+
+      <div className="mt-8 text-center text-sm text-mut">
+        Já tem uma conta?{" "}
+        <a href="/?login=1" className={AUTH_LINK}>
+          Fazer Login
+        </a>
+      </div>
+    </AuthShell>
   );
 }

@@ -3,31 +3,41 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { NuviLoader } from "../components/brand/NuviLoader";
+import { PageTitle } from "../components/PageTitle";
+import { Button } from "../components/ui/Button";
+import { ROUTES } from "../routes";
+import { getRandomTip } from "../lib/tips";
 import { formatInstructions } from "../lib/utils";
-import { ArrowLeft, ChefHat, Sparkles, Loader2, Save, Clock, Flame, Users, Carrot } from "lucide-react";
+import { ChefHat, Plus, Save, Clock, Flame, Users, Carrot, X } from "lucide-react";
 
 export function AiChef() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
   const { getUsage, refreshSubscription } = useSubscription();
   const chefAiUsage = getUsage("chef_ai");
-  const [ingredientsInput, setIngredientsInput] = useState("");
+  const [chips, setChips] = useState<string[]>([]);
+  const [draft, setDraft] = useState("");
+  const [tip] = useState(() => getRandomTip());
   const [servings, setServings] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<any>(null);
   const [saving, setSaving] = useState(false);
 
+  function addChip() {
+    const v = draft.trim();
+    if (!v) return;
+    if (!chips.some((c) => c.toLowerCase() === v.toLowerCase())) setChips([...chips, v]);
+    setDraft("");
+  }
+
   async function handleGenerate() {
-    if (!ingredientsInput) return;
+    if (chips.length === 0) return;
     setLoading(true);
     setGeneratedRecipe(null); // Limpa o estado anterior por segurança
 
     try {
-      const list = ingredientsInput
-        .split(",")
-        .map((i) => i.trim())
-        .filter((i) => i);
+      const list = chips;
 
       const res = await api.post("/ai/recipe-by-ingredients", {
         ingredients: list,
@@ -73,7 +83,7 @@ export function AiChef() {
       // Só redireciona o usuário se o backend confirmar que salvou
       if (res && res.data) {
         showAlert("Receita salva com sucesso!", "success");
-        navigate("/recipes");
+        navigate(ROUTES.receitas);
       } else {
         throw new Error("Backend não retornou confirmação de salvamento");
       }
@@ -90,46 +100,60 @@ export function AiChef() {
     }
   }
 
+  const limitReached = chefAiUsage ? chefAiUsage.used >= (chefAiUsage.limit ?? Infinity) : false;
+
   return (
-    <div className="max-w-3xl mx-auto">
-      {loading && (
-        <LoadingOverlay text="O Chef IA está criando sua receita..." color="blue" />
-      )}
+    <div className="mx-auto max-w-3xl">
+      <PageTitle a="O que tem" b="na geladeira?" />
 
-      <div className="flex items-center gap-4 mb-8">
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
-        </button>
-        <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-500 flex items-center gap-2">
-          <ChefHat className="h-8 w-8" /> Chef IA
-        </h1>
-      </div>
-
-      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs mb-6">
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-400 mb-2">
+      <div className="mb-4 rounded-3xl border border-line bg-card p-5">
+        <label htmlFor="chef-ing" className="mb-2 block text-xs font-bold text-mut">
           Quais ingredientes você tem?
         </label>
-        <textarea
-          value={ingredientsInput}
-          onChange={(e) => setIngredientsInput(e.target.value)}
-          placeholder="Ex: Frango, batata doce, creme de leite, cebola..."
-          className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 h-32 focus:ring-2 focus:ring-blue-500 outline-hidden resize-none dark:text-white"
-        />
+        {chips.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {chips.map((c, i) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setChips(chips.filter((_, j) => j !== i))}
+                aria-label={`Remover ${c}`}
+                className="flex items-center gap-1 rounded-full bg-ink px-3 py-2 text-[12.5px] font-bold text-bg"
+              >
+                {c} <X className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <input
+            id="chef-ing"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                addChip();
+              }
+            }}
+            placeholder="adicionar ingrediente (ex.: ovo)"
+            className="min-w-0 flex-1 rounded-2xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-mut focus-visible:outline-2 focus-visible:outline-act-text"
+          />
+          <Button variant="outline" onClick={addChip} aria-label="Adicionar ingrediente" className="px-3">
+            <Plus className="h-5 w-5" />
+          </Button>
+        </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-400 mb-2">
-            Rendimento (quantas pessoas?)
-          </label>
-          <div className="grid grid-cols-4 gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
+          <span className="mb-2 block text-xs font-bold text-mut">Rendimento (quantas pessoas?)</span>
+          <div className="grid grid-cols-4 gap-2 rounded-2xl bg-soft p-1">
             {[1, 2, 4, 6].map((count) => (
               <button
                 key={count}
                 type="button"
                 onClick={() => setServings(count)}
-                className={`py-2 rounded-md text-sm font-medium transition-all ${servings === count ? "bg-white dark:bg-zinc-700 shadow-sm text-blue-600 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"}`}
+                aria-pressed={servings === count}
+                className={`rounded-xl py-2 text-sm font-bold ${servings === count ? "bg-card text-ink" : "text-mut"}`}
               >
                 {count}
               </button>
@@ -137,25 +161,16 @@ export function AiChef() {
           </div>
         </div>
 
-        <button
-          onClick={handleGenerate}
-          disabled={loading || !ingredientsInput || (chefAiUsage ? chefAiUsage.used >= (chefAiUsage.limit ?? Infinity) : false)}
-          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 disabled:opacity-50 transition-all shadow-lg shadow-blue-900/20"
-        >
-          {loading ? (
-            <Loader2 className="animate-spin" />
-          ) : (
-            <Sparkles className="h-5 w-5" />
-          )}
-          Criar Receita Criativa
-        </button>
+        <Button onClick={handleGenerate} disabled={loading || chips.length === 0 || limitReached} className="mt-4 w-full">
+          <ChefHat className="h-5 w-5" /> Criar Receita Criativa
+        </Button>
         {chefAiUsage && chefAiUsage.limit !== null && (
-          <p className="text-xs text-zinc-500 text-center mt-2">
+          <p className="mt-2 text-center text-xs font-semibold text-mut">
             {chefAiUsage.used}/{chefAiUsage.limit} usados nos últimos {chefAiUsage.window_days} dias
             {chefAiUsage.used >= chefAiUsage.limit && (
               <>
                 {" "}—{" "}
-                <button onClick={() => navigate("/planos")} className="text-blue-500 hover:underline font-medium">
+                <button onClick={() => navigate(ROUTES.assinatura)} className="font-extrabold text-act-text hover:underline">
                   fazer upgrade
                 </button>
               </>
@@ -164,71 +179,64 @@ export function AiChef() {
         )}
       </div>
 
-      {generatedRecipe && (
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 animate-fadeIn space-y-6 shadow-xs">
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
-            {generatedRecipe.title}
-          </h2>
+      {loading && (
+        <div className="mb-4 flex flex-col items-center gap-3 rounded-3xl border border-line bg-card p-6 text-center">
+          <NuviLoader active={loading} size={56} label="O Chef está criando sua receita" />
+          <p className="text-sm font-bold text-ink">O Chef está criando sua receita…</p>
+          <p className="max-w-md text-xs italic text-mut">Dica do Nuvi: "{tip}"</p>
+        </div>
+      )}
 
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
-              <Clock className="h-4 w-4 text-blue-500" />
+      {generatedRecipe && (
+        <div className="space-y-5 rounded-3xl border border-line bg-card p-5">
+          <h2 className="text-xl font-black tracking-tight text-ink">{generatedRecipe.title}</h2>
+
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2 rounded-2xl bg-soft px-3 py-2 text-sm font-bold text-ink">
+              <Clock className="h-4 w-4 text-mut" aria-hidden />
               <span>{generatedRecipe.prep_time} min</span>
             </div>
-            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
-              <Flame className="h-4 w-4 text-blue-500" />
+            <div className="flex items-center gap-2 rounded-2xl bg-soft px-3 py-2 text-sm font-bold text-ink">
+              <Flame className="h-4 w-4 text-mut" aria-hidden />
               <span>~ {Math.round(generatedRecipe.calories || 0)} kcal</span>
             </div>
-            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
-              <Users className="h-4 w-4 text-blue-500" />
+            <div className="flex items-center gap-2 rounded-2xl bg-soft px-3 py-2 text-sm font-bold text-ink">
+              <Users className="h-4 w-4 text-mut" aria-hidden />
               <span>Serve {servings} pessoa{servings > 1 ? "s" : ""}</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-sm font-bold text-blue-600 dark:text-blue-500 uppercase tracking-wider flex items-center gap-2">
-              <Carrot className="h-4 w-4" /> Ingredientes
+            <h3 className="flex items-center gap-2 text-[17px] font-extrabold text-ink">
+              <Carrot className="h-4 w-4 text-act-text" aria-hidden /> Ingredientes
             </h3>
-            <ul className="space-y-2">
+            <ul className="overflow-hidden rounded-2xl border border-line">
               {generatedRecipe.ingredients.map((ing: any, i: number) => (
-                <li
-                  key={i}
-                  className="text-zinc-700 dark:text-zinc-300 text-sm bg-zinc-50 dark:bg-zinc-950/50 p-2 rounded-sm border border-zinc-100 dark:border-zinc-800 flex justify-between items-center"
-                >
-                  <span>{ing.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500">
-                      {ing.calories ? `~${Math.round(ing.calories)}kcal` : ""}
-                    </span>
-                    <span className="font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-800 px-2 rounded-sm">
+                <li key={i} className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 last:border-b-0">
+                  <div className="min-w-0">
+                    <b className="block text-sm font-extrabold text-ink">{ing.name}</b>
+                    <span className="text-xs text-mut">
                       {ing.quantity} {ing.unit}
                     </span>
                   </div>
+                  {ing.calories ? (
+                    <span className="shrink-0 text-[12.5px] font-bold text-mut">~{Math.round(ing.calories)} kcal</span>
+                  ) : null}
                 </li>
               ))}
             </ul>
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-sm font-bold text-blue-600 dark:text-blue-500 uppercase tracking-wider">
-              Modo de Preparo
-            </h3>
-            <p className="text-zinc-600 dark:text-zinc-300 text-sm whitespace-pre-wrap leading-relaxed bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-lg border border-zinc-100 dark:border-zinc-800">
+            <h3 className="text-[17px] font-extrabold text-ink">Modo de Preparo</h3>
+            <p className="whitespace-pre-wrap rounded-2xl bg-soft p-4 text-sm leading-relaxed text-ink">
               {formatInstructions(generatedRecipe.instructions)}
             </p>
           </div>
 
-          <button
-            onClick={handleSaveRecipe}
-            disabled={saving}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-xs disabled:opacity-50"
-          >
-            {saving ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <><Save className="h-5 w-5" /> Salvar na Minha Lista</>
-            )}
-          </button>
+          <Button onClick={handleSaveRecipe} disabled={saving} className="w-full">
+            <Save className="h-5 w-5" /> {saving ? "Salvando…" : "Salvar na Minha Lista"}
+          </Button>
         </div>
       )}
     </div>

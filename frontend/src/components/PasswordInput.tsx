@@ -22,7 +22,7 @@ export function PasswordInput({
   value,
   onChange,
   className,
-  toggleClassName = "text-zinc-500 hover:text-zinc-300",
+  toggleClassName = "text-mut hover:text-ink",
   placeholder,
   required,
 }: PasswordInputProps) {

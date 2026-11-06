@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { LoginModal } from "../components/LoginModal";
+import { NuviLogo } from "../components/brand/NuviLogo";
+import { NuviSlice } from "../components/brand/NuviSlice";
+import { Button } from "../components/ui/Button";
+import { useAuthTheme } from "../components/auth/AuthShell";
+import { ROUTES } from "../routes";
 import {
   Book,
   CheckCheck,
@@ -12,11 +17,9 @@ import {
   Check,
   Plus,
   Minus,
-  Sparkles,
   Flame,
   Target,
   Scale,
-  Bot,
   MessageCircleQuestionIcon
 } from "lucide-react";
 import { useFeedback } from "../lib/FeedbackContext";
@@ -26,8 +29,6 @@ const FEATURES = [
     n: "01",
     tag: "RECEITAS",
     icon: Book,
-    color: "text-orange-400",
-    bg: "bg-orange-500/10",
     title: "Suas receitas, organizadas de verdade",
     description:
       "Cadastre suas próprias receitas ou aproveite as da comunidade. Cada receita mostra calorias, ingredientes e modo de preparo — e deixa claro quando foi criada por IA.",
@@ -36,8 +37,6 @@ const FEATURES = [
     n: "02",
     tag: "CARDÁPIO",
     icon: CheckCheck,
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
     title: "Cardápio gerado pra você, não genérico",
     description:
       "A IA monta um cardápio diário ou semanal com base no seu perfil — idade, peso, objetivo e preferências alimentares.",
@@ -46,8 +45,6 @@ const FEATURES = [
     n: "03",
     tag: "CHEF IA",
     icon: ChefHat,
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
     title: "Tem ingredientes? A IA vira eles receita",
     description:
       "Diga o que sobrou na geladeira e a IA cria uma receita completa na hora, com calorias e modo de preparo passo a passo.",
@@ -56,8 +53,6 @@ const FEATURES = [
     n: "04",
     tag: "COMPRAS",
     icon: ShoppingCart,
-    color: "text-pink-400",
-    bg: "bg-pink-500/10",
     title: "Lista de compras direto do cardápio",
     description:
       "Gerou o cardápio da semana? A gente já monta a lista de compras consolidada — sem contar ingrediente repetido na mão.",
@@ -66,8 +61,6 @@ const FEATURES = [
     n: "05",
     tag: "PLANOS ALIMENTARES — O MAIS USADO",
     icon: CalendarRange,
-    color: "text-teal-400",
-    bg: "bg-teal-500/10",
     title: "Salve o cardápio ou monte o seu, com suas receitas",
     description:
       "Guarde os cardápios que a IA gerou ou monte o seu do zero escolhendo entre suas receitas e as da comunidade — dia por dia, refeição por refeição.",
@@ -119,43 +112,35 @@ const FAQ_ITEMS = [
 
 function DashboardMockup() {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800 bg-zinc-950/50">
-        <div className="flex gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-          <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
-          <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-        </div>
-        <span className="text-xs text-zinc-500 ml-2">nutriagent.app/dashboard</span>
-      </div>
-      <div className="p-6 space-y-4">
+    <div className="overflow-hidden rounded-3xl bg-card text-ink">
+      <div className="space-y-4 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">Olá, visitante 👋</p>
-            <p className="text-sm text-zinc-300">Seu resumo de hoje</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-mut">Olá, visitante</p>
+            <p className="text-sm font-semibold text-ink">Seu resumo de hoje</p>
           </div>
-          <Bot className="h-6 w-6 text-green-500" />
+          <NuviSlice size={28} />
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-center">
-            <Flame className="h-4 w-4 text-red-500 mx-auto mb-1" />
-            <p className="text-lg font-bold text-white">1.850</p>
-            <p className="text-[10px] text-zinc-500 uppercase">Kcal hoje</p>
+          <div className="rounded-2xl bg-soft p-3 text-center">
+            <Flame className="mx-auto mb-1 h-4 w-4 text-act-text" />
+            <p className="text-lg font-black">1.850</p>
+            <p className="text-[10px] font-bold uppercase text-mut">Kcal hoje</p>
           </div>
-          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-center">
-            <Target className="h-4 w-4 text-purple-500 mx-auto mb-1" />
-            <p className="text-lg font-bold text-white">3</p>
-            <p className="text-[10px] text-zinc-500 uppercase">Refeições</p>
+          <div className="rounded-2xl bg-soft p-3 text-center">
+            <Target className="mx-auto mb-1 h-4 w-4 text-act-text" />
+            <p className="text-lg font-black">3</p>
+            <p className="text-[10px] font-bold uppercase text-mut">Refeições</p>
           </div>
-          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-center">
-            <Scale className="h-4 w-4 text-blue-500 mx-auto mb-1" />
-            <p className="text-lg font-bold text-white">-2,3kg</p>
-            <p className="text-[10px] text-zinc-500 uppercase">No mês</p>
+          <div className="rounded-2xl bg-soft p-3 text-center">
+            <Scale className="mx-auto mb-1 h-4 w-4 text-pos-text" />
+            <p className="text-lg font-black">-2,3kg</p>
+            <p className="text-[10px] font-bold uppercase text-mut">No mês</p>
           </div>
         </div>
-        <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4">
-          <p className="text-xs text-purple-400 font-bold uppercase mb-2">Almoço sugerido pela IA</p>
-          <p className="text-sm text-zinc-300">Frango grelhado com arroz integral e brócolis no vapor</p>
+        <div className="rounded-2xl bg-act-soft p-4">
+          <p className="mb-2 text-xs font-black uppercase text-act-text">Almoço sugerido pela IA</p>
+          <p className="text-sm text-ink">Frango grelhado com arroz integral e brócolis no vapor</p>
         </div>
       </div>
     </div>
@@ -166,296 +151,280 @@ export function Landing() {
   const navigate = useNavigate();
   const { openFeedbackModal } = useFeedback();
   const { user } = useAuth();
+  const dark = useAuthTheme();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // O modal de login abre via ?login=1 (assim redirecionamentos como sessão expirada
   // podem cair na home já com a caixa aberta). Usuário já logado que cai aqui vai
-  // direto pro dashboard em vez de ver o modal.
+  // direto pro Hoje em vez de ver o modal.
   const loginOpen = searchParams.get("login") === "1";
 
   useEffect(() => {
     if (loginOpen && user) {
-      navigate("/dashboard", { replace: true });
+      navigate(ROUTES.hoje, { replace: true });
     }
   }, [loginOpen, user, navigate]);
 
   const openLogin = () => setSearchParams({ login: "1" });
   const closeLogin = () => setSearchParams({}, { replace: true });
+  const cadastrar = () => navigate("/register");
+
+  const secao = "mx-auto max-w-6xl border-t border-line px-4 py-16 sm:px-6 sm:py-20";
+  const sobretitulo = "mb-3 text-xs font-extrabold uppercase tracking-widest text-act-text";
 
   return (
-    <div className="bg-zinc-950 text-zinc-100 min-h-screen">
+    <div className="min-h-screen bg-bg text-ink">
       <LoginModal open={loginOpen && !user} onClose={closeLogin} />
       {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-8 w-auto object-contain" />
-          <nav className="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-            <a href="#produto" className="hover:text-white transition-colors">Produto</a>
-            <a href="#recursos" className="hover:text-white transition-colors">Recursos</a>
-            <a href="#planos" className="hover:text-white transition-colors">Planos</a>
+      <header className="sticky top-0 z-40 border-b border-line bg-bg">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <NuviLogo size={28} tone={dark ? "dark" : "light"} />
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-mut md:flex">
+            <a href="#produto" className="hover:text-ink">Produto</a>
+            <a href="#recursos" className="hover:text-ink">Recursos</a>
+            <a href="#planos" className="hover:text-ink">Planos</a>
           </nav>
-          <div className="flex items-center gap-4">
-            <button onClick={openLogin} className="text-sm text-zinc-400 hover:text-white transition-colors">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button onClick={openLogin} className="px-2 text-sm font-bold text-mut hover:text-ink">
               Entrar
             </button>
-            <button
-              onClick={() => navigate("/register")}
-              className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
-            >
+            <Button onClick={cadastrar} className="px-4 py-2.5">
               Começar grátis
-            </button>
+            </Button>
           </div>
         </div>
       </header>
 
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-16 pt-10 sm:px-6 lg:grid-cols-2 lg:gap-12 lg:pt-16">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-green-500 mb-4">
-            — NUTRIAGENT · NUTRIÇÃO INTELIGENTE COM IA
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-bold leading-tight mb-6">
-            Sua alimentação, planejada por IA — não numa planilha de dieta.
+          <p className={sobretitulo}>NUVI · nutrição inteligente com IA</p>
+          <h1 className="mb-6 text-4xl font-black leading-[1.05] tracking-[-0.025em] sm:text-5xl">
+            Sua alimentação, planejada por IA — não numa <span className="text-act-text">planilha de dieta</span>.
           </h1>
-          <p className="text-zinc-400 text-lg mb-8 leading-relaxed">
+          <p className="mb-8 text-lg leading-relaxed text-mut">
             Gere cardápios personalizados, crie receitas com o que você tem na geladeira e organize sua lista de
             compras — tudo num só lugar, ajustado ao seu perfil e objetivo.
           </p>
           <div className="flex flex-wrap items-center gap-4">
-            <button
-              onClick={() => navigate("/register")}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-green-900/30"
-            >
+            <Button onClick={cadastrar} className="px-6 py-3.5 text-base">
               Começar grátis <ArrowRight className="h-4 w-4" />
-            </button>
-            <a href="#planos" className="text-sm text-zinc-300 hover:text-white font-medium flex items-center gap-1">
+            </Button>
+            <a href="#planos" className="flex items-center gap-1 text-sm font-extrabold text-act-text hover:underline">
               Ver planos →
             </a>
           </div>
-          <p className="text-xs text-zinc-500 mt-6">
+          <p className="mt-6 text-xs text-mut">
             Qualquer objetivo — perder peso, ganhar massa ou manter. O cardápio se adapta a você.
           </p>
         </div>
-        <DashboardMockup />
+        <div className="relative rounded-[2rem] bg-nuvi-laranja p-5 sm:p-8">
+          <div className="mb-4 flex justify-center">
+            <NuviSlice size={72} tone="onOrange" />
+          </div>
+          <DashboardMockup />
+        </div>
       </section>
 
       {/* PRODUTO */}
-      <section id="produto" className="max-w-6xl mx-auto px-4 sm:px-6 py-20 border-t border-zinc-900">
-        <p className="text-xs font-bold uppercase tracking-widest text-green-500 mb-3">— 01–05 PRODUTO</p>
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-          <h2 className="text-3xl sm:text-4xl font-bold max-w-md">
+      <section id="produto" className={secao}>
+        <p className={sobretitulo}>01–05 · produto</p>
+        <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <h2 className="max-w-md text-3xl font-black tracking-tight sm:text-4xl">
             Cinco peças que resolvem sua alimentação de verdade
           </h2>
-          <p className="text-zinc-400 max-w-sm text-sm">
+          <p className="max-w-sm text-sm text-mut">
             Do cardápio da semana à lista de compras — cada parte foi pensada pro seu dia a dia, não pra um app
             genérico de contagem de calorias.
           </p>
         </div>
 
-        <div id="recursos" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div id="recursos" className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {FEATURES.map((f) => (
             <div
               key={f.n}
-              className={`rounded-xl border p-6 ${
-                f.highlight
-                  ? "md:col-span-2 border-teal-500/40 bg-teal-500/5"
-                  : "border-zinc-800 bg-zinc-900/50"
-              }`}
+              className={`rounded-3xl p-6 ${f.highlight ? "border-2 border-act bg-card md:col-span-2" : "border border-line bg-card"}`}
             >
-              <p className="text-xs text-zinc-500 font-mono mb-3">{f.n} {f.tag}</p>
-              <div className={`h-10 w-10 rounded-lg flex items-center justify-center mb-4 ${f.bg}`}>
-                <f.icon className={`h-5 w-5 ${f.color}`} />
+              <p className="mb-3 text-xs font-bold text-mut">{f.n} {f.tag}</p>
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-act-soft">
+                <f.icon className="h-5 w-5 text-act-text" />
               </div>
-              <h3 className="font-bold text-lg mb-2">{f.title}</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">{f.description}</p>
+              <h3 className="mb-2 text-lg font-extrabold">{f.title}</h3>
+              <p className="text-sm leading-relaxed text-mut">{f.description}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* INSTALAÇÃO */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 border-t border-zinc-900 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className={`${secao} grid grid-cols-1 items-center gap-12 lg:grid-cols-2`}>
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-green-500 mb-3">— ACESSO</p>
-          <h2 className="text-3xl font-bold mb-4">Funciona no navegador. No computador ou no celular.</h2>
-          <p className="text-zinc-400 mb-6">
+          <p className={sobretitulo}>acesso</p>
+          <h2 className="mb-4 text-3xl font-black tracking-tight">Funciona no navegador. No computador ou no celular.</h2>
+          <p className="mb-6 text-mut">
             Não precisa instalar nada pra começar — abre direto no navegador, de qualquer lugar.
           </p>
-          <ul className="space-y-3 text-sm text-zinc-300">
-            <li className="flex gap-2"><span className="text-zinc-600">—</span> Funciona igual no computador e no celular.</li>
-            <li className="flex gap-2"><span className="text-zinc-600">—</span> Mesmo login, mesmos dados, em qualquer aparelho.</li>
-            <li className="flex gap-2"><span className="text-zinc-600">—</span> Sem instalação obrigatória, sem mexer com TI.</li>
+          <ul className="space-y-3 text-sm">
+            <li className="flex gap-2"><span className="text-mut">—</span> Funciona igual no computador e no celular.</li>
+            <li className="flex gap-2"><span className="text-mut">—</span> Mesmo login, mesmos dados, em qualquer aparelho.</li>
+            <li className="flex gap-2"><span className="text-mut">—</span> Sem instalação obrigatória, sem mexer com TI.</li>
           </ul>
         </div>
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 flex items-center justify-center">
-          <Sparkles className="h-16 w-16 text-green-500/60" />
+        <div className="flex items-center justify-center rounded-3xl bg-nuvi-laranja p-8">
+          <NuviSlice size={96} tone="onOrange" />
         </div>
       </section>
 
       {/* FAQ OBJEÇÃO */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 border-t border-zinc-900">
-        <p className="text-xs font-bold uppercase tracking-widest text-green-500 mb-3">— ANTES DE DECIDIR</p>
-        <h2 className="text-3xl font-bold mb-10 max-w-lg">Perguntas de quem já tentou dieta em planilha</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 border border-zinc-800 rounded-xl overflow-hidden">
+      <section className={secao}>
+        <p className={sobretitulo}>antes de decidir</p>
+        <h2 className="mb-10 max-w-lg text-3xl font-black tracking-tight">Perguntas de quem já tentou dieta em planilha</h2>
+        <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-line bg-card md:grid-cols-2">
           {OBJECTION_FAQ.map((item, i) => (
-            <div key={item.q} className={`p-6 border-zinc-800 ${i % 2 === 0 ? "md:border-r" : ""} ${i < 2 ? "border-b" : ""}`}>
-              <p className="text-xs text-zinc-600 mb-2">{String(i + 1).padStart(2, "0")}</p>
-              <h3 className="font-bold mb-2">{item.q}</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">{item.a}</p>
+            <div key={item.q} className={`border-line p-6 ${i % 2 === 0 ? "md:border-r" : ""} ${i < 2 ? "border-b" : ""} ${i === 2 ? "max-md:border-b" : ""}`}>
+              <p className="mb-2 text-xs font-bold text-mut">{String(i + 1).padStart(2, "0")}</p>
+              <h3 className="mb-2 font-extrabold">{item.q}</h3>
+              <p className="text-sm leading-relaxed text-mut">{item.a}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* PLANOS */}
-      <section id="planos" className="max-w-6xl mx-auto px-4 sm:px-6 py-20 border-t border-zinc-900">
-        <p className="text-xs font-bold uppercase tracking-widest text-green-500 mb-3">— PLANOS</p>
-        <h2 className="text-3xl font-bold mb-10 max-w-lg">Um plano pro tamanho da sua rotina</h2>
+      <section id="planos" className={secao}>
+        <p className={sobretitulo}>planos</p>
+        <h2 className="mb-10 max-w-lg text-3xl font-black tracking-tight">Um plano pro tamanho da sua rotina</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 flex flex-col">
-            <h3 className="font-bold mb-1">Starter</h3>
-            <p className="text-2xl font-bold mb-4">Grátis</p>
-            <p className="text-zinc-400 text-sm mb-6">Pra quem quer começar a organizar a própria alimentação sem compromisso.</p>
-            <ul className="space-y-2 mb-8 flex-1 text-sm text-zinc-300">
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> 2 cardápios por mês</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Chef IA 5x por semana</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 5 planos alimentares salvos</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 10 receitas próprias salvas</li>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="flex flex-col rounded-3xl border border-line bg-card p-6">
+            <h3 className="mb-1 font-extrabold">Starter</h3>
+            <p className="mb-4 text-2xl font-black">Grátis</p>
+            <p className="mb-6 text-sm text-mut">Pra quem quer começar a organizar a própria alimentação sem compromisso.</p>
+            <ul className="mb-8 flex-1 space-y-2 text-sm">
+              {["2 cardápios por mês", "Chef IA 5x por semana", "Até 5 planos alimentares salvos", "Até 10 receitas próprias salvas"].map((t) => (
+                <li key={t} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-pos-text" /> {t}</li>
+              ))}
             </ul>
-            <button onClick={() => navigate("/register")} className="border border-zinc-700 hover:border-zinc-500 text-white font-bold py-2.5 rounded-lg transition-colors">
-              Começar grátis
-            </button>
+            <Button variant="outline" onClick={cadastrar}>Começar grátis</Button>
           </div>
 
-          <div className="rounded-2xl border-2 border-green-500 bg-green-500/5 p-6 flex flex-col relative">
-            <span className="absolute -top-3 left-6 text-[10px] font-bold uppercase tracking-wide bg-green-600 text-white px-2 py-1 rounded-full">
+          <div className="relative flex flex-col rounded-3xl border-2 border-act bg-card p-6">
+            <span className="absolute -top-3 left-6 rounded-md bg-act-soft px-2 py-1 text-[10px] font-black uppercase tracking-wide text-act-text">
               Mais popular
             </span>
-            <h3 className="font-bold mb-1">Plus</h3>
-            <p className="text-2xl font-bold mb-4">R$ 29,90<span className="text-sm font-normal text-zinc-400">/mês</span></p>
-            <p className="text-zinc-400 text-sm mb-6">Pra quem já usa toda semana e quer lista de compras liberada.</p>
-            <ul className="space-y-2 mb-8 flex-1 text-sm text-zinc-300">
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> 1 cardápio semanal + diário todo dia</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Chef IA 30x por mês</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Lista de compras liberada</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 30 planos alimentares salvos</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Até 50 receitas próprias salvas</li>
+            <h3 className="mb-1 font-extrabold">Plus</h3>
+            <p className="mb-4 text-2xl font-black">R$ 29,90<span className="text-sm font-semibold text-mut">/mês</span></p>
+            <p className="mb-6 text-sm text-mut">Pra quem já usa toda semana e quer lista de compras liberada.</p>
+            <ul className="mb-8 flex-1 space-y-2 text-sm">
+              {["1 cardápio semanal + diário todo dia", "Chef IA 30x por mês", "Lista de compras liberada", "Até 30 planos alimentares salvos", "Até 50 receitas próprias salvas"].map((t) => (
+                <li key={t} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-pos-text" /> {t}</li>
+              ))}
             </ul>
-            <button onClick={() => navigate("/register")} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition-colors">
-              Começar grátis
-            </button>
+            <Button onClick={cadastrar}>Começar grátis</Button>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 flex flex-col">
-            <h3 className="font-bold mb-1">Pro</h3>
-            <p className="text-2xl font-bold mb-4">R$ 59,90<span className="text-sm font-normal text-zinc-400">/mês</span></p>
-            <p className="text-zinc-400 text-sm mb-6">Uso ilimitado de tudo, sem se preocupar com limite nenhum.</p>
-            <ul className="space-y-2 mb-8 flex-1 text-sm text-zinc-300">
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Cardápios ilimitados</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Chef IA ilimitado</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Planos alimentares ilimitados</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Receitas próprias ilimitadas</li>
+          <div className="flex flex-col rounded-3xl border border-line bg-card p-6">
+            <h3 className="mb-1 font-extrabold">Pro</h3>
+            <p className="mb-4 text-2xl font-black">R$ 59,90<span className="text-sm font-semibold text-mut">/mês</span></p>
+            <p className="mb-6 text-sm text-mut">Uso ilimitado de tudo, sem se preocupar com limite nenhum.</p>
+            <ul className="mb-8 flex-1 space-y-2 text-sm">
+              {["Cardápios ilimitados", "Chef IA ilimitado", "Planos alimentares ilimitados", "Receitas próprias ilimitadas"].map((t) => (
+                <li key={t} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-pos-text" /> {t}</li>
+              ))}
             </ul>
-            <button onClick={() => navigate("/register")} className="border border-zinc-700 hover:border-zinc-500 text-white font-bold py-2.5 rounded-lg transition-colors">
-              Começar grátis
-            </button>
+            <Button variant="outline" onClick={cadastrar}>Começar grátis</Button>
           </div>
         </div>
       </section>
 
       {/* FAQ ACORDEÃO */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-20 border-t border-zinc-900">
-        <p className="text-xs font-bold uppercase tracking-widest text-green-500 mb-3">— FAQ</p>
-        <h2 className="text-3xl font-bold mb-10">Perguntas frequentes</h2>
-        <div className="divide-y divide-zinc-800 border-t border-b border-zinc-800">
+      <section className="mx-auto max-w-3xl border-t border-line px-4 py-16 sm:px-6 sm:py-20">
+        <p className={sobretitulo}>faq</p>
+        <h2 className="mb-10 text-3xl font-black tracking-tight">Perguntas frequentes</h2>
+        <div className="divide-y divide-line border-y border-line">
           {FAQ_ITEMS.map((item, i) => (
             <div key={item.q}>
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center justify-between py-5 text-left"
+                aria-expanded={openFaq === i}
+                className="flex w-full items-center justify-between gap-4 py-5 text-left"
               >
-                <span className="font-medium">{item.q}</span>
-                {openFaq === i ? (
-                  <Minus className="h-4 w-4 text-zinc-500 shrink-0" />
-                ) : (
-                  <Plus className="h-4 w-4 text-zinc-500 shrink-0" />
-                )}
+                <span className="font-bold">{item.q}</span>
+                {openFaq === i ? <Minus className="h-4 w-4 shrink-0 text-mut" /> : <Plus className="h-4 w-4 shrink-0 text-mut" />}
               </button>
-              {openFaq === i && <p className="text-zinc-400 text-sm pb-5 leading-relaxed">{item.a}</p>}
+              {openFaq === i && <p className="pb-5 text-sm leading-relaxed text-mut">{item.a}</p>}
             </div>
           ))}
         </div>
       </section>
 
       {/* AJUDA & FEEDBACK */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-900 text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500/10 mb-4">
-          <MessageCircleQuestionIcon className="h-7 w-7 text-green-500" />
+      <section className="mx-auto max-w-3xl border-t border-line px-4 py-16 text-center sm:px-6">
+        <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-act-soft">
+          <MessageCircleQuestionIcon className="h-7 w-7 text-act-text" />
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold mb-3">Precisa de ajuda?</h2>
-        <p className="text-zinc-400 mb-6 max-w-md mx-auto">
+        <h2 className="mb-3 text-2xl font-black tracking-tight sm:text-3xl">Precisa de ajuda?</h2>
+        <p className="mx-auto mb-6 max-w-md text-mut">
           Achou um bug, tem uma dúvida ou uma ideia pro Nuvi? Manda pra gente — a
-          bolinha verde no canto da tela abre esse mesmo formulário em qualquer página.
+          bolinha no canto da tela abre esse mesmo formulário em qualquer página.
         </p>
-        <button
-          onClick={openFeedbackModal}
-          className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-green-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
-        >
-          <MessageCircleQuestionIcon className="h-5 w-5 text-green-500" /> Falar com a gente
-        </button>
+        <Button variant="outline" onClick={openFeedbackModal} className="px-6 py-3.5">
+          <MessageCircleQuestionIcon className="h-5 w-5 text-act-text" /> Falar com a gente
+        </Button>
       </section>
 
       {/* CTA FINAL */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="bg-linear-to-r from-green-700 to-green-600 rounded-2xl p-10 sm:p-14 flex flex-col sm:flex-row items-center justify-between gap-8">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <div className="flex flex-col items-center justify-between gap-8 rounded-[2rem] bg-nuvi-laranja p-8 text-nuvi-tinta sm:flex-row sm:p-14">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-green-200 mb-3">— Comece hoje</p>
-            <h2 className="text-3xl font-bold text-white max-w-md">
+            <p className="mb-3 text-xs font-extrabold uppercase tracking-widest">Comece hoje</p>
+            <h2 className="max-w-md text-3xl font-black leading-tight tracking-tight">
               Chega de planilha de dieta. Planeje sua alimentação de verdade.
             </h2>
           </div>
-          <div className="flex flex-col gap-3 items-center">
+          <div className="flex flex-col items-center gap-3">
             <button
-              onClick={() => navigate("/register")}
-              className="bg-white text-green-700 font-bold px-6 py-3.5 rounded-xl hover:bg-green-50 transition-colors whitespace-nowrap"
+              onClick={cadastrar}
+              className="whitespace-nowrap rounded-2xl bg-nuvi-tinta px-6 py-3.5 text-sm font-extrabold text-nuvi-creme"
             >
               Começar grátis
             </button>
-            <a href="#planos" className="text-sm text-green-100 hover:text-white">Ver planos</a>
+            <a href="#planos" className="text-sm font-bold underline">Ver planos</a>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-zinc-900 mt-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 sm:grid-cols-4 gap-8">
+      <footer className="mt-8 border-t border-line">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 sm:grid-cols-4 sm:px-6">
           <div className="col-span-2 sm:col-span-1">
-            <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-6 w-auto object-contain mb-3" />
-            <p className="text-zinc-500 text-sm">Nutrição inteligente com IA pro seu dia a dia.</p>
+            <div className="mb-3">
+              <NuviLogo size={22} tone={dark ? "dark" : "light"} />
+            </div>
+            <p className="text-sm text-mut">Nutrição inteligente com IA pro seu dia a dia.</p>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase text-zinc-500 mb-3">Produto</p>
-            <ul className="space-y-2 text-sm text-zinc-400">
-              <li><a href="#recursos" className="hover:text-white">Recursos</a></li>
-              <li><a href="#planos" className="hover:text-white">Planos</a></li>
+            <p className="mb-3 text-xs font-extrabold uppercase text-mut">Produto</p>
+            <ul className="space-y-2 text-sm">
+              <li><a href="#recursos" className="hover:underline">Recursos</a></li>
+              <li><a href="#planos" className="hover:underline">Planos</a></li>
             </ul>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase text-zinc-500 mb-3">Conta</p>
-            <ul className="space-y-2 text-sm text-zinc-400">
-              <li><button onClick={openLogin} className="hover:text-white">Entrar</button></li>
-              <li><button onClick={() => navigate("/register")} className="hover:text-white">Criar conta</button></li>
+            <p className="mb-3 text-xs font-extrabold uppercase text-mut">Conta</p>
+            <ul className="space-y-2 text-sm">
+              <li><button onClick={openLogin} className="hover:underline">Entrar</button></li>
+              <li><button onClick={cadastrar} className="hover:underline">Criar conta</button></li>
             </ul>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase text-zinc-500 mb-3">Nuvi</p>
-            <ul className="space-y-2 text-sm text-zinc-400 mb-3">
-              <li><a href="/privacidade" className="hover:text-white">Política de Privacidade</a></li>
-              <li><a href="/termos" className="hover:text-white">Termos de Uso</a></li>
+            <p className="mb-3 text-xs font-extrabold uppercase text-mut">Nuvi</p>
+            <ul className="mb-3 space-y-2 text-sm">
+              <li><a href="/privacidade" className="hover:underline">Política de Privacidade</a></li>
+              <li><a href="/termos" className="hover:underline">Termos de Uso</a></li>
             </ul>
-            <p className="text-sm text-zinc-500">© {new Date().getFullYear()} Nuvi</p>
+            <p className="text-sm text-mut">© {new Date().getFullYear()} Nuvi</p>
           </div>
         </div>
       </footer>

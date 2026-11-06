@@ -2,9 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAlert } from '../lib/AlertContext';
-import { Save, Clock, Flame, Type, AlignLeft, Loader2, Plus, Trash2, Carrot, ArrowLeft, Settings2, Tag, Users } from 'lucide-react';
+import { Save, Clock, Flame, Type, AlignLeft, Plus, Trash2, Carrot, ArrowLeft, Settings2, Tag, Users } from 'lucide-react';
 import { CATEGORIES } from '../types';
 import { BouncingDots } from '../components/BouncingDots';
+import { PageTitle } from '../components/PageTitle';
+import { Button } from '../components/ui/Button';
+import { Switch } from '../components/ui/Switch';
+import { ROUTES } from '../routes';
 
 interface IngredientInput { name: string; quantity: string; unit: string; calories?: number; }
 
@@ -15,6 +19,11 @@ const PREP_METHODS = [
   { value: 'microondas', label: 'Microondas' },
   { value: 'cru', label: 'Não vai ao fogo (Cru)' },
 ];
+
+const CAMPO = 'w-full rounded-2xl border border-line bg-card px-4 py-3 text-sm text-ink placeholder:text-mut focus-visible:outline-2 focus-visible:outline-act-text';
+const CAMPO_P = 'rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink placeholder:text-mut focus-visible:outline-2 focus-visible:outline-act-text';
+const ROTULO = 'flex items-center gap-2 text-xs font-bold text-mut';
+const CARTAO = 'space-y-4 rounded-3xl border border-line bg-card p-5';
 
 const RECIPE_CATEGORIES = Object.entries(CATEGORIES).filter(([key]) => key !== 'all');
 
@@ -87,7 +96,7 @@ export function NewRecipe() {
         title, instructions, prep_time: Number(prepTime) || 0, calories: Number(totalCalories) || 0, preparation_method: method, category, ingredients: validIngredients,
         is_public: isPublic,
       });
-      navigate('/recipes');
+      navigate(ROUTES.receitas);
     } catch (error: any) {
       const detail = error.response?.data?.detail;
       showAlert(detail?.code === 'PLAN_LIMIT_REACHED' ? detail.message : 'Erro ao criar.', 'error');
@@ -95,98 +104,89 @@ export function NewRecipe() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <button onClick={() => navigate('/recipes')} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg">
-          <ArrowLeft className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
-        </button>
-        <h1 className="text-2xl font-bold text-orange-500">Nova Receita</h1>
-      </div>
+    <div className="mx-auto max-w-3xl">
+      <button onClick={() => navigate(ROUTES.receitas)} aria-label="Voltar" className="-ml-2 mb-2 flex h-10 w-10 items-center justify-center rounded-2xl text-ink hover:bg-soft">
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+      <PageTitle a="Nova" b="receita" />
 
-      <form onSubmit={handleSave} className="space-y-6">
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-xs">
+      <form onSubmit={handleSave} className="space-y-4">
+        <div className={CARTAO}>
           <div className="space-y-2">
-            <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Type className="h-4 w-4" /> Nome</label>
-            <input type="text" required value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white focus:ring-2 focus:ring-orange-500" placeholder="Ex: Omelete" />
+            <label className={ROTULO}><Type className="h-4 w-4" /> Nome</label>
+            <input type="text" required value={title} onChange={e => setTitle(e.target.value)} className={CAMPO} placeholder="Ex: Omelete" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Clock className="h-4 w-4" /> Tempo (min)</label>
-              <input type="number" value={prepTime} onChange={e => setPrepTime(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white" />
+              <label className={ROTULO}><Clock className="h-4 w-4" /> Tempo (min)</label>
+              <input type="number" value={prepTime} onChange={e => setPrepTime(e.target.value)} className={CAMPO} />
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Flame className="h-4 w-4" /> Calorias</label>
-              <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white" placeholder="Auto" />
+              <label className={ROTULO}><Flame className="h-4 w-4" /> Calorias</label>
+              <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className={CAMPO} placeholder="Auto" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Settings2 className="h-4 w-4" /> Preparo</label>
-              <select value={method} onChange={e => setMethod(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white">
+              <label className={ROTULO}><Settings2 className="h-4 w-4" /> Preparo</label>
+              <select value={method} onChange={e => setMethod(e.target.value)} className={CAMPO}>
                 {PREP_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><Tag className="h-4 w-4" /> Categoria</label>
-              <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white">
+              <label className={ROTULO}><Tag className="h-4 w-4" /> Categoria</label>
+              <select value={category} onChange={e => setCategory(e.target.value)} className={CAMPO}>
                 {RECIPE_CATEGORIES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
               </select>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-xs">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold flex gap-2 dark:text-zinc-100"><Carrot className="text-orange-500" /> Ingredientes</h2>
-            <button type="button" onClick={addIngredient} className="text-green-500 text-sm flex gap-1 hover:text-green-400"><Plus className="h-4 w-4" /> Adicionar</button>
+        <div className={CARTAO}>
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-[17px] font-extrabold text-ink"><Carrot className="h-5 w-5 text-act-text" /> Ingredientes</h2>
+            <button type="button" onClick={addIngredient} className="flex items-center gap-1 text-sm font-extrabold text-act-text"><Plus className="h-4 w-4" /> Adicionar</button>
           </div>
           <div className="space-y-3">
             {ingredients.map((ing, i) => (
-              <div key={i} className="flex gap-2 items-center">
-                <input placeholder="Nome" value={ing.name} onChange={e => updateIngredient(i, 'name', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-hidden dark:text-white" />
-                <input type="number" placeholder="Qtd" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="w-20 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-hidden dark:text-white" />
-                <input placeholder="Un" value={ing.unit} onChange={e => updateIngredient(i, 'unit', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className="w-20 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-hidden dark:text-white" />
-                <div className="w-16 flex justify-end text-xs text-zinc-500">
+              <div key={i} className="flex items-center gap-2">
+                <input placeholder="Nome" value={ing.name} onChange={e => updateIngredient(i, 'name', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className={`${CAMPO_P} min-w-0 flex-1`} />
+                <input type="number" placeholder="Qtd" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className={`${CAMPO_P} w-16 sm:w-20`} />
+                <input placeholder="Un" value={ing.unit} onChange={e => updateIngredient(i, 'unit', e.target.value)} onBlur={() => calculateIngredientCalories(i)} className={`${CAMPO_P} w-14 sm:w-20`} />
+                <div className="flex w-14 justify-end text-xs font-semibold text-mut">
                   {calculatingIndex === i ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
+                    <BouncingDots />
                   ) : (
                     ing.calories ? `${Math.round(ing.calories)} kcal` : '-'
                   )}
                 </div>
-                <button type="button" onClick={() => removeIngredient(i)} className="p-2 text-zinc-500 hover:text-red-400"><Trash2 className="h-5 w-5" /></button>
+                <button type="button" onClick={() => removeIngredient(i)} aria-label="Remover ingrediente" className="p-1 text-mut hover:text-ink"><Trash2 className="h-5 w-5" /></button>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-xs">
-          <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2"><AlignLeft className="h-4 w-4" /> Modo de Preparo</label>
-          <textarea required rows={4} value={instructions} onChange={e => setInstructions(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white" />
+        <div className={CARTAO}>
+          <label className={ROTULO}><AlignLeft className="h-4 w-4" /> Modo de Preparo</label>
+          <textarea required rows={4} value={instructions} onChange={e => setInstructions(e.target.value)} className={`${CAMPO} resize-none`} />
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isPublic}
-              onChange={e => setIsPublic(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-green-600"
-            />
-            <span className="text-sm">
-              <span className="flex items-center gap-2 font-medium text-zinc-800 dark:text-zinc-200">
-                <Users className="h-4 w-4" /> Compartilhar com a comunidade
-              </span>
-              <span className="block mt-1 text-zinc-500 dark:text-zinc-400">
-                Outras pessoas poderão ver o título, os ingredientes e o modo de preparo.
-                Desmarque para manter a receita só sua.
-              </span>
+        <div className="flex items-center justify-between gap-4 rounded-3xl border border-line bg-card p-5">
+          <span className="text-sm">
+            <span className="flex items-center gap-2 font-extrabold text-ink">
+              <Users className="h-4 w-4" /> Compartilhar com a comunidade
             </span>
-          </label>
+            <span className="mt-1 block text-mut">
+              Outras pessoas poderão ver o título, os ingredientes e o modo de preparo.
+              Desligue para manter a receita só sua.
+            </span>
+          </span>
+          <Switch checked={isPublic} onCheckedChange={setIsPublic} aria-label="Compartilhar com a comunidade" />
         </div>
 
-        <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg flex justify-center gap-2">
-          {loading ? <BouncingDots /> : <><Save /> Criar Receita</>}
-        </button>
+        <Button type="submit" disabled={loading} className="w-full py-4">
+          {loading ? <BouncingDots /> : <><Save className="h-5 w-5" /> Criar Receita</>}
+        </Button>
       </form>
     </div>
   );

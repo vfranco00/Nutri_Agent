@@ -12,7 +12,6 @@ import {
 } from "../types";
 import {
   Save,
-  Loader2,
   Scale,
   Ruler,
   Calendar,
@@ -26,8 +25,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -36,12 +35,20 @@ import {
 } from "recharts";
 import { format } from "date-fns";
 import { BouncingDots } from "../components/BouncingDots";
+import { PageTitle } from "../components/PageTitle";
+import { Button } from "../components/ui/Button";
+import { Skeleton } from "../components/ui/Skeleton";
 
 interface WeightData {
   id: number;
   weight: number;
   date: string;
 }
+
+const CAMPO =
+  "w-full rounded-2xl border border-line bg-card px-4 py-3 text-sm text-ink placeholder:text-mut focus-visible:outline-2 focus-visible:outline-act-text";
+const ROTULO = "flex items-center gap-2 text-xs font-bold text-mut";
+const CARTAO = "rounded-3xl border border-line bg-card p-5";
 
 const PREFERENCE_FIELDS: { key: "allergies" | "food_likes" | "food_dislikes"; label: string }[] = [
   { key: "allergies", label: "Alergias" },
@@ -174,105 +181,86 @@ export function Profile() {
 
   if (fetching)
     return (
-      <div className="flex justify-center mt-20">
-        <Loader2 className="animate-spin h-8 w-8 text-green-500" />
+      <div className="mx-auto max-w-6xl space-y-4" aria-busy="true">
+        <Skeleton className="h-9 w-48" />
+        <Skeleton className="h-64 w-full rounded-3xl" />
       </div>
     );
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl">
       {isOnboarding && (
-        <div className="mb-6 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-4 flex items-start gap-3">
-          <Sparkles className="h-5 w-5 text-green-600 dark:text-green-500 shrink-0 mt-0.5" />
+        <div className="mb-6 flex items-start gap-3 rounded-3xl bg-act-soft p-4">
+          <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-act-text" />
           <div>
-            <h2 className="font-bold text-green-700 dark:text-green-400 text-sm">
-              Vamos começar!
-            </h2>
-            <p className="text-green-700/80 dark:text-green-300/80 text-sm">
+            <h2 className="text-sm font-extrabold text-ink">Vamos começar!</h2>
+            <p className="text-sm text-ink">
               Preencha seus dados pra gente calcular suas metas e personalizar tudo pra você.
             </p>
           </div>
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-2">
-        Meu Perfil Nutricional
-      </h1>
-      <a href="/perfil/privacidade" className="mb-6 inline-block text-sm font-semibold text-green-600 dark:text-green-500 underline">
+      <PageTitle a="Suas" b="metas" />
+      <a href="/perfil/privacidade" className="-mt-2 mb-6 inline-block text-sm font-extrabold text-act-text underline">
         Privacidade e meus dados
       </a>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* COLUNA 1: Formulário (Esquerda) */}
-        <div className="lg:col-span-2 space-y-6">
-          <form
-            onSubmit={handleSave}
-            className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-6 shadow-xs"
-          >
-            <h2 className="text-lg font-semibold dark:text-zinc-100">
-              Dados Corporais
-            </h2>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <form onSubmit={handleSave} className={`${CARTAO} space-y-6`}>
+            <h2 className="text-[17px] font-extrabold text-ink">Dados Corporais</h2>
 
-            {/* Cards de Métricas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Peso Ideal */}
-              <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 p-4 rounded-lg flex gap-3 items-start">
-                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="flex items-start gap-3 rounded-2xl bg-soft p-4">
+                <Info className="mt-0.5 h-5 w-5 shrink-0 text-act-text" />
                 <div>
-                  <h4 className="font-bold text-blue-700 dark:text-blue-300 text-sm">
-                    Estimativa de Peso Ideal
-                  </h4>
+                  <h4 className="text-sm font-extrabold text-ink">Estimativa de Peso Ideal</h4>
                   {formData.height > 0 ? (
-                    <p className="text-blue-600/80 dark:text-blue-200/70 text-xs mt-1">
-                      Faixa saudável: <strong>{minWeight}kg</strong> -{" "}
-                      <strong>{maxWeight}kg</strong>
+                    <p className="mt-1 text-xs text-mut">
+                      Faixa saudável: <strong className="text-ink">{minWeight}kg</strong> -{" "}
+                      <strong className="text-ink">{maxWeight}kg</strong>
                     </p>
                   ) : (
-                    <p className="text-xs text-blue-600 dark:text-blue-400">Preencha sua altura</p>
+                    <p className="text-xs text-mut">Preencha sua altura</p>
                   )}
                 </div>
               </div>
 
-              {/* TMB (Basal) */}
               {formData.bmr ? (
-                <div className="bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 p-4 rounded-lg flex gap-3 items-start">
-                  <Flame className="h-5 w-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 rounded-2xl bg-soft p-4">
+                  <Flame className="mt-0.5 h-5 w-5 shrink-0 text-act-text" />
                   <div>
-                    <h4 className="font-bold text-orange-700 dark:text-orange-300 text-sm">
-                      Metabolismo Basal
-                    </h4>
-                    <p className="text-orange-600/80 dark:text-orange-200/70 text-xs mt-1">
-                      Seu corpo gasta{" "}
-                      <strong>{Math.round(formData.bmr)} kcal</strong> em
+                    <h4 className="text-sm font-extrabold text-ink">Metabolismo Basal</h4>
+                    <p className="mt-1 text-xs text-mut">
+                      Seu corpo gasta <strong className="text-ink">{Math.round(formData.bmr)} kcal</strong> em
                       repouso.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 p-4 rounded-lg flex gap-3 items-center text-zinc-500">
+                <div className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-line p-4 text-mut">
                   <Activity className="h-5 w-5" />
                   <span className="text-xs">Salve para calcular sua TMB.</span>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2">
+                <label className={ROTULO}>
                   <Calendar className="h-4 w-4" /> Idade
                 </label>
                 <input
                   type="number"
                   required
                   value={formData.age || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, age: Number(e.target.value) })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white"
+                  onChange={(e) => setFormData({ ...formData, age: Number(e.target.value) })}
+                  className={CAMPO}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2">
+                <label className={ROTULO}>
                   <Scale className="h-4 w-4" /> Peso (kg)
                 </label>
                 <input
@@ -280,42 +268,33 @@ export function Profile() {
                   required
                   step="0.1"
                   value={formData.weight || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, weight: Number(e.target.value) })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white"
+                  onChange={(e) => setFormData({ ...formData, weight: Number(e.target.value) })}
+                  className={CAMPO}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2">
+                <label className={ROTULO}>
                   <Ruler className="h-4 w-4" /> Altura (cm)
                 </label>
                 <input
                   type="number"
                   required
                   value={formData.height || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, height: Number(e.target.value) })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white"
+                  onChange={(e) => setFormData({ ...formData, height: Number(e.target.value) })}
+                  className={CAMPO}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2">
+                <label className={ROTULO}>
                   <Activity className="h-4 w-4" /> Nível de Atividade
                 </label>
                 <select
                   value={formData.activity_level}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      activity_level: e.target.value as any,
-                    })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-zinc-100"
+                  onChange={(e) => setFormData({ ...formData, activity_level: e.target.value as any })}
+                  className={CAMPO}
                 >
                   {Object.entries(ACTIVITY_LEVELS).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -325,15 +304,13 @@ export function Profile() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2">
+                <label className={ROTULO}>
                   <Target className="h-4 w-4" /> Objetivo
                 </label>
                 <select
                   value={formData.goal}
-                  onChange={(e) =>
-                    setFormData({ ...formData, goal: e.target.value as any })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-zinc-100"
+                  onChange={(e) => setFormData({ ...formData, goal: e.target.value as any })}
+                  className={CAMPO}
                 >
                   {Object.entries(GOALS).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -344,76 +321,38 @@ export function Profile() {
               </div>
             </div>
 
-            {/* CHECKBOXES - Agora vão funcionar sem erro */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
               <div
-                onClick={() =>
-                  setFormData({ ...formData, eats_fruit: !formData.eats_fruit })
-                }
-                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${formData.eats_fruit ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800" : "bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"}`}
+                onClick={() => setFormData({ ...formData, eats_fruit: !formData.eats_fruit })}
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 ${formData.eats_fruit ? "border-pos bg-pos-soft" : "border-line bg-soft"}`}
               >
-                <div
-                  className={`p-2 rounded-full ${formData.eats_fruit ? "bg-green-100 dark:bg-green-500/20" : "bg-zinc-200 dark:bg-zinc-700"}`}
-                >
-                  <Apple
-                    className={`h-5 w-5 ${formData.eats_fruit ? "text-green-600 dark:text-green-400" : "text-zinc-400"}`}
-                  />
+                <div className="rounded-full bg-card p-2">
+                  <Apple className={`h-5 w-5 ${formData.eats_fruit ? "text-pos-text" : "text-mut"}`} />
                 </div>
-                <div className="flex-1">
-                  <span
-                    className={`text-sm font-bold block ${formData.eats_fruit ? "text-green-700 dark:text-green-300" : "text-zinc-500"}`}
-                  >
-                    Consumo Frutas
-                  </span>
-                </div>
-                {formData.eats_fruit && (
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                )}
+                <span className="flex-1 text-sm font-bold text-ink">Consumo Frutas</span>
+                {formData.eats_fruit && <CheckCircle2 className="h-5 w-5 text-pos-text" />}
               </div>
 
               <div
-                onClick={() =>
-                  setFormData({
-                    ...formData,
-                    body_fat_goal: !formData.body_fat_goal,
-                  })
-                }
-                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${formData.body_fat_goal ? "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" : "bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"}`}
+                onClick={() => setFormData({ ...formData, body_fat_goal: !formData.body_fat_goal })}
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 ${formData.body_fat_goal ? "border-act bg-act-soft" : "border-line bg-soft"}`}
               >
-                <div
-                  className={`p-2 rounded-full ${formData.body_fat_goal ? "bg-purple-100 dark:bg-purple-500/20" : "bg-zinc-200 dark:bg-zinc-700"}`}
-                >
-                  <Target
-                    className={`h-5 w-5 ${formData.body_fat_goal ? "text-purple-600 dark:text-purple-400" : "text-zinc-400"}`}
-                  />
+                <div className="rounded-full bg-card p-2">
+                  <Target className={`h-5 w-5 ${formData.body_fat_goal ? "text-act-text" : "text-mut"}`} />
                 </div>
-                <div className="flex-1">
-                  <span
-                    className={`text-sm font-bold block ${formData.body_fat_goal ? "text-purple-700 dark:text-purple-300" : "text-zinc-500"}`}
-                  >
-                    Focar em % Gordura
-                  </span>
-                </div>
-                {formData.body_fat_goal && (
-                  <CheckCircle2 className="h-5 w-5 text-purple-500" />
-                )}
+                <span className="flex-1 text-sm font-bold text-ink">Focar em % Gordura</span>
+                {formData.body_fat_goal && <CheckCircle2 className="h-5 w-5 text-act-text" />}
               </div>
             </div>
 
-            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
-              <h3 className="text-md font-semibold text-green-600 dark:text-green-500">
-                Preferências Alimentares
-              </h3>
+            <div className="space-y-4 border-t border-line pt-4">
+              <h3 className="text-[17px] font-extrabold text-ink">Preferências Alimentares</h3>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Tipo de Dieta
-                </label>
+                <label className={ROTULO}>Tipo de Dieta</label>
                 <select
                   value={formData.diet_type || "omnivore"}
-                  onChange={(e) =>
-                    setFormData({ ...formData, diet_type: e.target.value })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-zinc-100"
+                  onChange={(e) => setFormData({ ...formData, diet_type: e.target.value })}
+                  className={CAMPO}
                 >
                   {Object.entries(DIET_TYPES).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -423,61 +362,44 @@ export function Profile() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Alergias (Separar por vírgula)
-                </label>
+                <label className={ROTULO}>Alergias (Separar por vírgula)</label>
                 <input
                   type="text"
                   value={formData.allergies || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, allergies: e.target.value })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-red-500/50 dark:text-white"
+                  onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
+                  className={CAMPO}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400">
-                  O que você MAIS gosta?
-                </label>
+                <label className={ROTULO}>O que você MAIS gosta?</label>
                 <textarea
                   rows={2}
                   value={formData.food_likes || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, food_likes: e.target.value })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-green-500 dark:text-white resize-none"
+                  onChange={(e) => setFormData({ ...formData, food_likes: e.target.value })}
+                  className={`${CAMPO} resize-none`}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-500 dark:text-zinc-400">
-                  O que você DETESTA?
-                </label>
+                <label className={ROTULO}>O que você DETESTA?</label>
                 <textarea
                   rows={2}
                   value={formData.food_dislikes || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, food_dislikes: e.target.value })
-                  }
-                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-red-500/50 dark:text-white resize-none"
+                  onChange={(e) => setFormData({ ...formData, food_dislikes: e.target.value })}
+                  className={`${CAMPO} resize-none`}
                 />
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2"
-            >
+            <Button type="submit" disabled={loading} className="w-full">
               {loading ? <BouncingDots /> : <><Save className="h-5 w-5" /> Salvar Perfil e Histórico</>}
-            </button>
+            </Button>
           </form>
         </div>
 
-        {/* COLUNA 2: Gráfico (Direita) */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-            <h3 className="text-zinc-800 dark:text-zinc-100 font-semibold mb-4 flex items-center gap-2">
-              <Scale className="h-5 w-5 text-blue-500" /> Pesagem Rápida
+          <div className={CARTAO}>
+            <h3 className="mb-4 flex items-center gap-2 text-[17px] font-extrabold text-ink">
+              <Scale className="h-5 w-5 text-act-text" /> Pesagem Rápida
             </h3>
             <div className="flex gap-2">
               <input
@@ -485,77 +407,49 @@ export function Profile() {
                 placeholder="Peso hoje (kg)"
                 value={newWeight}
                 onChange={(e) => setNewWeight(e.target.value)}
-                className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className={`${CAMPO} flex-1`}
               />
-              <button
-                onClick={handleAddWeight}
-                disabled={addingWeight}
-                className="bg-blue-600 hover:bg-blue-700 p-2 rounded-lg text-white transition-colors disabled:opacity-50"
-              >
-                {addingWeight ? <Loader2 className="h-6 w-6 animate-spin" /> : <Plus className="h-6 w-6" />}
-              </button>
+              <Button onClick={handleAddWeight} disabled={addingWeight} aria-label="Registrar peso" className="px-3">
+                {addingWeight ? <BouncingDots /> : <Plus className="h-5 w-5" />}
+              </Button>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 h-80 shadow-xs">
-            <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-medium mb-4">
-              Evolução do Peso
-            </h3>
+          <div className={`${CARTAO} h-80`}>
+            <h3 className="mb-4 text-sm font-bold text-mut">Evolução do Peso</h3>
 
             {history.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={history}>
-                  <defs>
-                    <linearGradient
-                      id="colorWeight"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#3f3f46"
-                    vertical={false}
-                    opacity={0.1}
-                  />
+                <LineChart data={history}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" vertical={false} />
                   <XAxis
                     dataKey="date"
-                    stroke="#71717a"
+                    stroke="var(--mut)"
                     fontSize={12}
                     tickFormatter={(str) => format(new Date(str), "dd/MM")}
                   />
-                  <YAxis
-                    stroke="#71717a"
-                    fontSize={12}
-                    domain={["dataMin - 2", "dataMax + 2"]}
-                  />
+                  <YAxis stroke="var(--mut)" fontSize={12} domain={["dataMin - 2", "dataMax + 2"]} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#18181b",
-                      border: "1px solid #3f3f46",
-                      borderRadius: "8px",
-                      color: "#fff",
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--line)",
+                      borderRadius: "12px",
+                      color: "var(--ink)",
                     }}
-                    labelFormatter={(label) =>
-                      format(new Date(label), "dd/MM/yyyy HH:mm")
-                    }
+                    labelFormatter={(label) => format(new Date(label), "dd/MM/yyyy HH:mm")}
                   />
-                  <Area
+                  <Line
                     type="monotone"
                     dataKey="weight"
-                    stroke="#10b981"
-                    fillOpacity={1}
-                    fill="url(#colorWeight)"
+                    stroke="var(--act)"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    dot={{ r: 3, fill: "var(--act)", stroke: "var(--act)" }}
                   />
-                </AreaChart>
+                </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-zinc-500 text-sm text-center">
+              <div className="flex h-full items-center justify-center text-center text-sm text-mut">
                 Registre seu peso para ver o gráfico
               </div>
             )}

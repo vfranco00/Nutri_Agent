@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
-import {
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  Mail,
-} from "lucide-react";
+import { CheckCircle2, XCircle, Mail } from "lucide-react";
 import { BouncingDots } from "../components/BouncingDots";
+import { NuviLoader } from "../components/brand/NuviLoader";
+import { Button } from "../components/ui/Button";
+import { AuthShell, AUTH_CAMPO } from "../components/auth/AuthShell";
 
 type Status = "loading" | "success" | "error";
 
@@ -46,31 +44,25 @@ export function VerifyEmail() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-4 text-zinc-900 dark:text-zinc-100 transition-colors">
-      <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
+    <AuthShell>
+      <div className="text-center">
         {status === "loading" && (
-          <>
-            <Loader2 className="h-10 w-10 text-green-500 animate-spin mx-auto mb-4" />
-            <p className="text-zinc-500 dark:text-zinc-400">
-              Confirmando seu email...
-            </p>
-          </>
+          <div className="flex flex-col items-center gap-3 py-4">
+            <NuviLoader active size={56} label="Confirmando seu email" />
+            <p className="text-mut">Confirmando seu email...</p>
+          </div>
         )}
 
         {status === "success" && (
           <>
-            <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-green-100 dark:bg-green-500/10 flex items-center justify-center">
-              <CheckCircle2 className="h-7 w-7 text-green-600 dark:text-green-500" />
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-pos-soft">
+              <CheckCircle2 className="h-7 w-7 text-pos-text" />
             </div>
-            <h1 className="text-2xl font-bold text-green-600 dark:text-green-500 mb-2">
-              Email confirmado!
-            </h1>
-            <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-              Sua conta já está ativa. Pode entrar normalmente.
-            </p>
+            <h1 className="mb-2 text-2xl font-black tracking-tight text-ink">Email confirmado!</h1>
+            <p className="mb-6 text-mut">Sua conta já está ativa. Pode entrar normalmente.</p>
             <a
               href="/?login=1"
-              className="inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors"
+              className="inline-block w-full rounded-2xl bg-act py-3 text-sm font-extrabold text-nuvi-tinta"
             >
               Ir para o Login
             </a>
@@ -79,46 +71,38 @@ export function VerifyEmail() {
 
         {status === "error" && (
           <>
-            <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
-              <XCircle className="h-7 w-7 text-red-600 dark:text-red-500" />
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-act-soft">
+              <XCircle className="h-7 w-7 text-act-text" />
             </div>
-            <h1 className="text-2xl font-bold text-red-600 dark:text-red-500 mb-2">
-              Link inválido ou expirado
-            </h1>
-            <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-              Peça um novo link de confirmação abaixo.
-            </p>
+            <h1 className="mb-2 text-2xl font-black tracking-tight text-ink">Link inválido ou expirado</h1>
+            <p className="mb-6 text-mut">Peça um novo link de confirmação abaixo.</p>
 
             {resendSent ? (
-              <p className="text-sm text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-500/10 py-3 rounded-lg border border-green-200 dark:border-green-500/20">
-                Se o email existir e ainda não estiver confirmado, enviamos um
-                novo link.
+              <p className="rounded-2xl bg-pos-soft px-4 py-3 text-sm font-semibold text-ink">
+                Se o email existir e ainda não estiver confirmado, enviamos um novo link.
               </p>
             ) : (
               <form onSubmit={handleResend} className="space-y-3">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
+                  <Mail className="absolute left-3.5 top-3 h-5 w-5 text-mut" />
                   <input
                     type="email"
                     required
                     value={resendEmail}
                     onChange={(e) => setResendEmail(e.target.value)}
                     placeholder="seu@email.com"
-                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-green-500 outline-hidden"
+                    aria-label="Email"
+                    className={AUTH_CAMPO}
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={resending}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                >
+                <Button type="submit" disabled={resending} className="w-full">
                   {resending ? <BouncingDots /> : "Reenviar link"}
-                </button>
+                </Button>
               </form>
             )}
           </>
         )}
       </div>
-    </div>
+    </AuthShell>
   );
 }

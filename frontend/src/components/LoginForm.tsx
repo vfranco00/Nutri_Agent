@@ -5,6 +5,9 @@ import { useAuth } from "../lib/AuthContext";
 import { Lock, Mail, ArrowRight, RefreshCw } from "lucide-react";
 import { PasswordInput } from "./PasswordInput";
 import { BouncingDots } from "./BouncingDots";
+import { Button } from "./ui/Button";
+import { AUTH_CAMPO, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "./auth/AuthShell";
+import { NuviLogo } from "./brand/NuviLogo";
 
 /**
  * Só o miolo do login (cabeçalho + formulário + rodapé) — sem o card/fundo externo.
@@ -67,53 +70,55 @@ export function LoginForm() {
 
   return (
     <>
-      <div className="text-center mb-8">
-        <img src="/logo-horizontal-fundo-escuro.png" alt="Nuvi" className="h-16 w-auto object-contain mx-auto mb-2" />
-        <p className="text-zinc-400">Entre para gerenciar sua dieta</p>
+      <div className="mb-8 text-center">
+        <div className="mb-3 flex justify-center">
+          <NuviLogo size={40} tone={document.documentElement.classList.contains("dark") ? "dark" : "light"} />
+        </div>
+        <p className="text-mut">Entre para gerenciar sua dieta</p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-6">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-300 ml-1">Email</label>
+          <label className={AUTH_ROTULO}>Email</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
+            <Mail className={AUTH_ICONE} />
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-4 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
+              className={AUTH_CAMPO}
               placeholder="seu@email.com"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between ml-1">
-            <label className="text-sm font-medium text-zinc-300">Senha</label>
-            <a href="/forgot-password" className="text-xs text-green-500 hover:text-green-400 hover:underline">
+          <div className="flex items-center justify-between">
+            <label className={AUTH_ROTULO}>Senha</label>
+            <a href="/forgot-password" className={`text-xs ${AUTH_LINK}`}>
               Esqueceu a senha?
             </a>
           </div>
           <PasswordInput
-            icon={<Lock className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />}
+            icon={<Lock className={AUTH_ICONE} />}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg py-2.5 pl-10 pr-10 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-zinc-500 transition-all"
+            className={AUTH_CAMPO_SENHA}
             placeholder="••••••••"
           />
         </div>
 
         {error && (
-          <div className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-md border border-red-400/20 space-y-2">
+          <div className={`${AUTH_ERRO} space-y-2`}>
             <p>{error}</p>
             {unverifiedEmail && (
               <button
                 type="button"
                 onClick={handleResendVerification}
                 disabled={resending}
-                className="inline-flex items-center gap-1.5 text-green-400 hover:text-green-300 font-medium disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 font-extrabold text-act-text disabled:opacity-50"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${resending ? "animate-spin" : ""}`} />
                 Reenviar email de confirmação
@@ -122,31 +127,27 @@ export function LoginForm() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed group"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? (
             <BouncingDots />
           ) : (
             <>
               Entrar
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-5 w-5" />
             </>
           )}
-        </button>
+        </Button>
       </form>
 
-      <div className="mt-8 text-center text-sm text-zinc-500">
+      <div className="mt-8 text-center text-sm text-mut">
         Não tem uma conta?{" "}
-        <a href="/register" className="text-green-500 hover:text-green-400 hover:underline">
+        <a href="/register" className={AUTH_LINK}>
           Crie agora
         </a>
         <p className="mt-3 text-xs">
-          <a href="/privacidade" className="hover:text-zinc-300 hover:underline">Política de Privacidade</a>
+          <a href="/privacidade" className="hover:underline">Política de Privacidade</a>
           {" · "}
-          <a href="/termos" className="hover:text-zinc-300 hover:underline">Termos de Uso</a>
+          <a href="/termos" className="hover:underline">Termos de Uso</a>
         </p>
       </div>
     </>

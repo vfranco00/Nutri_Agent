@@ -9,6 +9,8 @@ import { DiaryLog } from './pages/DiaryLog';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
 import { NewRecipe } from './pages/NewRecipe';
+import { RecipeDetail } from './pages/RecipeDetail';
+import { Comunidade } from './pages/Comunidade';
 import { AiPlan } from './pages/AiPlain';
 import { AiChef } from './pages/AiChef';
 import { AppLayout } from './layouts/AppLayout';
@@ -104,7 +106,8 @@ function AppRoutes() {
           <Route path={ROUTES.alimentoNovo} element={<EmBreve titulo="Novo alimento" />} />
           <Route path={ROUTES.receitas} element={<Recipes />} />
           <Route path={ROUTES.receitaNova} element={<NewRecipe />} />
-          <Route path={ROUTES.comunidade} element={<EmBreve titulo="Comunidade" />} />
+          <Route path="/receitas/:id" element={<RecipeDetail />} />
+          <Route path={ROUTES.comunidade} element={<Comunidade />} />
           <Route path={ROUTES.chef} element={<AiChef />} />
           <Route path={ROUTES.compras} element={<ShoppingPage />} />
           <Route path={ROUTES.cardapios} element={<MealPlans />} />
