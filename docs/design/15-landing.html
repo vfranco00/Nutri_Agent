@@ -46,7 +46,7 @@ a{color:inherit}
 .tag b{display:block;font-size:14px}.tag span{color:var(--mut)}.tag i{font-style:normal;font-weight:800;color:var(--orT)}
 .tag.show{opacity:1;transform:none}
 .tag .src{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--posT);background:#E3F3E1;border-radius:6px;padding:1px 5px;margin-left:4px;vertical-align:1px}
-.total{position:absolute;right:-2%;bottom:3%;transform:translateY(10px);background:var(--ink);color:var(--cream);border-radius:20px;padding:12px 16px 12px 12px;display:flex;align-items:center;gap:12px;opacity:0;transition:opacity 300ms var(--eo),transform 300ms var(--eo);white-space:nowrap}
+.total{position:absolute;left:-3%;bottom:-4%;transform:translateY(10px);background:var(--ink);color:var(--cream);border-radius:20px;padding:12px 16px 12px 12px;display:flex;align-items:center;gap:12px;opacity:0;transition:opacity 300ms var(--eo),transform 300ms var(--eo);white-space:nowrap}
 .total.show{opacity:1;transform:none}
 .total svg{width:58px;height:32px}
 .total b{font-size:20px}.total small{display:block;font-size:12px;color:#CDBFAE}
@@ -71,8 +71,8 @@ a{color:inherit}
 @media (max-width:760px){.row{grid-template-columns:1fr;gap:8px}}
 
 .photo{position:relative;justify-self:end;width:100%;max-width:640px}
-.photo img{width:100%;height:auto;display:block;border-radius:32px;aspect-ratio:4/3;object-fit:cover;box-shadow:0 30px 60px rgba(28,23,18,.18)}
-.ph-img{position:relative}.pin{position:absolute;width:0;height:0}
+.photo img{width:100%;height:auto;display:block;border-radius:32px;aspect-ratio:3/2;object-fit:cover;box-shadow:0 30px 60px rgba(28,23,18,.18)}
+.ph-img{position:relative}.pin.desce .tag{top:12px}.pin{position:absolute;width:0;height:0}
 .pin>i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(232,89,12,.9);opacity:0;transition:opacity 200ms var(--eo)}
 .pin .tag{left:14px;top:-22px}
 .pin.esq .tag{left:auto;right:14px}
@@ -80,7 +80,9 @@ a{color:inherit}
 .credit{font-size:11px;color:var(--mut);margin-top:10px;text-align:right}
 .credit a{color:var(--mut)}
 @media (max-width:900px){.photo{justify-self:center}.pin .tag{top:-18px}}
-@media (max-width:640px){.pin.l .tag{left:14px;right:auto;top:12px}.pin.baixo{display:none}.pin.mr .tag{left:auto;right:14px}.photo .total{position:relative;right:auto;bottom:auto;margin-top:14px;display:inline-flex}}
+@media (max-width:640px){.pin.l .tag{left:14px;right:auto;top:12px}.pin.baixo{display:none}.pin.mr .tag{left:auto;right:14px}.photo .total{position:relative;left:auto;right:auto;bottom:auto;margin-top:14px;display:inline-flex}}
+.wm .i{position:relative;display:inline-block;letter-spacing:0;line-height:1}
+.wm .i svg{position:absolute;left:50%;transform:translateX(-50%);bottom:.8em;width:.42em;height:.42em}
 /* ============ B · FALA QUE EU ANOTO ============ */
 #B{background:var(--dark);color:#F3EFE9}
 #B .nav .links a{opacity:.7}
@@ -167,7 +169,7 @@ a{color:inherit}
 <!-- ===================== A ===================== -->
 <section class="dir" id="A">
   <div class="wrap">
-    <nav class="nav"><a class="logo" href="#"><span class="slot-logo"></span><span class="wm">nuvi</span></a>
+    <nav class="nav"><a class="logo" href="#"><span class="wm" data-pingo="claro">nuvi</span></a>
       <div class="links"><a href="#">Como funciona</a><a href="#">Planos</a><a href="#">Entrar</a></div><a class="btn sm" href="#">Começar grátis</a></nav>
     <div class="a-hero">
       <div>
@@ -177,13 +179,12 @@ a{color:inherit}
         <p class="note">Grátis para sempre no plano Starter. Sem cartão.</p>
       </div>
       <div class="photo" id="plate"><div class="ph-img">
-        <img src="img/prato-arroz-feijao.jpg" alt="Prato de almoço brasileiro: arroz branco, feijão carioca, abobrinha grelhada e verdura refogada" width="1500" height="1125">
-        <div class="pin" style="left:39%;top:44%"><i></i><div class="tag"><b>Feijão carioca<span class="src">TACO</span></b><span>2 conchas · </span><i>152 kcal</i></div></div>
-        <div class="pin l" style="left:27%;top:74%"><i></i><div class="tag"><b>Arroz branco cozido<span class="src">TACO</span></b><span>4 col. de sopa · </span><i>164 kcal</i></div></div>
-        <div class="pin mr esq" style="left:63%;top:22%"><i></i><div class="tag"><b>Abobrinha grelhada<span class="src">TACO</span></b><span>100 g · </span><i>15 kcal</i></div></div>
-        <div class="pin mr baixo" style="left:66%;top:70%"><i></i><div class="tag"><b>Escarola refogada</b><span>1 porção · </span><i>30 kcal</i></div></div>
-        </div><div class="total" id="totalA"><svg viewBox="0 0 100 54"><path d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#3A2C20" stroke-width="10" stroke-linecap="round"/><path class="arcA" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#E8590C" stroke-width="10" stroke-linecap="round" style="transition:stroke-dashoffset 450ms var(--eio)"/></svg><div><b>361 kcal</b><small>cabe no seu dia: faltam 1.639</small></div></div>
-        <p class="credit">Foto: Mike Peel, <a href="https://commons.wikimedia.org/wiki/File:Rice,_beans_and_vegetables_in_Brazil.jpg">CC BY-SA 4.0</a></p>
+        <img src="img/prato-hero.jpg" alt="Prato brasileiro: filé com queijo gratinado, mandioca frita, baião de dois, vinagrete, cuscuz e alface" width="1600" height="1067">
+        <div class="pin esq desce" style="left:68%;top:45%"><i></i><div class="tag"><b>Filé com queijo gratinado</b><span>120 g · </span><i>290 kcal</i></div></div>
+        <div class="pin" style="left:46%;top:21%"><i></i><div class="tag"><b>Mandioca frita<span class="src">TACO</span></b><span>3 pedaços · </span><i>210 kcal</i></div></div>
+        <div class="pin esq baixo" style="left:34%;top:40%"><i></i><div class="tag"><b>Baião de dois</b><span>1 escumadeira · </span><i>180 kcal</i></div></div>
+        <div class="pin mr" style="left:58%;top:80%"><i></i><div class="tag"><b>Cuscuz nordestino<span class="src">TACO</span></b><span>1 fatia · </span><i>113 kcal</i></div></div>
+        </div><div class="total" id="totalA"><svg viewBox="0 0 100 54"><path d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#3A2C20" stroke-width="10" stroke-linecap="round"/><path class="arcA" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#E8590C" stroke-width="10" stroke-linecap="round" style="transition:stroke-dashoffset 450ms var(--eio)"/></svg><div><b>813 kcal</b><small>cabe no seu dia: faltam 1.187</small></div></div>
       </div>
     </div>
   </div>
@@ -230,7 +231,7 @@ a{color:inherit}
     <div class="plan"><b style="font-size:20px">Pro</b><div class="pr">R$ 59,90 <small>/mês</small></div><ul><li>Cardápios ilimitados</li><li>Chef IA ilimitado</li><li>Planos alimentares ilimitados</li><li>Receitas próprias ilimitadas</li></ul><a class="btn ink" href="#">Assinar o Pro</a></div>
   </div>
 </div></section>
-<footer class="foot"><div class="wrap"><div class="big wm">nuvi</div><div class="row3"><span>Nuvi não substitui orientação médica ou de nutricionista.</span><span><a href="#">Política de Privacidade</a> · <a href="#">Termos de Uso</a> · <a href="#">Ajuda</a></span></div></div></footer>
+<footer class="foot"><div class="wrap"><div class="big wm" data-pingo="escuro">nuvi</div><div class="row3"><span>Nuvi não substitui orientação médica ou de nutricionista.</span><span><a href="#">Política de Privacidade</a> · <a href="#">Termos de Uso</a> · <a href="#">Ajuda</a></span></div></div></footer>
 <p class="anti"><b>O que tiramos por ter cara de IA:</b> “com IA” no título, brilhinhos, fundo roxo ou degradê, o celular inclinado ao lado de dois botões, a grade de 6 recursos com ícone, depoimentos inventados. No lugar: comida brasileira de verdade, o produto funcionando e frases que só o Nuvi poderia dizer.</p>
 
 <script>
@@ -244,6 +245,9 @@ document.querySelectorAll('.slot-logo-dark').forEach(e=>e.outerHTML=slice('#FF6A
 document.querySelectorAll('.slot-logo-or').forEach(e=>e.outerHTML=slice('#FFF6EC','#E8590C','#FFF6EC').replace('<svg','<svg width="30" height="30"'));
 document.querySelectorAll('.slot-masc').forEach(e=>e.outerHTML=slice('#E8590C','#FFF6EC','#FF9A52',1).replace('<svg','<svg width="38" height="38"'));
 document.querySelectorAll('.slot-masc-big').forEach(e=>e.outerHTML=slice('#E8590C','#fff','#FF9A52',1).replace('<svg','<svg width="130" height="130"'));
+/* logo B: a fatia é o pingo do i */
+const PINGO={claro:['#E8590C','#FFF6EC','#FF9A52'],escuro:['#FF6A26','#1C1712','#FFB07A']};
+document.querySelectorAll('[data-pingo]').forEach(el=>{const [r,c,g]=PINGO[el.dataset.pingo];el.innerHTML=`nuv<span class="i">ı<svg viewBox="0 0 100 100" aria-hidden="true">${slice(r,c,g).replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></span>`;el.setAttribute('aria-label','nuvi')});
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 
@@ -258,7 +262,7 @@ let timers=[];const T=(f,ms)=>timers.push(setTimeout(f,ms));
 function clear(){timers.forEach(clearTimeout);timers=[]}
 function startA(){const tags=[...document.querySelectorAll('#A .tag')],tot=document.getElementById('totalA'),arc=document.querySelector('.arcA');
  tags.forEach(t=>t.classList.remove('show'));tot.classList.remove('show');arc.style.strokeDashoffset=100;
- tags.forEach(t=>t.parentElement.classList.remove('show'));tags.forEach((t,i)=>T(()=>{t.classList.add('show');t.parentElement.classList.add('show')},reduce?0:500+i*420));T(()=>{tot.classList.add('show');T(()=>arc.style.strokeDashoffset=100-18,60)},reduce?0:500+tags.length*420+200)}
+ tags.forEach(t=>t.parentElement.classList.remove('show'));tags.forEach((t,i)=>T(()=>{t.classList.add('show');t.parentElement.classList.add('show')},reduce?0:500+i*420));T(()=>{tot.classList.add('show');T(()=>arc.style.strokeDashoffset=100-41,60)},reduce?0:500+tags.length*420+200)}
 
 /* B: digitação e resposta */
 const DB={arroz:['Arroz branco cozido','4 col. de sopa',164],feij:['Feijão carioca','1 concha',76],bife:['Bife grelhado','100 g',219],salad:['Salada de alface e tomate','1 prato',22],ovo:['Ovo mexido','2 unidades',190],'pão':['Pão francês','1 unidade',150],pao:['Pão francês','1 unidade',150],tapioca:['Tapioca','1 média',142],queijo:['Queijo minas','1 fatia',72],'café':['Café com leite','1 xícara',86],cafe:['Café com leite','1 xícara',86],'açaí':['Açaí','300 ml',262],acai:['Açaí','300 ml',262],banana:['Banana-prata','1 unidade',98],frango:['Peito de frango grelhado','100 g',159],farofa:['Farofa','2 col. de sopa',81],cuscuz:['Cuscuz','1 pedaço',113],iogurte:['Iogurte natural','1 pote',105]};
