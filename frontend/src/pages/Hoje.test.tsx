@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { Hoje } from "./Hoje";
 import { api } from "../lib/api";
 import { makeDay, makeDayWithSlots, makeEntry } from "../test/diaryFactories";
+import { toIsoDate } from "../lib/diary";
 import type { DiaryDay } from "../types";
 
 vi.mock("../lib/api", () => ({
@@ -219,5 +220,26 @@ describe("Hoje — estado de erro", () => {
     renderHoje();
 
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(/Erro ao carregar/));
+  });
+});
+
+describe("Hoje — comemoração de meta", () => {
+  it("avisa 'Meta de calorias batida' uma vez no dia e não repete", async () => {
+    localStorage.clear();
+    const day = makeDay({
+      date: toIsoDate(new Date()),
+      calories_target: 2000,
+      totals: { calories: 2050, protein_g: 80, carbs_g: 200, fat_g: 60 },
+      entries_count: 3,
+    });
+    mockGets(day);
+    const { unmount } = renderHoje();
+    expect(await screen.findByText(/Meta de calorias batida/)).toBeInTheDocument();
+    unmount();
+
+    mockGets(day);
+    renderHoje();
+    await screen.findByRole("link", { name: /Agente Nuvi/ });
+    expect(screen.queryByText(/Meta de calorias batida/)).not.toBeInTheDocument();
   });
 });
