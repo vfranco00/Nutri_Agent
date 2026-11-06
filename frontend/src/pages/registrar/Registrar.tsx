@@ -142,9 +142,9 @@ export function Registrar({ onClose }: { onClose: () => void }) {
           {!buscando ? <RepetirOntem refeicao={refeicao} data={data} onDone={onClose} /> : null}
         </div>
         <Tabs value={aba} onValueChange={(v) => setAba(v as Aba)}>
-          <TabsList className="mb-3">
+          <TabsList className="mb-3 gap-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {ABAS.map(([k, n]) => (
-              <TabsTab key={k} value={k}>{n}</TabsTab>
+              <TabsTab key={k} value={k} className="px-2.5 text-[13px]">{n}</TabsTab>
             ))}
           </TabsList>
 
