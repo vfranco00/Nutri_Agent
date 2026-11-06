@@ -41,6 +41,7 @@ import { Termos } from './pages/legal/Termos';
 import { Privacidade } from './pages/perfil/Privacidade';
 import { ConsentGate } from './components/consent/ConsentGate';
 import './lib/consents';
+import { Lembretes } from './pages/perfil/Lembretes';
 import { Agente } from './pages/Agente';
 import { CodigoDeBarras } from './pages/registrar/CodigoDeBarras';
 import type { JSX } from 'react';
@@ -97,7 +98,7 @@ function AppRoutes() {
           <Route path={ROUTES.progresso} element={<EmBreve titulo="Progresso" />} />
           <Route path={ROUTES.perfil} element={<Profile />} />
           <Route path={ROUTES.privacidadePerfil} element={<Privacidade />} />
-          <Route path={ROUTES.lembretes} element={<EmBreve titulo="Lembretes" />} />
+          <Route path={ROUTES.lembretes} element={<Lembretes />} />
           <Route path={ROUTES.assinatura} element={<Plans />} />
           <Route path={ROUTES.alimentos} element={<EmBreve titulo="Meus alimentos" />} />
           <Route path={ROUTES.alimentoNovo} element={<EmBreve titulo="Novo alimento" />} />
