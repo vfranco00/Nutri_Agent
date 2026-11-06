@@ -38,3 +38,9 @@ def client_ip_key(request: Request) -> str:
 # Instância única, importada tanto pelo main.py (registro do middleware)
 # quanto pelos routers (decorator @limiter.limit(...)) — evita import circular.
 limiter = Limiter(key_func=client_ip_key)
+
+# Na Vercel o contador do slowapi fica em memória de cada instância (não é compartilhado
+# entre instâncias nem sobrevive a cold start). Aceitável: o limite vira "por instância",
+# ainda barra rajada e força bruta simples. Se precisar de limite global, trocar o
+# storage por Redis (storage_uri). Na Vercel, TRUSTED_PROXY_COUNT=1 (a Vercel sobrescreve
+# o X-Forwarded-For com o IP do cliente).

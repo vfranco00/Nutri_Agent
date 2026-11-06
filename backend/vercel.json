@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "app/main.py": {
+      "maxDuration": 120
+    }
+  },
+  "regions": ["gru1"],
+  "crons": [
+    { "path": "/internal/cron/lifecycle", "schedule": "0 6 * * *" },
+    { "path": "/internal/cron/retention", "schedule": "0 3 * * *" }
+  ]
+}

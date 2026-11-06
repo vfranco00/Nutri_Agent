@@ -5,6 +5,7 @@ vida de assinatura (aviso de vencimento + downgrade automático) uma vez ao subi
 depois a cada 24h.
 """
 import logging
+import os
 import sys
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -46,6 +47,10 @@ def start_scheduler() -> None:
     if "pytest" in sys.modules:
         # Nunca inicia em teste — evita thread de background tocando o banco
         # de teste (ou tentando abrir uma conexão real) fora do controle do pytest.
+        return
+    if os.getenv("VERCEL"):
+        # Serverless: não há processo vivo entre requests, a thread morreria junto com
+        # a instância. Os dois jobs rodam pelo Vercel Cron em /internal/cron/* (vercel.json).
         return
     if _scheduler is not None:
         return

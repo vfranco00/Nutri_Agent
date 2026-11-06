@@ -1,5 +1,8 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 from app.core.config import settings
 
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
@@ -31,6 +34,16 @@ _pool_kwargs = {} if _is_sqlite else {
     # (30 min) evita entregar uma conexão que o outro lado já considera fechada.
     "pool_recycle": 1800,
 }
+
+# Na Vercel (variável VERCEL presente) cada instância é efêmera e pode haver muitas ao
+# mesmo tempo: um pool por instância esgotaria as conexões do Postgres. Aí usamos
+# NullPool (abre/fecha por request) e quem faz o pooling de verdade é o Supabase.
+# POR ISSO a DATABASE_URL cadastrada na Vercel deve ser a do POOLER DE TRANSAÇÃO do
+# Supabase (Connection string > Transaction pooler, porta 6543). O pre_ping continua
+# ligado. As migrações (alembic) NÃO usam esta URL: rodam pelo GitHub Actions com a
+# conexão direta/session pooler (porta 5432).
+if os.getenv("VERCEL") and not _is_sqlite:
+    _pool_kwargs = {"poolclass": NullPool, "pool_pre_ping": True}
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, **_pool_kwargs)
 
