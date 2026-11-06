@@ -32,9 +32,9 @@ Os recursos de IA são opcionais e usam o Google Gemini. Eles só funcionam depo
 
 ## 5. Planos, cobrança e cancelamento
 
-- Há um plano gratuito e planos pagos, com limites de uso descritos no app. Valores, ciclo e recursos de cada plano: [[A_DEFINIR_PLANOS_E_PRECOS]].
+- Há um plano gratuito e planos pagos, com limites de uso descritos no app. Valores: Starter, grátis; Plus, R$ 29,90 por mês; Pro, R$ 59,90 por mês. A cobrança dos planos pagos é mensal. Os recursos e limites de cada plano estão na tela Assinatura do app.
 - A cobrança é recorrente, feita pelo Mercado Pago. Você pode cancelar quando quiser; o acesso pago segue até o fim do período já pago.
-- Direito de arrependimento: em contratação feita à distância, você pode desistir em até 7 dias após a contratação, com reembolso (Código de Defesa do Consumidor, Art. 49). Regras adicionais: [[A_DEFINIR_POLITICA_DE_REEMBOLSO]].
+- Direito de arrependimento: em contratação feita à distância, você pode desistir em até 7 dias após a contratação, com reembolso (Código de Defesa do Consumidor, Art. 49). Depois desse prazo, cancelar interrompe as próximas cobranças, sem reembolso do mês já pago.
 - Ao excluir a conta, a assinatura recorrente é cancelada.
 
 ## 6. Regras de uso
