@@ -22,4 +22,20 @@ describe("Markdown", () => {
     const hrefs = Array.from(container.querySelectorAll("a")).map((a) => a.getAttribute("href"));
     expect(hrefs).toEqual(["https://x.com", "/termos"]);
   });
+
+  it("renderiza tabelas, código inline e listas numeradas", () => {
+    const src = "| A | B |\n|---|---|\n| **x** | `y` |\n\n1. um\n2. dois";
+    render(<Markdown source={src} />);
+    expect(screen.getAllByRole("columnheader").map((c) => c.textContent)).toEqual(["A", "B"]);
+    expect(screen.getByRole("cell", { name: "y" }).querySelector("code")).not.toBeNull();
+    expect(screen.getByText("x").tagName).toBe("STRONG");
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(document.querySelector("ol")).not.toBeNull();
+  });
+
+  it("aceita código dentro de negrito", () => {
+    const { container } = render(<Markdown source={"**`saude`** obrigatória"} />);
+    expect(container.querySelector("strong code")?.textContent).toBe("saude");
+    expect(container.textContent).not.toContain("`");
+  });
 });

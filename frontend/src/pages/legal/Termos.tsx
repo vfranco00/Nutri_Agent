@@ -1,4 +1,4 @@
-import termos from "../../legal/termos.md?raw";
+import termos from "../../legal/termos-de-uso.md?raw";
 import { Documento } from "./Documento";
 
 export function Termos() {
