@@ -1,6 +1,6 @@
 import "./codigo-de-barras.css";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ScanBarcode, X } from "lucide-react";
 import { api } from "../../lib/api";
 import { ROUTES } from "../../routes";
@@ -75,6 +75,7 @@ async function iniciarLeitura(
 export function CodigoDeBarras() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const location = useLocation();
   const [camera, setCamera] = useState<Camera>("iniciando");
   const [texto, setTexto] = useState("");
   const [resultado, setResultado] = useState<Resultado>({ tipo: "livre" });
@@ -87,7 +88,10 @@ export function CodigoDeBarras() {
       setResultado({ tipo: "buscando" });
       try {
         const { data } = await api.get<FoodOption>(`/diary/foods/barcode/${code}`);
-        navigate(ROUTES.alimento(data.food_ref), { replace: true });
+        navigate(ROUTES.alimento(data.food_ref), {
+          replace: true,
+          state: { ...((location.state as object | null) ?? {}), porcao: data },
+        });
       } catch (e) {
         const status = (e as { response?: { status?: number } }).response?.status;
         if (status === 404) setResultado({ tipo: "nao_achou", code });
@@ -97,7 +101,7 @@ export function CodigoDeBarras() {
         ocupado.current = false;
       }
     },
-    [navigate],
+    [navigate, location.state],
   );
 
   useEffect(() => {

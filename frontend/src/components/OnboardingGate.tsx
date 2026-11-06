@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { ROUTES } from "../routes";
 
 const TOUR_STEPS = [
   {
@@ -107,8 +108,8 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
   if (!user) return <>{children}</>;
 
   // Primeira vez: sem perfil ainda. Manda pra tela de perfil (a "anamnese").
-  if (!user.has_profile && location.pathname !== "/profile") {
-    return <Navigate to="/profile?onboarding=1" replace />;
+  if (!user.has_profile && location.pathname !== ROUTES.perfil) {
+    return <Navigate to={`${ROUTES.perfil}?onboarding=1`} replace />;
   }
 
   const showTour = user.has_profile && !user.has_seen_onboarding && !dismissed;

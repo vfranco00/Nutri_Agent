@@ -371,7 +371,7 @@ export function buildNextSteps({ day, hasCalorieTarget, hasWeightHistory }: Next
       id: "completar-perfil",
       title: "Definir sua meta de calorias",
       hint: "Sem ela, o diário não sabe quanto ainda cabe no dia",
-      path: "/profile",
+      path: "/perfil",
     });
   }
 
@@ -398,7 +398,7 @@ export function buildNextSteps({ day, hasCalorieTarget, hasWeightHistory }: Next
       id: "registrar-peso",
       title: "Registrar o seu peso",
       hint: "A evolução começa na primeira pesagem",
-      path: "/profile",
+      path: "/perfil",
     });
   }
 

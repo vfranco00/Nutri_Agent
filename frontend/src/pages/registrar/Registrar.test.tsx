@@ -57,6 +57,17 @@ describe("Registrar", () => {
     await waitFor(() => expect(api.delete).toHaveBeenCalledWith("/diary/11"));
   });
 
+  it("vindo do código de barras, abre direto a porção do produto achado", async () => {
+    const porcao = { food_ref: "cache:1", name: "Iogurte natural", base_unit: "g", kcal_per_base_unit: 0.6, protein_per_base_unit: 0.04, carbs_per_base_unit: 0.05, fat_per_base_unit: 0.03, allowed_units: ["g"], source: "openfoodfacts", is_estimate: false };
+    render(
+      <MemoryRouter initialEntries={[{ pathname: "/registrar/alimento/cache%3A1", state: { porcao } }]}>
+        <Registrar onClose={vi.fn()} />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByLabelText("Quantidade")).toBeTruthy();
+    expect(screen.getAllByText(/Iogurte natural/).length).toBeGreaterThan(0);
+  });
+
   it("a folha de porção leva ao leitor de código de barras", async () => {
     montar();
     await userEvent.click(screen.getByRole("tab", { name: "Meus" }));

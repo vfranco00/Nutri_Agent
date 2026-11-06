@@ -44,7 +44,10 @@ export function Registrar({ onClose }: { onClose: () => void }) {
   const busca = useFoodSearch();
   const [aba, setAba] = useState<Aba>("buscar");
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([]);
-  const [porcao, setPorcao] = useState<FoodOption | null>(null);
+  // O código de barras chega aqui com o produto achado em `state.porcao`: abre direto a porção.
+  const [porcao, setPorcao] = useState<FoodOption | null>(
+    () => (location.state as { porcao?: FoodOption } | null)?.porcao ?? null,
+  );
   const [salvando, setSalvando] = useState(false);
 
   function proximaRefeicao() {
