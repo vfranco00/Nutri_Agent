@@ -126,7 +126,7 @@ export function Hoje() {
         {/* TOPO (celular): logo, sino de lembretes e avatar ------------------- */}
         <div className="flex items-center gap-2.5 md:hidden">
           <div className="flex-1" data-splash-target>
-            <NuviLogo size={28} />
+            <NuviLogo size={28} tone="auto" />
           </div>
           <Link
             to={ROUTES.lembretes}

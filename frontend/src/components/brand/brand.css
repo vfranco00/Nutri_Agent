@@ -31,3 +31,16 @@
     animation-name: nuvi-gomo-rm;
   }
 }
+
+/* Cores do pingo do logotipo (NuviLogo). Com tone="auto" acompanha o tema. */
+.nuvi-pingo-auto {
+  --pg-rind: #E8590C;
+  --pg-cut: #FFF6EC;
+  --pg-gomo: #FF9A52;
+}
+
+.dark .nuvi-pingo-auto {
+  --pg-rind: #FF6A26;
+  --pg-cut: #1A120B;
+  --pg-gomo: #FFB07A;
+}

@@ -7,6 +7,9 @@ const EASE_IN_OUT = "cubic-bezier(0.77,0,0.175,1)";
 const CREME = "#FFF6EC";
 const LARANJA = "#E8590C";
 const GOMO = "#FF9A52";
+// a fatia chega ao pingo do i nas cores do fundo escuro (docs/design/17-logo-pingo.html)
+const CASCA_ESCURO = "#FF6A26";
+const GOMO_ESCURO = "#FFB07A";
 
 const ESPERA_ONDA_MS = 300;
 const LIMITE_MS = 8000;
@@ -20,10 +23,15 @@ function standalone(): boolean {
   return (navigator as Navigator & { standalone?: boolean }).standalone === true;
 }
 
-/** O logo do topo que está visível (celular ou computador): para onde a fatia voa. */
+/** O logotipo do topo que está visível (celular ou computador). */
 function alvoVisivel(): HTMLElement | null {
   const todos = Array.from(document.querySelectorAll<HTMLElement>("[data-splash-target]"));
   return todos.find((e) => e.getBoundingClientRect().width > 0) ?? null;
+}
+
+/** O pingo do i do logotipo (a fatia pequena dentro do alvo): onde a fatia termina o voo. */
+function pingoDe(alvo: HTMLElement | null): SVGElement | null {
+  return alvo?.querySelector<SVGElement>("svg") ?? null;
 }
 
 function animar(el: Element, frames: Keyframe[], opts: KeyframeAnimationOptions): Animation | null {
@@ -75,13 +83,13 @@ export function Splash({ ready, error = false, onDone }: SplashProps) {
   useEffect(() => {
     if (!ready) return;
     const timers: ReturnType<typeof setTimeout>[] = [];
-    const alvo = alvoVisivel();
+    const pingo = pingoDe(alvoVisivel());
     const el = raiz.current;
     const svg = fatia.current?.querySelector("svg");
     let vivo = true;
     const fim = () => {
       if (!vivo) return;
-      if (alvo) alvo.style.opacity = "";
+      if (pingo) pingo.style.opacity = "";
       setSaindo(true);
       onDoneRef.current();
     };
@@ -90,10 +98,11 @@ export function Splash({ ready, error = false, onDone }: SplashProps) {
       fim();
       return;
     }
-    if (alvo) alvo.style.opacity = "0";
+    // só o pingo some enquanto a fatia voa; as letras ficam sob o fundo que se dissolve
+    if (pingo) pingo.style.opacity = "0";
 
-    // movimento reduzido, sem WAAPI ou sem logo para onde voar: só opacidade, 200 ms
-    const rect = alvo?.querySelector("svg")?.getBoundingClientRect() ?? null;
+    // movimento reduzido, sem WAAPI ou sem pingo para onde voar: só opacidade, 200 ms
+    const rect = pingo?.getBoundingClientRect() ?? null;
     if (reduzido() || typeof el.animate !== "function" || !rect || rect.width === 0) {
       const a = animar(el, [{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: "ease", fill: "forwards" });
       if (a) a.finished.then(fim, fim);
@@ -101,7 +110,7 @@ export function Splash({ ready, error = false, onDone }: SplashProps) {
       return () => {
         vivo = false;
         timers.forEach(clearTimeout);
-        if (alvo) alvo.style.opacity = "";
+        if (pingo) pingo.style.opacity = "";
       };
     }
 
@@ -120,14 +129,16 @@ export function Splash({ ready, error = false, onDone }: SplashProps) {
         const s = rect.width / a.width;
         const escuro = document.documentElement.classList.contains("dark");
         const miolo = escuro ? "#1A120B" : CREME;
+        const casca = escuro ? CASCA_ESCURO : LARANJA;
+        const gomo = escuro ? GOMO_ESCURO : GOMO;
         const opts: KeyframeAnimationOptions = { duration: 420, easing: EASE_IN_OUT, fill: "forwards" };
 
         if (marca.current) animar(marca.current, [{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: EASE_OUT, fill: "forwards" });
         const voo = animar(svg, [{ transform: "none" }, { transform: `translate(${dx}px,${dy}px) scale(${s})` }], opts);
-        const [casca, corte] = Array.from(svg.querySelectorAll("circle"));
-        animar(casca, [{ fill: CREME }, { fill: LARANJA }], opts);
+        const [cascaEl, corte] = Array.from(svg.querySelectorAll("circle"));
+        animar(cascaEl, [{ fill: CREME }, { fill: casca }], opts);
         animar(corte, [{ fill: LARANJA }, { fill: miolo }], opts);
-        svg.querySelectorAll(".nuvi-gomo").forEach((g) => animar(g, [{ fill: CREME }, { fill: GOMO }], opts));
+        svg.querySelectorAll(".nuvi-gomo").forEach((g) => animar(g, [{ fill: CREME }, { fill: gomo }], opts));
         animar(el, [{ backgroundColor: LARANJA }, { backgroundColor: "rgba(232,89,12,0)" }], { duration: 280, delay: 140, easing: EASE_OUT, fill: "forwards" });
 
         // conteúdo em cascata: 260 ms, 40 ms de intervalo
@@ -143,7 +154,7 @@ export function Splash({ ready, error = false, onDone }: SplashProps) {
     return () => {
       vivo = false;
       timers.forEach(clearTimeout);
-      if (alvo) alvo.style.opacity = "";
+      if (pingo) pingo.style.opacity = "";
     };
   }, [ready]);
 
