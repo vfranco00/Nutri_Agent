@@ -42,7 +42,7 @@ export function Comunidade() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <PageTitle a="Comuni" b="dade" />
+      <PageTitle a="Comunidade" />
 
       {leaderboard.length > 0 && (
         <section className="mb-4 rounded-3xl bg-bar p-4 text-bar-on">

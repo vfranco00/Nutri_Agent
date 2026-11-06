@@ -59,7 +59,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <SessionWatcher />
       <SideNav isDark={isDark} toggleTheme={toggleTheme} logoWave={logoWave} />
 
-      <div className="flex h-screen flex-1 flex-col md:ml-64">
+      <div className="flex h-screen min-w-0 flex-1 flex-col md:ml-64">
         <header
           className={`sticky top-0 z-20 h-16 shrink-0 items-center gap-3 border-b border-line bg-bg px-4 md:flex md:px-6 ${
             location.pathname === ROUTES.hoje ? "hidden" : "flex"

@@ -20,7 +20,7 @@ const PREP_METHODS = [
   { value: 'cru', label: 'Não vai ao fogo (Cru)' },
 ];
 
-const CAMPO = 'w-full rounded-2xl border border-line bg-card px-4 py-3 text-sm text-ink placeholder:text-mut focus-visible:outline-2 focus-visible:outline-act-text';
+const CAMPO = 'min-w-0 w-full rounded-2xl border border-line bg-card px-4 py-3 text-sm text-ink placeholder:text-mut focus-visible:outline-2 focus-visible:outline-act-text';
 const CAMPO_P = 'rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink placeholder:text-mut focus-visible:outline-2 focus-visible:outline-act-text';
 const ROTULO = 'flex items-center gap-2 text-xs font-bold text-mut';
 const CARTAO = 'space-y-4 rounded-3xl border border-line bg-card p-5';
@@ -116,7 +116,7 @@ export function NewRecipe() {
             <label className={ROTULO}><Type className="h-4 w-4" /> Nome</label>
             <input type="text" required value={title} onChange={e => setTitle(e.target.value)} className={CAMPO} placeholder="Ex: Omelete" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 [&>*]:min-w-0">
             <div className="space-y-2">
               <label className={ROTULO}><Clock className="h-4 w-4" /> Tempo (min)</label>
               <input type="number" value={prepTime} onChange={e => setPrepTime(e.target.value)} className={CAMPO} />
@@ -126,7 +126,7 @@ export function NewRecipe() {
               <input type="number" value={totalCalories} onChange={e => setTotalCalories(e.target.value)} className={CAMPO} placeholder="Auto" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 [&>*]:min-w-0">
             <div className="space-y-2">
               <label className={ROTULO}><Settings2 className="h-4 w-4" /> Preparo</label>
               <select value={method} onChange={e => setMethod(e.target.value)} className={CAMPO}>

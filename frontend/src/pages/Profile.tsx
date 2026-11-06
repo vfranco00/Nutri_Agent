@@ -211,7 +211,7 @@ export function Profile() {
           <form onSubmit={handleSave} className={`${CARTAO} space-y-6`}>
             <h2 className="text-[17px] font-extrabold text-ink">Dados Corporais</h2>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 md:grid-cols-2">
               <div className="flex items-start gap-3 rounded-2xl bg-soft p-4">
                 <Info className="mt-0.5 h-5 w-5 shrink-0 text-act-text" />
                 <div>
@@ -246,7 +246,7 @@ export function Profile() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 md:grid-cols-3">
               <div className="space-y-2">
                 <label className={ROTULO}>
                   <Calendar className="h-4 w-4" /> Idade
@@ -286,7 +286,7 @@ export function Profile() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 md:grid-cols-2">
               <div className="space-y-2">
                 <label className={ROTULO}>
                   <Activity className="h-4 w-4" /> Nível de Atividade
