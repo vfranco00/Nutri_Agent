@@ -4,7 +4,7 @@ import { Register } from './pages/Register';
 import { VerifyEmail } from './pages/VerifyEmail';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
-import { Dashboard } from './pages/Dashboard';
+import { Hoje } from './pages/Hoje';
 import { DiaryLog } from './pages/DiaryLog';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
@@ -91,7 +91,7 @@ function AppRoutes() {
 
         {/* Rotas privadas: a casca (menu, barra inferior) fica montada entre telas */}
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-          <Route path={ROUTES.hoje} element={<Dashboard />} />
+          <Route path={ROUTES.hoje} element={<Hoje />} />
           <Route path={ROUTES.diario} element={<DiaryLog />} />
           <Route path={ROUTES.agente} element={<Agente />} />
           <Route path={ROUTES.progresso} element={<EmBreve titulo="Progresso" />} />

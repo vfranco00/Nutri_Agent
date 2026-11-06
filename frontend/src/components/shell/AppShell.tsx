@@ -6,6 +6,7 @@ import { OnboardingGate } from "../OnboardingGate";
 import { SubscriptionExpiryBanner } from "../SubscriptionExpiryBanner";
 import { CommandPalette } from "../CommandPalette";
 import { NuviLogo } from "../brand/NuviLogo";
+import { ROUTES } from "../../routes";
 import { sectionTitleForPath } from "../../lib/navItems";
 import { SideNav } from "./SideNav";
 import { BottomTabBar } from "./BottomTabBar";
@@ -31,6 +32,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark]);
 
+  // O Hoje tem o próprio topo (logo, sino, avatar) e alterna o tema por fora da casca:
+  // ele avisa pelo evento `nuvi:tema` e a casca relê o que ficou no <html>.
+  useEffect(() => {
+    const sync = () => setIsDark(document.documentElement.classList.contains("dark"));
+    window.addEventListener("nuvi:tema", sync);
+    return () => window.removeEventListener("nuvi:tema", sync);
+  }, []);
+
   // Atalho global da busca rápida: ⌘K / Ctrl+K.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -51,7 +60,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <SideNav isDark={isDark} toggleTheme={toggleTheme} logoWave={logoWave} />
 
       <div className="flex h-screen flex-1 flex-col md:ml-64">
-        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b border-line bg-bg px-4 md:px-6">
+        <header
+          className={`sticky top-0 z-20 h-16 shrink-0 items-center gap-3 border-b border-line bg-bg px-4 md:flex md:px-6 ${
+            location.pathname === ROUTES.hoje ? "hidden" : "flex"
+          }`}
+        >
           <div className="md:hidden" data-splash-target>
             <NuviLogo size={26} tone={isDark ? "dark" : "light"} wave={logoWave} />
           </div>

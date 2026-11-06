@@ -9,20 +9,16 @@ interface EstimateBadgeProps {
 
 /**
  * Marca visível de que o valor nutricional é ESTIMADO — origem `llm` ou
- * `openfoodfacts` (RS-17 / ADR-0002 § 8).
- *
- * É requisito de segurança, não enfeite: dado vindo de wiki público ou de
- * modelo não determinístico não pode ser apresentado com a mesma autoridade do
- * dado curado da TACO. Por isso o rótulo é textual (`Estimativa`), e não só uma
- * cor ou um ícone — leitor de tela e daltônico recebem a mesma informação.
+ * `openfoodfacts` (RS-17 / ADR-0002 § 8). Requisito de segurança, não enfeite: o rótulo é
+ * textual (`Estimativa`), e não só uma cor ou um ícone.
  */
 export function EstimateBadge({ isEstimate, compact = false }: EstimateBadgeProps) {
   if (!isEstimate) return null;
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 font-semibold text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400 ${
-        compact ? "px-1.5 py-0 text-[10px]" : "px-2 py-0.5 text-xs"
+      className={`inline-flex items-center gap-1 rounded-md bg-act-soft font-black tracking-wide text-act-text ${
+        compact ? "px-1.5 py-0 text-[9.5px]" : "px-2 py-0.5 text-xs"
       }`}
       title="Valor nutricional estimado, não verificado por tabela oficial."
     >
