@@ -1,0 +1,66 @@
+<!-- ===================== A ===================== -->
+<section class="dir" id="A">
+  <div class="wrap">
+    <nav class="nav"><a class="logo" href="/" data-acao="topo"><span class="wm" data-pingo="claro">nuvi</span></a>
+      <div class="links"><a href="#B" data-acao="rolar-B">Como funciona</a><a href="#planos" data-acao="rolar-planos">Planos</a><a href="#" data-acao="entrar">Entrar</a></div><a class="btn sm" href="/register" data-acao="cadastrar">Começar grátis</a></nav>
+    <div class="a-hero">
+      <div>
+        <h1>Arroz, feijão e a <em>conta certa.</em></h1>
+        <p class="lead">O Nuvi conhece a comida daqui. São <b>mais de 600 alimentos da tabela TACO</b>, do pão de queijo ao açaí. Você diz o que comeu, e ele anota as calorias e os macros.</p>
+        <a class="btn" href="/register" data-acao="cadastrar">Começar grátis</a>
+        <p class="note">Grátis para sempre no plano Starter. Sem cartão.</p>
+      </div>
+      <div class="photo" id="plate"><div class="ph-img">
+        <img src="/landing/prato-hero.jpg" alt="Prato brasileiro: filé com queijo gratinado, mandioca frita, baião de dois, vinagrete, cuscuz e alface" width="1600" height="1067">
+        <div class="pin esq desce" style="left:68%;top:45%"><i></i><div class="tag"><b>Filé com queijo gratinado</b><span>120 g · </span><i>290 kcal</i></div></div>
+        <div class="pin" style="left:46%;top:21%"><i></i><div class="tag"><b>Mandioca frita<span class="src">TACO</span></b><span>3 pedaços · </span><i>210 kcal</i></div></div>
+        <div class="pin esq baixo" style="left:34%;top:40%"><i></i><div class="tag"><b>Baião de dois</b><span>1 escumadeira · </span><i>180 kcal</i></div></div>
+        <div class="pin mr" style="left:58%;top:80%"><i></i><div class="tag"><b>Cuscuz nordestino<span class="src">TACO</span></b><span>1 fatia · </span><i>113 kcal</i></div></div>
+        </div><div class="total" id="totalA"><svg viewBox="0 0 100 54"><path d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#3A2C20" stroke-width="10" stroke-linecap="round"/><path class="arcA" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" d="M8 50A42 42 0 0 1 92 50" fill="none" stroke="#E8590C" stroke-width="10" stroke-linecap="round" style="transition:stroke-dashoffset 450ms var(--eio)"/></svg><div><b>813 kcal</b><small>cabe no seu dia: faltam 1.187</small></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="marquee"><div class="track" id="mq"></div></div>
+  </section>
+
+<!-- ===================== B ===================== -->
+<section class="dir" id="B">
+  <div class="wrap">
+    
+    <div class="b-hero">
+      <div>
+        <p class="b-kicker">Ou nem precisa procurar</p>
+        <div class="b-line" aria-live="polite"><span class="pre">Comi </span><span class="typed" id="typed"></span><span class="caret"></span></div>
+        <form class="b-try" id="tryB"><input id="tryIn" placeholder="Experimente: comi tapioca com queijo e café" aria-label="Escreva o que você comeu"><button class="btn sm" type="submit">Anotar</button></form>
+        <p class="b-sub">Sem procurar item por item. O Nuvi separa o que você escreveu, acha na tabela TACO e mostra quanto ainda cabe no seu dia.</p>
+      </div>
+      <div class="reply">
+        <div class="hd"><span class="slot-masc"></span><div><b>Anotei no almoço</b><small>confira antes de salvar</small></div></div>
+        <div class="items" id="itemsB"></div>
+        <div class="gbar"><div class="row2"><span>Seu dia</span><span id="kB">0 / 2.000 kcal</span></div><div class="tr"><div class="fl" id="flB"></div></div></div>
+        <div class="acts"><a class="btn sm" href="/register" data-acao="cadastrar">Confirmar</a><a class="btn sm ink" href="#" style="background:#EFE3D5;color:var(--ink)">Ajustar</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="b-snap"><div class="wrap">
+    <h2 class="sec-h">Ou do jeito que <em>preferir.</em></h2>
+    <div class="trio">
+      <div><div class="vis"><svg viewBox="0 0 160 90" width="200"><rect x="10" y="10" width="140" height="70" rx="10" fill="#FFF6EC"/><g fill="#1C1712"><rect x="26" y="22" width="4" height="46"/><rect x="34" y="22" width="2" height="46"/><rect x="40" y="22" width="6" height="46"/><rect x="50" y="22" width="2" height="46"/><rect x="56" y="22" width="4" height="46"/><rect x="64" y="22" width="2" height="46"/><rect x="70" y="22" width="6" height="46"/><rect x="80" y="22" width="2" height="46"/><rect x="86" y="22" width="4" height="46"/><rect x="94" y="22" width="6" height="46"/><rect x="104" y="22" width="2" height="46"/><rect x="110" y="22" width="4" height="46"/><rect x="118" y="22" width="2" height="46"/><rect x="124" y="22" width="6" height="46"/></g><rect x="16" y="44" width="128" height="3" fill="#E8590C"/></svg></div><h3>Código de barras</h3><p>Rótulo lido na hora. Grátis em todos os planos.</p></div>
+      <div><div class="vis" style="font-size:15px;flex-direction:column;gap:6px;align-items:stretch"><span style="background:#FFF6EC;border-radius:12px;padding:9px 12px">Arroz branco cozido <b style="float:right">164</b></span><span style="background:#FFF6EC;border-radius:12px;padding:9px 12px">Feijão carioca <b style="float:right">76</b></span><span style="background:#FFF6EC;border-radius:12px;padding:9px 12px">Pão de queijo <b style="float:right">99</b></span></div><h3>Busca na TACO</h3><p>A tabela oficial brasileira, com porção de casa: concha, colher, fatia.</p></div>
+      <div><div class="vis"><span class="slot-masc-big"></span></div><h3>Foto do prato</h3><p>Manda a foto, o Agente sugere os itens, você confirma.</p></div>
+    </div>
+  </div></div>
+</section>
+
+
+
+<!-- comum -->
+<section class="plans" id="planos"><div class="wrap">
+  <h2 class="sec-h">Um plano para o <em>tamanho da sua rotina.</em></h2>
+  <div class="pgrid">
+    <div class="plan"><b style="font-size:20px">Starter</b><div class="pr">R$ 0</div><ul><li>Diário com a tabela TACO e código de barras</li><li>2 cardápios por mês</li><li>Chef IA 5x por semana</li><li>Até 10 receitas próprias</li></ul><a class="btn ink" href="/register" data-acao="cadastrar">Começar grátis</a></div>
+    <div class="plan hl"><b style="font-size:20px">Plus</b><div class="pr">R$ 29,90 <small>/mês</small></div><ul><li>1 cardápio semanal + diário todo dia</li><li>Chef IA 30x por mês</li><li>Lista de compras liberada</li><li>Até 50 receitas próprias</li></ul><a class="btn" href="/register" data-acao="cadastrar">Assinar o Plus</a></div>
+    <div class="plan"><b style="font-size:20px">Pro</b><div class="pr">R$ 59,90 <small>/mês</small></div><ul><li>Cardápios ilimitados</li><li>Chef IA ilimitado</li><li>Planos alimentares ilimitados</li><li>Receitas próprias ilimitadas</li></ul><a class="btn ink" href="/register" data-acao="cadastrar">Assinar o Pro</a></div>
+  </div>
+</div></section>
+<footer class="foot"><div class="wrap"><div class="big wm" data-pingo="escuro">nuvi</div><div class="row3"><span>Nuvi não substitui orientação médica ou de nutricionista.</span><span><a href="/privacidade" data-acao="ir">Política de Privacidade</a> · <a href="/termos" data-acao="ir">Termos de Uso</a> · <a href="#" data-acao="ajuda">Ajuda</a></span></div></div></footer>
