@@ -38,7 +38,7 @@ Vercel → projeto `nuvi-api` → Settings → Environment Variables → ambient
 | `VAPID_SUBJECT` | `mailto:victorfranco02@outlook.com` |
 | `CRON_SECRET` | No arquivo `segredos-nuvi.txt` que te passei. |
 
-Não cadastre `ENVIRONMENT`, `FRONTEND_URL`, `CORS_ORIGINS` nem `TRUSTED_PROXY_COUNT` por aqui, a menos que a sessão principal peça: ela cuida do que depende do código.
+As quatro variáveis que não são segredo (`ENVIRONMENT`, `FRONTEND_URL`, `CORS_ORIGINS`, `TRUSTED_PROXY_COUNT`) estão no passo 0.
 
 ## 2. Segredos do GitHub
 
