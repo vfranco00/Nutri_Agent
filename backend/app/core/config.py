@@ -30,7 +30,8 @@ class Settings(BaseSettings):
     # Origens permitidas no CORS, separadas por vírgula. O default carrega os hosts de
     # dev; em produção, defina explicitamente e tire o localhost da lista.
     CORS_ORIGINS: str = (
-        "http://localhost:3000,http://localhost:5173,https://nutri-agent-topaz.vercel.app"
+        "http://localhost:3000,http://localhost:5173,"
+        "https://app-nuvi.vercel.app,https://nutri-agent-topaz.vercel.app"
     )
 
     # Quantos proxies confiáveis existem na frente da aplicação (Render/Vercel = 1).

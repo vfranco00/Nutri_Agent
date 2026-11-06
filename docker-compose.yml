@@ -2,7 +2,7 @@ services:
   # Serviço do Banco de Dados
   db:
     image: postgres:16-alpine
-    container_name: nutri_db
+    container_name: nuvi_db
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -21,7 +21,7 @@ services:
   # Nosso Backend FastAPI
   api:
     build: ./backend
-    container_name: nutri_api
+    container_name: nuvi_api
     restart: always
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
@@ -50,7 +50,7 @@ services:
   # Nosso Frontend React
   web:
     build: ./frontend
-    container_name: nutri_web
+    container_name: nuvi_web
     restart: always
     ports:
       - "3000:5173"

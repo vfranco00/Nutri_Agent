@@ -70,7 +70,7 @@ O diferencial do projeto é seu **sistema híbrido de cálculo nutricional**, qu
 
 ```bash
 git clone <URL_DO_REPO>
-cd nutri-agent
+cd nuvi
 
 # Copie o arquivo de exemplo
 cp .env.example .env

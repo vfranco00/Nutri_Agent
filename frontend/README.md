@@ -68,8 +68,8 @@ O **Nuvi** não é apenas um CRUD de receitas. É um assistente nutricional comp
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/seu-usuario/nutri-agent.git](https://github.com/seu-usuario/nutri-agent.git)
-    cd nutri-agent
+    git clone https://github.com/vfranco00/nuvi.git
+    cd nuvi
     ```
 
 2.  **Configure as variáveis:**
