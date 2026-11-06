@@ -55,6 +55,29 @@ def create_subscription_checkout(user: User, plan: str) -> str | None:
         return None
 
 
+def cancel_preapproval(preapproval_id: str) -> bool:
+    """Cancela a assinatura recorrente. True = cancelada (ou já inexistente, 404);
+    False = não foi possível (quem chama NÃO deve seguir com a exclusão)."""
+    if not settings.MERCADO_PAGO_ACCESS_TOKEN:
+        # Sem credencial não existe cobrança real a cancelar.
+        return True
+    try:
+        with httpx.Client() as client:
+            response = client.put(
+                f"{MP_API_BASE}/preapproval/{preapproval_id}",
+                headers={"Authorization": f"Bearer {settings.MERCADO_PAGO_ACCESS_TOKEN}"},
+                json={"status": "cancelled"},
+                timeout=15.0,
+            )
+    except httpx.HTTPError as e:
+        logger.error("Falha de conexão ao cancelar preapproval: %s", type(e).__name__)
+        return False
+    if response.status_code in (200, 404):
+        return True
+    logger.error("Mercado Pago recusou o cancelamento (%s)", response.status_code)
+    return False
+
+
 def fetch_preapproval(preapproval_id: str) -> dict | None:
     """Rebusca o preapproval direto na API do MP usando o ID — nunca confia no
     corpo do webhook em si, que pode ser forjado por qualquer um que descubra a URL."""

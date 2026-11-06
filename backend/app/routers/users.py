@@ -16,6 +16,7 @@ from app.schemas.user import LeaderboardEntry, UserCreate, UserResponse
 from app.schemas.subscription import SubscriptionResponse, AdminSetPlanRequest
 from app.core.legal import POLICY_VERSION
 from app.services import consents as consent_svc
+from app.services.account_erasure import ErasureBlocked, erase_account
 from app.services.email import send_verification_email
 from app.services.subscription import get_subscription_status
 
@@ -98,8 +99,10 @@ def delete_user(
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
-    db.delete(user)
-    db.commit()
+    try:
+        erase_account(db, user)
+    except ErasureBlocked:
+        raise HTTPException(status_code=502, detail="Não foi possível cancelar a assinatura no Mercado Pago.")
     return {"message": "Usuário deletado."}
 
 @router.put("/{user_id}/toggle-status")

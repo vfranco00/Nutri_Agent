@@ -14,7 +14,7 @@ class FeedbackTicket(Base):
     __tablename__ = "feedback_tickets"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     name: Mapped[str] = mapped_column(String, nullable=True)
     email: Mapped[str] = mapped_column(String, nullable=False)

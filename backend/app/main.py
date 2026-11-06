@@ -21,7 +21,7 @@ from app.db.session import SessionLocal, get_db
 from app.routers import users, auth, profiles, recipes, ingredients, admin, ai, shopping, meal_plans, subscriptions, feedback, diary, diary_foods
 from app.routers import agent  # Frente G (Agente Nuvi)
 from app.routers import water, reminders, push, internal  # Frente A (água e lembretes)
-from app.routers import consents  # LGPD
+from app.routers import consents, privacy  # LGPD
 from app.services.consents import ConsentRequired, require_consent
 from fastapi import Depends
 
@@ -207,6 +207,7 @@ app.include_router(diary_foods.router, prefix="/diary/foods", tags=["diary"])
 app.include_router(diary.router, prefix="/diary", tags=["diary"])
 app.include_router(agent.router, prefix="/agent", tags=["agent"], dependencies=[Depends(require_consent("ia"))])
 app.include_router(consents.router, prefix="/consents", tags=["consents"])
+app.include_router(privacy.router, prefix="/privacy", tags=["privacy"])
 app.include_router(water.router, prefix="/water", tags=["water"])
 app.include_router(reminders.router, prefix="/reminders", tags=["reminders"])
 app.include_router(push.router, prefix="/push", tags=["push"])

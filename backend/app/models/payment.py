@@ -12,7 +12,10 @@ class Payment(Base):
     __tablename__ = "payments"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    # SET NULL: na exclusão da conta o pagamento é anonimizado, não apagado (Art. 16, I).
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     mp_payment_id: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
 
     plan: Mapped[str] = mapped_column(String, nullable=False)

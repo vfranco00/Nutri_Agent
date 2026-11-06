@@ -8,7 +8,9 @@ class Subscription(Base):
     __tablename__ = "subscriptions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False
+    )
 
     # "starter" | "plus" | "pro"
     plan: Mapped[str] = mapped_column(String, nullable=False, default="starter")
@@ -29,7 +31,9 @@ class UsageEvent(Base):
     __tablename__ = "usage_events"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     # "chef_ai" | "generate_plan_weekly" | "generate_plan_daily" | "generate_plan_starter"
     event_type: Mapped[str] = mapped_column(String, nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
