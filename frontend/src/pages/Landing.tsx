@@ -58,10 +58,14 @@ export function Landing() {
     }
   }
 
+  // O LoginModal fica FORA do `.lp`: o CSS da landing é escopado nessa classe e,
+  // dentro dela, desmontava os campos e botões do modal.
   return (
-    <div className="lp" onClick={onClick}>
+    <>
+      <div className="lp" onClick={onClick}>
+        <div ref={conteudo} />
+      </div>
       <LoginModal open={loginOpen && !user} onClose={closeLogin} />
-      <div ref={conteudo} />
-    </div>
+    </>
   );
 }
