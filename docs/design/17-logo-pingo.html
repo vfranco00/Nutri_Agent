@@ -1,0 +1,35 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Logo com pingo de fatia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400..800&family=Nunito:wght@900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:24px 16px 60px;background:#EDE5DC;font-family:"DM Sans",sans-serif;color:#1C1712}
+h1{font-size:28px;letter-spacing:-.03em;margin:0 0 4px}p.l{color:#7A6A58;margin:0 0 20px}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.c{border-radius:24px;padding:34px 20px 18px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.c small{font-size:13px;color:#7A6A58}
+.cream{background:#FFF6EC}.or{background:#E8590C}.dk{background:#1A120B}.or small{color:#1C1712}.dk small{color:#B9A892}
+.wm{font-family:"Nunito",sans-serif;font-weight:900;letter-spacing:-.04em;line-height:1;position:relative;display:inline-block}
+.wm .i{position:relative;display:inline-block;letter-spacing:0}
+.wm .i svg{position:absolute;left:50%;transform:translateX(-50%)}
+.sizes{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap;justify-content:center}
+.app{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:10px 14px}
+</style>
+<h1>“nuvi” com a fatia no pingo do i</h1>
+<p class="l">Três tamanhos de pingo, nos três fundos. O símbolo sozinho continua sendo o ícone do app.</p>
+<div class="g" id="g"></div>
+<h1 style="margin-top:30px;font-size:22px">Do grande ao pequeno (versão B)</h1>
+<div class="c cream"><div class="sizes" id="sizes"></div></div>
+<script>
+const R=Math.PI/180;
+function wedge(cx,cy,ri,ro,a0,a1){const p=(r,a)=>`${(cx+r*Math.cos(a*R)).toFixed(2)} ${(cy+r*Math.sin(a*R)).toFixed(2)}`;return `M${p(ri,a0)} L${p(ro,a0)} A${ro} ${ro} 0 0 1 ${p(ro,a1)} L${p(ri,a1)} A${ri} ${ri} 0 0 0 ${p(ri,a0)} Z`}
+function slice(rind,cut,gomo,simple){let g='';for(let i=0;i<8;i++){const a=i*45-90;g+=`<path d="${wedge(50,50,simple?7:6,simple?33:31,a+(simple?7:5),a+(simple?38:40))}" fill="${gomo}"/>`}
+ return `<circle cx="50" cy="50" r="41" fill="${rind}"/><circle cx="50" cy="50" r="35" fill="${cut}"/>${g}`}
+const T={cream:{ink:'#1C1712',r:'#E8590C',c:'#FFF6EC',g:'#FF9A52'},or:{ink:'#FFF6EC',r:'#FFF6EC',c:'#E8590C',g:'#FFF6EC'},dk:{ink:'#F3EFE9',r:'#FF6A26',c:'#1A120B',g:'#FFB07A'}};
+// k = tamanho do pingo em em; up = altura da base do pingo acima da linha do x
+function wm(t,size,k,up,label){const c=T[t];const d=size*k;
+ return `<span class="wm" style="font-size:${size}px;color:${c.ink}">nuv<span class="i">ı<svg viewBox="0 0 100 100" width="${d}" height="${d}" style="bottom:${(up*size).toFixed(1)}px">${slice(c.r,c.c,c.g,size<40)}</svg></span></span>`}
+const V=[['A · pingo do tamanho da letra',.30,.78],['B · pingo maior, vira o destaque',.42,.80],['C · pingo grande, solto acima',.56,.86]];
+let h='';V.forEach(([n,k,up])=>['cream','or','dk'].forEach(t=>{h+=`<div class="c ${t}">${wm(t,96,k,up)}<small>${n}</small></div>`}));
+document.getElementById('g').innerHTML=h;
+document.getElementById('sizes').innerHTML=[120,72,44,28,18].map(s=>`<div style="display:flex;flex-direction:column;align-items:center;gap:6px">${wm('cream',s,.42,.80)}<small>${s}px</small></div>`).join('')+
+ `<div class="app">${wm('cream',26,.42,.80)}<small style="margin-left:auto">topo do app</small></div>`;
+</script></html>
