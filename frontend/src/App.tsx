@@ -5,6 +5,7 @@ import { VerifyEmail } from './pages/VerifyEmail';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { Hoje } from './pages/Hoje';
+import { Progresso } from './pages/Progresso';
 import { DiaryLog } from './pages/DiaryLog';
 import { Profile } from './pages/Profile';
 import { Recipes } from './pages/Recipes';
@@ -39,7 +40,6 @@ import { Toaster } from './components/ui/Toast';
 import { SplashGate } from './components/brand/Splash';
 import { MeusAlimentos } from './pages/alimentos/MeusAlimentos';
 import { AlimentoForm } from './pages/alimentos/AlimentoForm';
-import { EmBreve } from './components/shell/EmBreve';
 import { Politica } from './pages/legal/Politica';
 import { Termos } from './pages/legal/Termos';
 import { Privacidade } from './pages/perfil/Privacidade';
@@ -99,7 +99,7 @@ function AppRoutes() {
           <Route path={ROUTES.hoje} element={<Hoje />} />
           <Route path={ROUTES.diario} element={<DiaryLog />} />
           <Route path={ROUTES.agente} element={<Agente />} />
-          <Route path={ROUTES.progresso} element={<EmBreve titulo="Progresso" />} />
+          <Route path={ROUTES.progresso} element={<Progresso />} />
           <Route path={ROUTES.perfil} element={<Profile />} />
           <Route path={ROUTES.privacidadePerfil} element={<Privacidade />} />
           <Route path={ROUTES.lembretes} element={<Lembretes />} />
