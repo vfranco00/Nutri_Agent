@@ -13,7 +13,8 @@ import { POLICY_VERSION_ACEITA } from "../lib/consents";
 import { PasswordInput } from "../components/PasswordInput";
 import { BouncingDots } from "../components/BouncingDots";
 import { Button } from "../components/ui/Button";
-import { AuthShell, AUTH_CAMPO, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/AuthShell";
+import { AuthShell } from "../components/auth/AuthShell";
+import { AUTH_CAMPO, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/authTheme";
 
 // A API pode devolver `detail` como string (erro de negócio) ou como lista de
 // erros de validação do Pydantic (422) — trata os dois formatos com segurança

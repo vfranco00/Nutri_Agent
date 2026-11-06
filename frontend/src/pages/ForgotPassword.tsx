@@ -3,7 +3,8 @@ import { api } from "../lib/api";
 import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { BouncingDots } from "../components/BouncingDots";
 import { Button } from "../components/ui/Button";
-import { AuthShell, AUTH_CAMPO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/AuthShell";
+import { AuthShell } from "../components/auth/AuthShell";
+import { AUTH_CAMPO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/authTheme";
 
 export function ForgotPassword() {
   const [email, setEmail] = useState("");

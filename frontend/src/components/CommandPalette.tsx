@@ -14,6 +14,12 @@ interface CommandPaletteProps {
  * navega com as setas + Enter. O atalho de teclado é registrado no AppLayout.
  */
 export function CommandPalette({ open, onClose }: CommandPaletteProps) {
+  // Montar só quando aberta reinicia busca e seleção a cada abertura, sem setState em efeito.
+  if (!open) return null;
+  return <CommandPaletteAberta onClose={onClose} />;
+}
+
+function CommandPaletteAberta({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [query, setQuery] = useState("");
@@ -30,20 +36,11 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     );
   }, [items, query]);
 
-  // Reseta ao abrir e foca o campo.
+  // Foca o campo ao abrir.
   useEffect(() => {
-    if (open) {
-      setQuery("");
-      setActive(0);
-      setTimeout(() => inputRef.current?.focus(), 20);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    setActive(0);
-  }, [query]);
-
-  if (!open) return null;
+    const t = setTimeout(() => inputRef.current?.focus(), 20);
+    return () => clearTimeout(t);
+  }, []);
 
   function go(path: string) {
     navigate(path);
@@ -81,7 +78,10 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           <input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActive(0);
+            }}
             placeholder="Pular para..."
             className="flex-1 bg-transparent py-3.5 outline-hidden text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
           />

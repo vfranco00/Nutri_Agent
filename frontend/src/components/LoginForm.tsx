@@ -6,7 +6,7 @@ import { Lock, Mail, ArrowRight, RefreshCw } from "lucide-react";
 import { PasswordInput } from "./PasswordInput";
 import { BouncingDots } from "./BouncingDots";
 import { Button } from "./ui/Button";
-import { AUTH_CAMPO, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "./auth/AuthShell";
+import { AUTH_CAMPO, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "./auth/authTheme";
 import { NuviLogo } from "./brand/NuviLogo";
 
 /**

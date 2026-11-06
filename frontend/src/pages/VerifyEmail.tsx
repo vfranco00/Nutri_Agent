@@ -5,7 +5,8 @@ import { CheckCircle2, XCircle, Mail } from "lucide-react";
 import { BouncingDots } from "../components/BouncingDots";
 import { NuviLoader } from "../components/brand/NuviLoader";
 import { Button } from "../components/ui/Button";
-import { AuthShell, AUTH_CAMPO } from "../components/auth/AuthShell";
+import { AuthShell } from "../components/auth/AuthShell";
+import { AUTH_CAMPO } from "../components/auth/authTheme";
 
 type Status = "loading" | "success" | "error";
 

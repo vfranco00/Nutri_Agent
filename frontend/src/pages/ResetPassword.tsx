@@ -6,7 +6,8 @@ import { Lock, CheckCircle2, XCircle } from "lucide-react";
 import { PasswordInput } from "../components/PasswordInput";
 import { BouncingDots } from "../components/BouncingDots";
 import { Button } from "../components/ui/Button";
-import { AuthShell, AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/AuthShell";
+import { AuthShell } from "../components/auth/AuthShell";
+import { AUTH_CAMPO_SENHA, AUTH_ERRO, AUTH_ICONE, AUTH_LINK, AUTH_ROTULO } from "../components/auth/authTheme";
 
 export function ResetPassword() {
   const navigate = useNavigate();

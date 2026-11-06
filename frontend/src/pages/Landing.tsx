@@ -5,7 +5,7 @@ import { LoginModal } from "../components/LoginModal";
 import { NuviLogo } from "../components/brand/NuviLogo";
 import { NuviSlice } from "../components/brand/NuviSlice";
 import { Button } from "../components/ui/Button";
-import { useAuthTheme } from "../components/auth/AuthShell";
+import { useAuthTheme } from "../components/auth/authTheme";
 import { ROUTES } from "../routes";
 import {
   Book,
