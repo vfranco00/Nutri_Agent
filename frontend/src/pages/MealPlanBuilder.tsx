@@ -4,19 +4,12 @@ import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { MEAL_SLOTS, type Recipe } from "../types";
 import { BouncingDots } from "../components/BouncingDots";
-import {
-  ArrowLeft,
-  Plus,
-  Trash2,
-  Loader2,
-  Save,
-  Flame,
-  X,
-  BookOpen,
-  Users,
-  UserRound,
-  Search,
-} from "lucide-react";
+import { ArrowLeft, BookOpen, Flame, Plus, Save, Search, Trash2, UserRound, Users } from "lucide-react";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Sheet } from "../components/ui/Sheet";
+import { Skeleton } from "../components/ui/Skeleton";
+import { ROUTES } from "../routes";
 
 interface BuilderMeal {
   slot_name: string;
@@ -139,11 +132,12 @@ export function MealPlanBuilder() {
       };
       const res = await api.post("/meal-plans/", payload);
       showAlert("Plano alimentar salvo!", "success");
-      navigate(`/meal-plans/${res.data.id}`);
-    } catch (error: any) {
-      const detail = error.response?.data?.detail;
+      navigate(ROUTES.cardapio(res.data.id));
+    } catch (error) {
+      const detail = (error as { response?: { data?: { detail?: { code?: string; message?: string } } } }).response
+        ?.data?.detail;
       if (detail?.code === "PLAN_LIMIT_REACHED") {
-        showAlert(detail.message, "warning");
+        showAlert(detail.message ?? "Limite de planos atingido.", "warning");
       } else {
         showAlert("Erro ao salvar o plano.", "error");
       }
@@ -158,45 +152,38 @@ export function MealPlanBuilder() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto pb-20">
-      <div className="flex items-center gap-4 mb-6">
+    <div className="mx-auto max-w-4xl space-y-1 pb-4">
+      <div className="flex items-center gap-3">
         <button
-          onClick={() => navigate("/meal-plans")}
-          className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+          type="button"
+          onClick={() => navigate(ROUTES.cardapios)}
+          aria-label="Voltar"
+          className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-card active:scale-[.97]"
         >
-          <ArrowLeft className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </button>
-        <h1 className="text-2xl font-bold text-teal-600 dark:text-teal-500">
-          Criar Plano Manual
+        <h1 className="text-[26px] font-black leading-[1.05] tracking-[-0.025em]">
+          Criar <span className="text-act-text">plano manual</span>
         </h1>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs mb-6 space-y-4">
+      <div className="mt-3 space-y-4 rounded-3xl bg-card p-4">
         <div>
-          <label className="text-sm text-zinc-500 dark:text-zinc-400 mb-2 block">
-            Nome do Plano
+          <label htmlFor="plano-nome" className="mb-1.5 block text-xs font-bold text-mut">
+            Nome do plano
           </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden focus:ring-2 focus:ring-teal-500 dark:text-white"
-          />
+          <Input id="plano-nome" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
-          <label className="text-sm text-zinc-500 dark:text-zinc-400 mb-2 block">
-            Quantos dias?
-          </label>
-          <div className="grid grid-cols-7 gap-2">
+          <span className="mb-1.5 block text-xs font-bold text-mut">Quantos dias?</span>
+          <div className="grid grid-cols-7 gap-1.5">
             {[1, 2, 3, 4, 5, 6, 7].map((n) => (
               <button
                 key={n}
+                type="button"
+                aria-pressed={numDays === n}
                 onClick={() => updateNumDays(n)}
-                className={`py-2 rounded-lg text-sm font-medium transition-all ${
-                  numDays === n
-                    ? "bg-teal-600 text-white"
-                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
-                }`}
+                className={`rounded-xl py-2 text-sm font-extrabold ${numDays === n ? "bg-act text-on-act" : "bg-soft text-ink"}`}
               >
                 {n}
               </button>
@@ -205,170 +192,146 @@ export function MealPlanBuilder() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 pt-3">
         {days.map((day, dayIndex) => {
-          const dayTotal = day.meals.reduce(
-            (sum, m) => sum + (m.recipe_calories || 0),
-            0,
-          );
+          const dayTotal = day.meals.reduce((sum, m) => sum + (m.recipe_calories || 0), 0);
           return (
-            <div
-              key={dayIndex}
-              className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs"
-            >
-              <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30 flex items-center justify-between">
-                <h3 className="font-semibold text-zinc-700 dark:text-zinc-200">
-                  {day.day_label}
-                </h3>
+            <section key={dayIndex} aria-label={day.day_label} className="overflow-hidden rounded-3xl bg-card">
+              <div className="flex items-center justify-between border-b border-line px-4 py-3">
+                <h2 className="text-[15px] font-extrabold">{day.day_label}</h2>
                 {dayTotal > 0 && (
-                  <span className="text-xs flex items-center gap-1 text-zinc-500">
-                    <Flame className="h-3.5 w-3.5 text-red-500" /> {dayTotal} kcal
+                  <span className="flex items-center gap-1 text-xs font-bold text-mut">
+                    <Flame className="h-3.5 w-3.5 text-act-text" aria-hidden="true" /> {dayTotal} kcal
                   </span>
                 )}
               </div>
 
-              <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <ul>
                 {day.meals.map((meal, mealIndex) => (
-                  <div
-                    key={mealIndex}
-                    className="p-4 flex items-center justify-between gap-3"
-                  >
-                    <div>
-                      <span className="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wide block">
+                  <li key={mealIndex} className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold uppercase tracking-wide text-act-text">
                         {meal.slot_name}
                       </span>
-                      <span className="text-sm text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5">
-                        <BookOpen className="h-3.5 w-3.5" /> {meal.recipe_title}
+                      <span className="flex items-center gap-1.5 text-sm font-semibold">
+                        <BookOpen className="h-3.5 w-3.5 flex-none" aria-hidden="true" /> {meal.recipe_title}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      {meal.recipe_calories && (
-                        <span className="text-xs text-zinc-500">
-                          {meal.recipe_calories} kcal
-                        </span>
-                      )}
+                      {meal.recipe_calories && <span className="text-xs text-mut">{meal.recipe_calories} kcal</span>}
                       <button
+                        type="button"
                         onClick={() => removeMeal(dayIndex, mealIndex)}
-                        className="text-zinc-500 hover:text-red-500 transition-colors"
+                        aria-label={`Remover ${meal.recipe_title}`}
+                        className="text-mut"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               <button
+                type="button"
                 onClick={() => openPicker(dayIndex)}
-                className="w-full p-3 text-sm text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-500/10 flex items-center justify-center gap-2 font-medium transition-colors"
+                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-extrabold text-act-text"
               >
-                <Plus className="h-4 w-4" /> Adicionar Refeição
+                <Plus className="h-4 w-4" aria-hidden="true" /> Adicionar refeição
               </button>
-            </div>
+            </section>
           );
         })}
       </div>
 
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full mt-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-xs disabled:opacity-50"
-      >
-        {saving ? <BouncingDots /> : <><Save className="h-5 w-5" /> Salvar Plano</>}
-      </button>
+      <div className="pt-4">
+        <Button onClick={handleSave} disabled={saving} className="w-full py-3.5">
+          {saving ? <BouncingDots /> : (
+            <>
+              <Save className="h-5 w-5" aria-hidden="true" /> Salvar plano
+            </>
+          )}
+        </Button>
+      </div>
 
-      {/* MODAL DE ESCOLHA DE RECEITA */}
-      {pickerOpen && (
-        <div className="fixed inset-0 z-80 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[85vh]">
-            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 rounded-t-2xl space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold dark:text-white">
-                  Escolher Receita
-                </h3>
+      {/* ESCOLHA DE RECEITA */}
+      <Sheet open={pickerOpen} onOpenChange={setPickerOpen} title="Escolher receita">
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="picker-slot" className="mb-1 block text-xs font-bold text-mut">
+              Refeição
+            </label>
+            <select
+              id="picker-slot"
+              value={pickerSlot}
+              onChange={(e) => setPickerSlot(e.target.value)}
+              className="w-full rounded-2xl border border-line bg-card px-3 py-2.5 text-sm text-ink"
+            >
+              {MEAL_SLOTS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex gap-1.5">
+            {(
+              [
+                ["mine", "Minhas receitas", UserRound],
+                ["community", "Comunidade", Users],
+              ] as const
+            ).map(([k, nome, Icone]) => (
+              <button
+                key={k}
+                type="button"
+                aria-pressed={pickerTab === k}
+                onClick={() => setPickerTab(k)}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold ${
+                  pickerTab === k ? "bg-ink text-bg" : "bg-soft text-ink"
+                }`}
+              >
+                <Icone className="h-3.5 w-3.5" aria-hidden="true" /> {nome}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-mut" aria-hidden="true" />
+            <Input
+              type="text"
+              aria-label="Buscar receita"
+              placeholder="Buscar receita..."
+              value={pickerSearch}
+              onChange={(e) => setPickerSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          <div className="space-y-2 pt-1">
+            {pickerLoading ? (
+              <div aria-hidden="true" className="space-y-2">
+                <Skeleton className="h-12" />
+                <Skeleton className="h-12" />
+              </div>
+            ) : filteredPickerRecipes.length === 0 ? (
+              <p className="py-8 text-center text-sm text-mut">Nenhuma receita encontrada.</p>
+            ) : (
+              filteredPickerRecipes.map((recipe) => (
                 <button
-                  onClick={() => setPickerOpen(false)}
-                  className="text-zinc-500 hover:text-zinc-800 dark:hover:text-white"
+                  key={recipe.id}
+                  type="button"
+                  onClick={() => handlePickRecipe(recipe)}
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl bg-bg p-3 text-left active:bg-soft"
                 >
-                  <X className="h-6 w-6" />
+                  <span className="text-sm font-bold">{recipe.title}</span>
+                  {recipe.calories && <span className="shrink-0 text-xs text-mut">{recipe.calories} kcal</span>}
                 </button>
-              </div>
-
-              <div>
-                <label className="text-xs text-zinc-500 mb-1 block">
-                  Refeição
-                </label>
-                <select
-                  value={pickerSlot}
-                  onChange={(e) => setPickerSlot(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 text-sm dark:text-white outline-hidden"
-                >
-                  {MEAL_SLOTS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
-                <button
-                  onClick={() => setPickerTab("mine")}
-                  className={`flex-1 py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${pickerTab === "mine" ? "bg-white dark:bg-zinc-700 shadow-sm text-teal-600 dark:text-white" : "text-zinc-500"}`}
-                >
-                  <UserRound className="h-3.5 w-3.5" /> Minhas Receitas
-                </button>
-                <button
-                  onClick={() => setPickerTab("community")}
-                  className={`flex-1 py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${pickerTab === "community" ? "bg-white dark:bg-zinc-700 shadow-sm text-teal-600 dark:text-white" : "text-zinc-500"}`}
-                >
-                  <Users className="h-3.5 w-3.5" /> Comunidade
-                </button>
-              </div>
-
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-                <input
-                  type="text"
-                  placeholder="Buscar receita..."
-                  value={pickerSearch}
-                  onChange={(e) => setPickerSearch(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2 pl-9 pr-4 text-sm dark:text-white outline-hidden"
-                />
-              </div>
-            </div>
-
-            <div className="p-4 overflow-y-auto space-y-2">
-              {pickerLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="animate-spin h-6 w-6 text-teal-500" />
-                </div>
-              ) : filteredPickerRecipes.length === 0 ? (
-                <p className="text-center text-sm text-zinc-500 py-8">
-                  Nenhuma receita encontrada.
-                </p>
-              ) : (
-                filteredPickerRecipes.map((recipe) => (
-                  <button
-                    key={recipe.id}
-                    onClick={() => handlePickRecipe(recipe)}
-                    className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-teal-300 dark:hover:border-teal-700 hover:bg-teal-50 dark:hover:bg-teal-500/5 transition-colors flex items-center justify-between gap-3"
-                  >
-                    <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                      {recipe.title}
-                    </span>
-                    {recipe.calories && (
-                      <span className="text-xs text-zinc-500 shrink-0">
-                        {recipe.calories} kcal
-                      </span>
-                    )}
-                  </button>
-                ))
-              )}
-            </div>
+              ))
+            )}
           </div>
         </div>
-      )}
+      </Sheet>
     </div>
   );
 }

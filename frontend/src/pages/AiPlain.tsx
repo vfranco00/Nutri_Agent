@@ -3,27 +3,30 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
-import { LoadingOverlay } from "../components/LoadingOverlay";
+import { NuviLoader } from "../components/brand/NuviLoader";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Sheet } from "../components/ui/Sheet";
+import { ROUTES } from "../routes";
 import type { AiPlanResponse, DailyPlan } from "../types";
 import {
   ArrowLeft,
-  Sparkles,
-  Loader2,
-  Target,
-  Zap,
-  Utensils,
+  Check,
+  CheckCircle2,
+  Info,
   Lightbulb,
-  Save,
-  Calendar,
+  Loader2,
   Repeat,
+  Save,
   Shuffle,
   ShoppingCart,
-  X,
-  CheckSquare,
-  Square,
-  Edit3,
-  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
+
+type DetalheErro = { code?: string; message?: string } | undefined;
+function detalheDoErro(error: unknown): DetalheErro {
+  return (error as { response?: { data?: { detail?: DetalheErro } } }).response?.data?.detail;
+}
 
 export function AiPlan() {
   const navigate = useNavigate();
@@ -113,10 +116,10 @@ export function AiPlan() {
       } else {
         throw new Error("IA retornou um formato de plano inválido");
       }
-    } catch (error: any) {
-      const detail = error.response?.data?.detail;
+    } catch (error) {
+      const detail = detalheDoErro(error);
       if (detail?.code === "PLAN_LIMIT_REACHED") {
-        showAlert(detail.message, "warning");
+        showAlert(detail.message ?? "Limite do plano atingido.", "warning");
       } else {
         showAlert(
           "Erro ao gerar plano. O servidor ou a IA podem estar indisponíveis.",
@@ -188,10 +191,10 @@ export function AiPlan() {
         showAlert(`Receita salva em "${cat}"!`, "success");
         setSavedMealKeys((prev) => new Set(prev).add(mealKey));
       }
-    } catch (error: any) {
-      const detail = error.response?.data?.detail;
+    } catch (error) {
+      const detail = detalheDoErro(error);
       if (detail?.code === "PLAN_LIMIT_REACHED") {
-        showAlert(detail.message, "warning");
+        showAlert(detail.message ?? "Limite do plano atingido.", "warning");
       } else {
         showAlert("Erro ao salvar receita. A conexão falhou.", "error");
       }
@@ -253,10 +256,10 @@ export function AiPlan() {
         next.delete(`${selectedDayIndex}-${index}`);
         return next;
       });
-    } catch (error: any) {
-      const detail = error.response?.data?.detail;
+    } catch (error) {
+      const detail = detalheDoErro(error);
       if (detail?.code === "PLAN_LIMIT_REACHED") {
-        showAlert(detail.message, "warning");
+        showAlert(detail.message ?? "Limite do plano atingido.", "warning");
       } else {
         showAlert("Erro ao trocar a refeição. Tente novamente.", "error");
       }
@@ -354,7 +357,7 @@ export function AiPlan() {
         );
 
         setShoppingModalOpen(false);
-        navigate("/shopping");
+        navigate(ROUTES.compras);
       } else {
         throw new Error("Falha ao criar identificador da lista no banco");
       }
@@ -375,386 +378,298 @@ export function AiPlan() {
 
   const currentDay: DailyPlan | undefined = planData?.days[selectedDayIndex];
 
-  return (
-    <div className="max-w-5xl mx-auto relative">
-      {/* OVERLAY DE LOADING (com dicas rotativas) */}
-      {loading && <LoadingOverlay text={loadingText} color="teal" />}
+  const CHIP = (ativo: boolean) =>
+    `whitespace-nowrap rounded-full px-3.5 py-2 text-[12.5px] font-bold active:scale-[.97] ${ativo ? "bg-ink text-bg" : "bg-card text-ink"}`;
 
-      {/* Header (Layout original) */}
-      <div className="flex items-center gap-4 mb-8">
+  return (
+    <div className="relative mx-auto max-w-3xl space-y-1">
+      <div className="flex items-center gap-3">
         <button
-          onClick={() => navigate("/dashboard")}
-          className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+          type="button"
+          onClick={() => navigate(ROUTES.cardapios)}
+          aria-label="Voltar"
+          className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-card active:scale-[.97]"
         >
-          <ArrowLeft className="h-6 w-6 text-zinc-500" />
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </button>
-        <h1 className="text-2xl font-bold text-purple-500 flex items-center gap-2">
-          <Sparkles className="h-6 w-6" /> Agente Nuvi
+        <h1 className="text-[26px] font-black leading-[1.05] tracking-[-0.025em]">
+          Monte meu <span className="text-act-text">cardápio</span>
         </h1>
       </div>
 
-      {/* TELA DE CONFIGURAÇÃO (Layout original mantido) */}
+      {/* CARREGANDO: a onda do Nuvi (só aparece se passar de 300 ms) */}
+      {loading && (
+        <div className="flex min-h-[420px] flex-col items-center justify-center px-6 text-center"
+        >
+          <NuviLoader active size={96} label={loadingText} />
+          <p className="mt-4 text-[22px] font-black leading-tight">
+            {planData ? "Lendo seu " : "Montando seu "}
+            <span className="text-act-text">cardápio</span>…
+          </p>
+          <p className="mt-1.5 font-semibold text-mut">{loadingText}</p>
+        </div>
+      )}
+
+      {/* CONFIGURAÇÃO */}
       {!planData && !loading && (
-        <div className="flex flex-col items-center justify-center py-8 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 border-dashed text-center px-4 shadow-xs">
-          <div className="bg-purple-100 dark:bg-purple-500/10 p-4 rounded-full mb-4">
-            <Calendar className="h-10 w-10 text-purple-600 dark:text-purple-500" />
-          </div>
-          <h2 className="text-2xl font-bold dark:text-white mb-6">
-            Configure seu Plano
-          </h2>
+        <div className="space-y-1">
+          <p className="px-1 text-[13px] font-semibold text-mut">o Agente usa seu perfil e o que você gosta</p>
 
-          <div className="w-full max-w-md space-y-6">
-            <div>
-              <label className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2 block">
-                Duração
-              </label>
-              <div className="grid grid-cols-2 gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
-                <button
-                  onClick={() => setMode(1)}
-                  className={`py-2 rounded-md text-sm font-medium transition-all ${mode === 1 ? "bg-white dark:bg-zinc-700 shadow-sm text-purple-600 dark:text-white" : "text-zinc-500 dark:text-zinc-400"}`}
-                >
-                  1 Dia
-                </button>
-                <button
-                  onClick={() => setMode(7)}
-                  className={`py-2 rounded-md text-sm font-medium transition-all ${mode === 7 ? "bg-white dark:bg-zinc-700 shadow-sm text-purple-600 dark:text-white" : "text-zinc-500 dark:text-zinc-400"}`}
-                >
-                  7 Dias
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2 block">
-                Refeições por dia
-              </label>
-              <div className="grid grid-cols-4 gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
-                {[3, 4, 5, 6].map((count) => (
-                  <button
-                    key={count}
-                    onClick={() => setMealsCount(count)}
-                    className={`py-2 rounded-md text-sm font-medium transition-all ${mealsCount === count ? "bg-white dark:bg-zinc-700 shadow-sm text-purple-600 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"}`}
-                  >
-                    {count}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-zinc-500 mt-2">
-                {mealsCount === 3 && "Café, Almoço, Jantar"}
-                {mealsCount === 4 && "Café, Almoço, Lanche, Jantar"}
-                {mealsCount === 5 && "Café, Lanche, Almoço, Lanche, Jantar"}
-                {mealsCount === 6 &&
-                  "Café, Lanche, Almoço, Lanche, Jantar, Ceia"}
-              </p>
-            </div>
-
-            {mode === 7 && (
-              <div className="animate-fadeIn">
-                <label className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2 block">
-                  Estilo de Cardápio
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    onClick={() => setVariety("varied")}
-                    className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${variety === "varied" ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10" : "border-zinc-200 dark:border-zinc-800 hover:border-purple-300"}`}
-                  >
-                    <Shuffle
-                      className={`h-6 w-6 mb-2 ${variety === "varied" ? "text-purple-600" : "text-zinc-400"}`}
-                    />
-                    <span className="font-bold text-sm dark:text-white">
-                      Variedade Total
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => setVariety("repetitive")}
-                    className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${variety === "repetitive" ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10" : "border-zinc-200 dark:border-zinc-800 hover:border-purple-300"}`}
-                  >
-                    <Repeat
-                      className={`h-6 w-6 mb-2 ${variety === "repetitive" ? "text-purple-600" : "text-zinc-400"}`}
-                    />
-                    <span className="font-bold text-sm dark:text-white">
-                      Praticidade
-                    </span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={handleGenerate}
-              disabled={planLimitReached}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Zap className="h-5 w-5 fill-current" /> Gerar Agora
+          <h2 className="px-1 pb-1 pt-3 text-base font-extrabold">Para quantos dias?</h2>
+          <div className="flex flex-wrap gap-1.5">
+            <button type="button" aria-pressed={mode === 1} onClick={() => setMode(1)} className={CHIP(mode === 1)}>
+              1 dia
             </button>
-            {planUsage && planUsage.limit !== null && (
-              <p className="text-xs text-zinc-500 text-center mt-2">
-                {planUsage.used}/{planUsage.limit} cardápios usados nos últimos {planUsage.window_days} dias
-                {planLimitReached && (
-                  <>
-                    {" "}—{" "}
-                    <button onClick={() => navigate("/planos")} className="text-purple-500 hover:underline font-medium">
-                      fazer upgrade
-                    </button>
-                  </>
-                )}
-              </p>
-            )}
+            <button type="button" aria-pressed={mode === 7} onClick={() => setMode(7)} className={CHIP(mode === 7)}>
+              7 dias
+            </button>
+          </div>
+
+          <h2 className="px-1 pb-1 pt-3 text-base font-extrabold">Refeições por dia</h2>
+          <div className="flex flex-wrap gap-1.5">
+            {[3, 4, 5, 6].map((count) => (
+              <button
+                key={count}
+                type="button"
+                aria-pressed={mealsCount === count}
+                onClick={() => setMealsCount(count)}
+                className={CHIP(mealsCount === count)}
+              >
+                {count} refeições
+              </button>
+            ))}
+          </div>
+          <p className="px-1 pt-1 text-xs text-mut">
+            {mealsCount === 3 && "Café, Almoço, Jantar"}
+            {mealsCount === 4 && "Café, Almoço, Lanche, Jantar"}
+            {mealsCount === 5 && "Café, Lanche, Almoço, Lanche, Jantar"}
+            {mealsCount === 6 && "Café, Lanche, Almoço, Lanche, Jantar, Ceia"}
+          </p>
+
+          {mode === 7 && (
+            <>
+              <h2 className="px-1 pb-1 pt-3 text-base font-extrabold">Estilo de cardápio</h2>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  aria-pressed={variety === "varied"}
+                  onClick={() => setVariety("varied")}
+                  className={`${CHIP(variety === "varied")} flex items-center gap-1.5`}
+                >
+                  <Shuffle className="h-4 w-4" aria-hidden="true" /> Variedade total
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={variety === "repetitive"}
+                  onClick={() => setVariety("repetitive")}
+                  className={`${CHIP(variety === "repetitive")} flex items-center gap-1.5`}
+                >
+                  <Repeat className="h-4 w-4" aria-hidden="true" /> Praticidade
+                </button>
+              </div>
+            </>
+          )}
+
+          {planUsage && planUsage.limit !== null && (
+            <p className="flex items-center gap-1.5 px-1 pt-4 text-[12.5px] font-semibold text-mut">
+              <Info className="h-[15px] w-[15px]" aria-hidden="true" />
+              {planUsage.used}/{planUsage.limit} cardápios usados nos últimos {planUsage.window_days} dias
+              {planLimitReached && (
+                <>
+                  {" — "}
+                  <button type="button" onClick={() => navigate(ROUTES.assinatura)} className="font-bold text-act-text">
+                    fazer upgrade
+                  </button>
+                </>
+              )}
+            </p>
+          )}
+
+          <div className="pt-4">
+            <Button onClick={handleGenerate} disabled={planLimitReached} className="w-full py-3.5 text-base">
+              <Sparkles className="h-5 w-5" aria-hidden="true" />
+              Gerar cardápio de {mode} {mode > 1 ? "dias" : "dia"}
+            </Button>
           </div>
         </div>
       )}
 
-      {/* RESULTADO (Layout original mantido) */}
-      {planData && currentDay && (
-        <div className="space-y-6 animate-fadeIn pb-20">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold dark:text-white flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-purple-500" />
-              {currentDay.day}
-            </h2>
-            {planData.days.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
-                <span className="text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-sm">
-                  Dia {selectedDayIndex + 1} de 7
-                </span>{" "}
-                {planData.days.map((d, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedDayIndex(i)}
-                    className={`px-3 py-1 rounded-full text-xs ${selectedDayIndex === i ? "bg-purple-600 text-white" : "bg-zinc-800 text-zinc-400"}`}
-                  >
-                    {d.day}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* RESULTADO */}
+      {planData && currentDay && !loading && (
+        <div className="space-y-2 pb-6">
+          <p className="px-1 text-[13px] font-semibold text-mut">
+            {planData.days.length} {planData.days.length > 1 ? "dias" : "dia"} · ~{currentDay.calories_target} kcal/dia
+          </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center border-l-4 border-l-red-500 shadow-xs">
-              <Target className="h-6 w-6 text-red-500 mb-2" />
-              <span className="text-2xl font-bold dark:text-white">
-                {currentDay.calories_target}
-              </span>
-              <span className="text-xs text-zinc-500 uppercase tracking-wider">
-                Kcal
-              </span>
-            </div>
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-xs">
-              <span className="text-xl font-bold text-blue-500">
-                {currentDay.macros.protein}
-              </span>
-              <span className="text-xs text-zinc-500 uppercase">Proteína</span>
-            </div>
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-xs">
-              <span className="text-xl font-bold text-yellow-500">
-                {currentDay.macros.carbs}
-              </span>
-              <span className="text-xs text-zinc-500 uppercase">Carbo</span>
-            </div>
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center shadow-xs">
-              <span className="text-xl font-bold text-orange-500">
-                {currentDay.macros.fats}
-              </span>
-              <span className="text-xs text-zinc-500 uppercase">Gordura</span>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
-            <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30 flex items-center justify-between">
-              <h3 className="font-semibold text-zinc-700 dark:text-zinc-200 flex items-center gap-2">
-                <Utensils className="h-5 w-5 text-purple-500" /> Cardápio
-                Sugerido
-              </h3>
-              {subscription?.plan === "plus" && swapInfo && swapInfo.limit !== null && (
-                <span className="text-xs text-zinc-500">
-                  {swapInfo.used}/{swapInfo.limit} trocas usadas
-                </span>
-              )}
-            </div>
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {currentDay.meals.map((meal, idx) => (
-                <div
-                  key={idx}
-                  className="p-6 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors flex flex-col md:flex-row gap-4 justify-between items-start"
+          {planData.days.length > 1 && (
+            <div className="flex gap-1.5 overflow-x-auto py-1">
+              {planData.days.map((d, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-pressed={selectedDayIndex === i}
+                  onClick={() => setSelectedDayIndex(i)}
+                  className={`shrink-0 ${CHIP(selectedDayIndex === i)}`}
                 >
-                  <div>
-                    <h4 className="text-purple-600 dark:text-purple-400 font-bold mb-2 text-sm uppercase tracking-wide">
-                      {meal.name}
-                    </h4>
-                    <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed text-sm">
-                      {meal.suggestion}
-                    </p>
-                  </div>
-                  <div className="shrink-0 flex flex-col sm:flex-row gap-2">
-                    <button
-                      onClick={() => handleSwapMeal(idx)}
-                      disabled={swappingIndex === idx}
-                      className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-purple-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
-                    >
-                      {swappingIndex === idx ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Shuffle className="h-4 w-4" />
-                      )}
-                      {swappingIndex === idx ? "Trocando..." : "Trocar"}
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleSaveMeal(meal.name, meal.suggestion, idx, meal.category)
-                      }
-                      disabled={savingMealIndex === idx || savedMealKeys.has(`${selectedDayIndex}-${idx}`)}
-                      className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-green-600 hover:text-white text-zinc-500 dark:text-zinc-400 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 disabled:hover:bg-zinc-100 dark:disabled:hover:bg-zinc-800 disabled:hover:text-zinc-500 dark:disabled:hover:text-zinc-400"
-                    >
-                      {savingMealIndex === idx ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : savedMealKeys.has(`${selectedDayIndex}-${idx}`) ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <Save className="h-4 w-4" />
-                      )}
-                      {savingMealIndex === idx
-                        ? "Salvando..."
-                        : savedMealKeys.has(`${selectedDayIndex}-${idx}`)
-                          ? "Salva"
-                          : "Salvar Receita"}
-                    </button>
-                  </div>
+                  {d.day}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <section className="rounded-3xl bg-card px-4 py-3.5">
+            <div className="flex items-baseline justify-between">
+              <b className="text-[15px]">{currentDay.day}</b>
+              <span className="text-[26px] font-black tabular-nums">
+                {currentDay.calories_target} <span className="text-xs font-bold text-mut">kcal</span>
+              </span>
+            </div>
+            <div className="mt-2 flex gap-2">
+              {[
+                [currentDay.macros.protein, "Proteína"],
+                [currentDay.macros.carbs, "Carbo"],
+                [currentDay.macros.fats, "Gordura"],
+              ].map(([v, nome]) => (
+                <div key={nome} className="flex-1 rounded-2xl bg-soft px-2 py-2.5 text-center text-[11.5px] text-mut">
+                  <b className="block text-[14.5px] text-ink">{v}</b>
+                  {nome}
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 p-6 rounded-xl flex gap-4 items-start">
-            <Lightbulb className="h-6 w-6 text-purple-500 dark:text-purple-400 shrink-0 mt-1" />
+          <div className="flex items-center justify-between px-1 pt-2">
+            <h2 className="text-base font-extrabold">Cardápio sugerido</h2>
+            {subscription?.plan === "plus" && swapInfo && swapInfo.limit !== null && (
+              <span className="text-xs text-mut">
+                {swapInfo.used}/{swapInfo.limit} trocas usadas
+              </span>
+            )}
+          </div>
+          <ul className="space-y-2">
+            {currentDay.meals.map((meal, idx) => {
+              const salva = savedMealKeys.has(`${selectedDayIndex}-${idx}`);
+              return (
+                <li key={idx} className="rounded-[22px] bg-card px-4 py-3.5">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-act-text">{meal.name}</h3>
+                  <p className="mt-1 text-sm leading-relaxed">{meal.suggestion}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleSwapMeal(idx)}
+                      disabled={swappingIndex === idx}
+                      className="px-3 py-1.5 text-xs"
+                    >
+                      {swappingIndex === idx ? (
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <Shuffle className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      {swappingIndex === idx ? "Trocando..." : "Trocar"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleSaveMeal(meal.name, meal.suggestion, idx, meal.category)}
+                      disabled={savingMealIndex === idx || salva}
+                      className="px-3 py-1.5 text-xs"
+                    >
+                      {savingMealIndex === idx ? (
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      ) : salva ? (
+                        <CheckCircle2 className="h-4 w-4 text-pos-text" aria-hidden="true" />
+                      ) : (
+                        <Save className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      {savingMealIndex === idx ? "Salvando..." : salva ? "Salva" : "Salvar receita"}
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="flex items-start gap-3 rounded-3xl bg-act-soft p-4">
+            <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-act-text" aria-hidden="true" />
             <div>
-              <h4 className="font-bold text-purple-700 dark:text-purple-400 mb-1">
-                Dica do Nuvi
-              </h4>
-              <p className="text-purple-700/80 dark:text-purple-200/80 text-sm italic">
-                "{currentDay.tip}"
-              </p>
+              <h3 className="text-sm font-extrabold">Dica do Nuvi</h3>
+              <p className="mt-0.5 text-sm italic text-ink/80">“{currentDay.tip}”</p>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-            <label className="text-sm text-zinc-500 dark:text-zinc-400 flex gap-2 mb-2">
-              <Edit3 className="h-4 w-4" /> Nome do plano
+          <div className="rounded-3xl bg-card p-4">
+            <label htmlFor="plano-titulo" className="mb-1.5 block text-xs font-bold text-mut">
+              Nome do plano
             </label>
-            <input
+            <Input
+              id="plano-titulo"
               type="text"
               value={planTitle}
               onChange={(e) => setPlanTitle(e.target.value)}
-              className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 outline-hidden dark:text-white focus:ring-2 focus:ring-teal-500"
               placeholder="Nome do plano"
             />
           </div>
 
-          {/* BOTÕES DE AÇÃO (Com o novo handlePrepareShoppingList) */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={handleSavePlan}
-              disabled={savingPlan}
-              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
-            >
+          <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+            <Button onClick={handleSavePlan} disabled={savingPlan} className="flex-1">
               {savingPlan ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
               ) : (
-                <Save className="h-5 w-5" />
+                <Check className="h-5 w-5" aria-hidden="true" />
               )}
-              Salvar Plano
-            </button>
-            <button
-              onClick={handlePrepareShoppingList}
-              className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-xs"
-            >
-              <ShoppingCart className="h-5 w-5" /> Gerar Lista de Compras
-            </button>
-            <button
-              onClick={handleClearPlan}
-              className="flex-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 py-3 rounded-lg transition-colors"
-            >
-              Gerar Novo Plano
-            </button>
+              Salvar plano
+            </Button>
+            <Button variant="outline" onClick={handlePrepareShoppingList} className="flex-1">
+              <ShoppingCart className="h-5 w-5" aria-hidden="true" /> Gerar lista de compras
+            </Button>
+            <Button variant="ghost" onClick={handleClearPlan} className="flex-1">
+              Gerar novo plano
+            </Button>
           </div>
         </div>
       )}
 
-      {/* --- MODAL DE SELEÇÃO DE COMPRAS (Novo e Bonito) --- */}
-      {shoppingModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[85vh]">
-            {/* Header Modal */}
-            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 rounded-t-2xl">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5 text-pink-500" /> Confirmar
-                  Lista
-                </h3>
+      {/* SELEÇÃO DE COMPRAS */}
+      <Sheet open={shoppingModalOpen} onOpenChange={setShoppingModalOpen} title="Confirmar lista">
+        <label htmlFor="lista-titulo" className="mb-1.5 block text-xs font-bold text-mut">
+          Nome da lista
+        </label>
+        <Input
+          id="lista-titulo"
+          type="text"
+          value={listTitle}
+          onChange={(e) => setListTitle(e.target.value)}
+          placeholder="Nome da Lista"
+        />
+        <p className="mb-2 mt-4 text-sm text-mut">Selecione o que você precisa comprar:</p>
+        <ul className="overflow-hidden rounded-[22px] bg-bg">
+          {shoppingItems.map((item, idx) => {
+            const marcado = selectedItems.has(item);
+            return (
+              <li key={idx} className="border-b border-line last:border-b-0">
                 <button
-                  onClick={() => setShoppingModalOpen(false)}
-                  className="text-zinc-500 hover:text-zinc-800 dark:hover:text-white"
+                  type="button"
+                  role="checkbox"
+                  aria-checked={marcado}
+                  onClick={() => toggleItem(item)}
+                  className="flex w-full items-center gap-3 px-3.5 py-3 text-left"
                 >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-
-              {/* Input de Título */}
-              <div className="relative">
-                <Edit3 className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                <input
-                  type="text"
-                  value={listTitle}
-                  onChange={(e) => setListTitle(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg py-2 pl-9 pr-4 dark:text-white focus:ring-2 focus:ring-pink-500 outline-hidden text-sm shadow-xs"
-                  placeholder="Nome da Lista"
-                />
-              </div>
-            </div>
-
-            {/* Lista Scrollável */}
-            <div className="p-6 overflow-y-auto">
-              <p className="text-sm text-zinc-500 mb-4">
-                Selecione o que você precisa comprar:
-              </p>
-              <div className="space-y-2">
-                {shoppingItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => toggleItem(item)}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                  <span
+                    className={`flex h-6 w-6 flex-none items-center justify-center rounded-lg border-2 ${
+                      marcado ? "border-pos bg-pos text-nuvi-tinta" : "border-line"
+                    }`}
                   >
-                    {selectedItems.has(item) ? (
-                      <CheckSquare className="h-5 w-5 text-pink-500 shrink-0" />
-                    ) : (
-                      <Square className="h-5 w-5 text-zinc-500 shrink-0" />
-                    )}
-                    <span
-                      className={
-                        selectedItems.has(item)
-                          ? "text-zinc-900 dark:text-zinc-100 font-medium"
-                          : "text-zinc-500 line-through"
-                      }
-                    >
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Footer Ação */}
-            <div className="p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 rounded-b-2xl">
-              <button
-                onClick={handleFinalizeShoppingList}
-                className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg flex justify-center gap-2 shadow-lg shadow-pink-900/20"
-              >
-                Salvar Lista ({selectedItems.size} itens)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                    {marcado && <Check className="h-[15px] w-[15px]" aria-hidden="true" />}
+                  </span>
+                  <span className={marcado ? "text-sm font-bold" : "text-sm text-mut line-through"}>{item}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <Button onClick={handleFinalizeShoppingList} className="mt-4 w-full py-3">
+          Salvar lista ({selectedItems.size} itens)
+        </Button>
+      </Sheet>
     </div>
   );
 }

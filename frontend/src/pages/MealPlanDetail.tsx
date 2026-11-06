@@ -3,18 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import type { MealPlan } from "../types";
-import {
-  ArrowLeft,
-  Loader2,
-  Utensils,
-  Flame,
-  Sparkles,
-  UserRound,
-  BookOpen,
-  Edit3,
-  Check,
-  X,
-} from "lucide-react";
+import { ArrowLeft, BookOpen, Check, Loader2, Pencil, Sparkles, UserRound, X } from "lucide-react";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Skeleton } from "../components/ui/Skeleton";
+import { fotoPorRotulo } from "../lib/refeicaoFoto";
+import { ROUTES } from "../routes";
 
 export function MealPlanDetail() {
   const { id } = useParams();
@@ -36,7 +30,7 @@ export function MealPlanDetail() {
       } catch (error) {
         showAlert("Não foi possível carregar este plano.", "error");
         console.error(error);
-        navigate("/meal-plans");
+        navigate(ROUTES.cardapios);
       } finally {
         setLoading(false);
       }
@@ -71,83 +65,99 @@ export function MealPlanDetail() {
 
   if (loading || !plan) {
     return (
-      <div className="flex justify-center mt-20">
-        <Loader2 className="animate-spin h-8 w-8 text-teal-500" />
+      <div aria-hidden="true" className="space-y-2">
+        <Skeleton className="h-10 w-2/3" />
+        <Skeleton className="h-24 rounded-3xl" />
+        <Skeleton className="h-40 rounded-3xl" />
       </div>
     );
   }
 
   const day = plan.days[selectedDay];
+  const macros: Array<[string | null | undefined, string]> = [
+    [day?.macros_protein, "Proteína"],
+    [day?.macros_carbs, "Carbo"],
+    [day?.macros_fats, "Gordura"],
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
+    <div className="mx-auto max-w-4xl space-y-1">
+      <div className="flex items-center gap-3">
         <button
-          onClick={() => navigate("/meal-plans")}
-          className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+          type="button"
+          onClick={() => navigate(ROUTES.cardapios)}
+          aria-label="Voltar"
+          className="flex h-10 w-10 flex-none items-center justify-center rounded-[14px] bg-card active:scale-[.97]"
         >
-          <ArrowLeft className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </button>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           {editingTitle ? (
             <div className="flex items-center gap-2">
-              <input
+              <Input
                 type="text"
                 autoFocus
+                aria-label="Nome do plano"
                 value={titleInput}
                 onChange={(e) => setTitleInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleRenamePlan();
                   if (e.key === "Escape") setEditingTitle(false);
                 }}
-                className="text-xl font-bold text-teal-600 dark:text-teal-500 bg-zinc-50 dark:bg-zinc-800 border border-teal-300 dark:border-teal-700 rounded-lg px-3 py-1 outline-hidden"
+                className="py-2 text-base font-extrabold"
               />
               <button
+                type="button"
                 onClick={handleRenamePlan}
                 disabled={savingTitle}
-                className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10 disabled:opacity-50"
+                aria-label="Salvar nome"
+                className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-act text-on-act disabled:opacity-50"
               >
                 {savingTitle ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               </button>
               <button
+                type="button"
                 onClick={() => setEditingTitle(false)}
-                className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                aria-label="Cancelar"
+                className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-soft"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
           ) : (
-            <h1 className="text-2xl font-bold text-teal-600 dark:text-teal-500 flex items-center gap-2 group">
+            <h1 className="flex items-center gap-2 text-[22px] font-black leading-tight tracking-[-0.02em]">
               {plan.source === "ai" ? (
-                <Sparkles className="h-6 w-6" />
+                <Sparkles className="h-5 w-5 flex-none text-act-text" aria-hidden="true" />
               ) : (
-                <UserRound className="h-6 w-6" />
+                <UserRound className="h-5 w-5 flex-none text-act-text" aria-hidden="true" />
               )}
-              {plan.title}
+              <span className="truncate">{plan.title}</span>
               <button
+                type="button"
                 onClick={startEditingTitle}
-                className="text-zinc-400 hover:text-teal-500 dark:text-zinc-600 dark:hover:text-teal-400 transition-colors"
+                aria-label="Renomear plano"
+                className="flex h-8 w-8 flex-none items-center justify-center rounded-lg text-mut"
               >
-                <Edit3 className="h-4 w-4" />
+                <Pencil className="h-4 w-4" aria-hidden="true" />
               </button>
             </h1>
           )}
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs font-semibold text-mut">
             {plan.source === "ai" ? "Gerado por IA" : "Montado manualmente"}
           </p>
         </div>
       </div>
 
       {plan.days.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto mb-6 pb-1">
+        <div className="flex gap-1.5 overflow-x-auto py-3">
           {plan.days.map((d, i) => (
             <button
               key={d.id}
+              type="button"
+              aria-pressed={selectedDay === i}
               onClick={() => setSelectedDay(i)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedDay === i
-                  ? "bg-teal-600 text-white"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+              className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[12.5px] font-bold ${
+                selectedDay === i ? "bg-ink text-bg" : "bg-card text-ink"
               }`}
             >
               {d.day_label}
@@ -159,86 +169,74 @@ export function MealPlanDetail() {
       {day && (
         <>
           {(day.calories_target || day.macros_protein) && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="mt-2 rounded-3xl bg-card px-4 py-3.5">
               {day.calories_target && (
-                <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center text-center">
-                  <Flame className="h-5 w-5 text-red-500 mb-1" />
-                  <span className="text-xl font-bold dark:text-white">
-                    {day.calories_target}
+                <div className="flex items-baseline justify-between">
+                  <b className="text-[13px]">Meta do dia</b>
+                  <span className="text-[26px] font-black tabular-nums">
+                    {day.calories_target} <span className="text-xs font-bold text-mut">kcal</span>
                   </span>
-                  <span className="text-xs text-zinc-500 uppercase">Kcal</span>
                 </div>
               )}
-              {day.macros_protein && (
-                <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center text-center">
-                  <span className="text-lg font-bold text-blue-500">
-                    {day.macros_protein}
-                  </span>
-                  <span className="text-xs text-zinc-500 uppercase">Proteína</span>
-                </div>
-              )}
-              {day.macros_carbs && (
-                <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center text-center">
-                  <span className="text-lg font-bold text-amber-600 dark:text-yellow-500">
-                    {day.macros_carbs}
-                  </span>
-                  <span className="text-xs text-zinc-500 uppercase">Carbo</span>
-                </div>
-              )}
-              {day.macros_fats && (
-                <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center text-center">
-                  <span className="text-lg font-bold text-orange-500">
-                    {day.macros_fats}
-                  </span>
-                  <span className="text-xs text-zinc-500 uppercase">Gordura</span>
-                </div>
-              )}
+              <div className="mt-2 flex gap-2">
+                {macros
+                  .filter(([v]) => v)
+                  .map(([v, nome]) => (
+                    <div key={nome} className="flex-1 rounded-2xl bg-soft px-2 py-2.5 text-center text-[11.5px] text-mut">
+                      <b className="block text-[14.5px] text-ink">{v}</b>
+                      {nome}
+                    </div>
+                  ))}
+              </div>
             </div>
           )}
 
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
-            <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30">
-              <h3 className="font-semibold text-zinc-700 dark:text-zinc-200 flex items-center gap-2">
-                <Utensils className="h-5 w-5 text-teal-500" /> Refeições
-              </h3>
-            </div>
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {day.meals.map((meal) => (
-                <div key={meal.id} className="p-5 flex justify-between items-start gap-4">
-                  <div>
-                    <h4 className="text-teal-600 dark:text-teal-400 font-bold mb-1 text-xs uppercase tracking-wide">
+          <h2 className="px-1 pb-1 pt-4 text-base font-extrabold">Refeições</h2>
+          <ul className="space-y-2">
+            {day.meals.map((meal) => {
+              const kcal = meal.calories || meal.recipe?.calories;
+              return (
+                <li key={meal.id} className="flex items-center gap-3 rounded-[22px] bg-card px-3.5 py-3">
+                  <div
+                    role="img"
+                    aria-label={meal.slot_name}
+                    className="h-14 w-14 flex-none rounded-2xl bg-cover bg-center"
+                    style={{ backgroundImage: `url(${fotoPorRotulo(meal.slot_name)})` }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-xs font-bold uppercase tracking-wide text-act-text">
                       {meal.slot_name}
-                    </h4>
+                    </span>
                     {meal.recipe ? (
                       <button
-                        onClick={() => navigate("/recipes")}
-                        className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200 font-medium hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                        type="button"
+                        onClick={() => navigate(ROUTES.receita(meal.recipe!.id))}
+                        className="flex items-center gap-1.5 text-left text-[15px] font-extrabold"
                       >
-                        <BookOpen className="h-4 w-4" /> {meal.recipe.title}
+                        <BookOpen className="h-4 w-4 flex-none" aria-hidden="true" /> {meal.recipe.title}
                       </button>
                     ) : (
                       <>
-                        {meal.custom_title && (
-                          <p className="text-zinc-800 dark:text-zinc-100 font-medium">
-                            {meal.custom_title}
-                          </p>
-                        )}
+                        {meal.custom_title && <b className="block text-[15px]">{meal.custom_title}</b>}
                         {meal.custom_description && (
-                          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">
-                            {meal.custom_description}
-                          </p>
+                          <p className="mt-0.5 text-[13px] text-mut">{meal.custom_description}</p>
                         )}
                       </>
                     )}
                   </div>
-                  {(meal.calories || meal.recipe?.calories) && (
-                    <span className="shrink-0 text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full text-zinc-600 dark:text-zinc-400">
-                      ~{meal.calories || meal.recipe?.calories} kcal
+                  {kcal ? (
+                    <span className="shrink-0 rounded-full bg-soft px-2.5 py-1 text-xs font-bold tabular-nums text-mut">
+                      ~{kcal} kcal
                     </span>
-                  )}
-                </div>
-              ))}
-            </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+          <div className="pt-4">
+            <Button variant="outline" onClick={() => navigate(ROUTES.compras)} className="w-full">
+              Ver lista de compras
+            </Button>
           </div>
         </>
       )}

@@ -1,49 +1,212 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  BookOpen,
+  CalendarRange,
+  Check,
+  ChefHat,
+  FolderOpen,
+  Plus,
+  ShoppingCart,
+  Sparkles,
+  Trash2,
+  Trophy,
+  type LucideIcon,
+} from "lucide-react";
+import { format } from "date-fns";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useSubscription } from "../lib/SubscriptionContext";
-import type { MealPlan } from "../types";
-import {
-  CalendarRange,
-  Plus,
-  Trash2,
-  Loader2,
-  Sparkles,
-  UserRound,
-  ChevronRight,
-} from "lucide-react";
-import { format } from "date-fns";
+import { extractDiaryErrorMessage, formatKcal, toIsoDate } from "../lib/diary";
+import { FOTO_POR_SLOT } from "../lib/refeicaoFoto";
+import { useDiaryDay } from "../lib/useDiaryDay";
+import { useAtualizarDia } from "../lib/useAtualizar";
+import { FaixaDeDias } from "../components/hoje/FaixaDeDias";
+import { PullToRefresh } from "../components/PullToRefresh";
+import { Button } from "../components/ui/Button";
+import { Skeleton } from "../components/ui/Skeleton";
+import { Tabs, TabsList, TabsPanel, TabsTab } from "../components/ui/Tabs";
+import { toast } from "../components/ui/toastStore";
+import { ROUTES } from "../routes";
+import type { DiaryDay, DiaryPlanBindingCreate, MealPlan } from "../types";
 
+const ATALHOS: Array<[LucideIcon, string, string]> = [
+  [ShoppingCart, "Compras", ROUTES.compras],
+  [Sparkles, "Gerar novo", ROUTES.cardapioGerar],
+  [ChefHat, "Chef IA", ROUTES.chef],
+  [BookOpen, "Receitas", ROUTES.receitas],
+  [Trophy, "Comunidade", ROUTES.comunidade],
+];
+
+/**
+ * Cardápios: duas abas.
+ * - "Esta semana" (`cardapio()` do protótipo): o dia do cardápio vigente, refeição por refeição, com
+ *   foto fixa e atalhos. Os dados vêm do próprio diário (`GET /diary`), que já traz o planejado.
+ * - "Meus cardápios" (`pgPlans()`): a lista dos planos salvos, com Ativar, abrir e excluir.
+ */
 export function MealPlans() {
+  const navigate = useNavigate();
+  const diary = useDiaryDay();
+  const atualizar = useAtualizarDia(diary);
+  const [aba, setAba] = useState<"semana" | "lista">("semana");
+
+  return (
+    <PullToRefresh onRefresh={atualizar}>
+      <div className="space-y-1">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-[26px] font-black leading-[1.05] tracking-[-0.025em]">
+              Cardápio <span className="text-act-text">da semana</span>
+            </h1>
+            <p className="text-[12.5px] font-semibold text-mut">
+              {diary.day?.meal_plan ? `“${diary.day.meal_plan.title}”` : "Nenhum cardápio ativo"}
+            </p>
+          </div>
+        </div>
+
+        <nav aria-label="Atalhos" className="flex gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {ATALHOS.map(([Icone, nome, to]) => (
+            <button
+              key={to}
+              type="button"
+              onClick={() => navigate(to)}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-2 text-[12.5px] font-bold active:scale-[.97]"
+            >
+              <Icone className="h-[15px] w-[15px]" aria-hidden="true" />
+              {nome}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setAba("lista")}
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-2 text-[12.5px] font-bold active:scale-[.97]"
+          >
+            <FolderOpen className="h-[15px] w-[15px]" aria-hidden="true" />
+            Meus cardápios
+          </button>
+        </nav>
+
+        <Tabs value={aba} onValueChange={(v) => setAba(v as "semana" | "lista")}>
+          <TabsList aria-label="Cardápios">
+            <TabsTab value="semana">Esta semana</TabsTab>
+            <TabsTab value="lista">Meus cardápios</TabsTab>
+          </TabsList>
+          <TabsPanel value="semana" className="pt-2">
+            <Semana diary={diary} />
+          </TabsPanel>
+          <TabsPanel value="lista" className="pt-2">
+            <MeusCardapios ativoId={diary.day?.meal_plan?.meal_plan_id ?? null} onAtivado={diary.reload} />
+          </TabsPanel>
+        </Tabs>
+      </div>
+    </PullToRefresh>
+  );
+}
+
+function Semana({ diary }: { diary: ReturnType<typeof useDiaryDay> }) {
+  const navigate = useNavigate();
+  const dia: DiaryDay | null = diary.day;
+
+  return (
+    <div>
+      <FaixaDeDias date={diary.date} onSelect={diary.goToDate} />
+
+      {diary.status === "loading" && (
+        <div aria-hidden="true" className="space-y-2">
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-[72px] rounded-[22px]" />
+          ))}
+        </div>
+      )}
+
+      {diary.status === "error" && (
+        <div className="rounded-3xl bg-card p-5 text-center">
+          <p className="text-sm text-mut">{diary.error}</p>
+          <Button variant="outline" onClick={diary.reload} className="mt-3 px-3 py-1.5 text-xs">
+            Tentar de novo
+          </Button>
+        </div>
+      )}
+
+      {diary.status === "ready" && dia && !dia.meal_plan && dia.planned_totals.calories <= 0 && (
+        <div className="rounded-3xl border-2 border-dashed border-line p-6 text-center">
+          <p className="text-sm font-extrabold">Nenhum cardápio neste dia.</p>
+          <p className="mx-auto mt-1 max-w-xs text-sm text-mut">
+            Gere um cardápio com o Agente ou ative um dos seus cardápios salvos.
+          </p>
+          <Button onClick={() => navigate(ROUTES.cardapioGerar)} className="mt-3">
+            <Sparkles aria-hidden="true" className="h-4 w-4" />
+            Gerar novo cardápio
+          </Button>
+        </div>
+      )}
+
+      {diary.status === "ready" && dia && (dia.meal_plan || dia.planned_totals.calories > 0) && (
+        <ol className="space-y-2">
+          {dia.slots
+            .filter((s) => s.planned_meals.length > 0 || s.planned_calories > 0)
+            .map((s) => {
+              const feito = s.entries.length > 0 || s.logged_calories > 0;
+              const titulo = s.planned_meals.map((m) => m.title).join(", ") || "Refeição planejada";
+              return (
+                <li key={s.slot} className="flex items-center gap-3 rounded-[22px] bg-card px-3.5 py-3">
+                  <div
+                    role="img"
+                    aria-label={s.label}
+                    className="h-14 w-14 flex-none rounded-2xl bg-cover bg-center"
+                    style={{ backgroundImage: `url(${FOTO_POR_SLOT[s.slot]})` }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-[12.5px] text-mut">
+                      {s.label} · {formatKcal(s.planned_calories)} kcal
+                    </span>
+                    <b className="block text-[15px]">{titulo}</b>
+                  </div>
+                  {feito && (
+                    <span className="flex items-center gap-1 text-xs font-extrabold text-pos-text">
+                      <Check className="h-5 w-5" aria-hidden="true" />
+                      <span className="sr-only">Registrado</span>
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+function MeusCardapios({ ativoId, onAtivado }: { ativoId: number | null; onAtivado: () => void }) {
   const navigate = useNavigate();
   const { showAlert, confirmDialog } = useAlert();
   const { subscription } = useSubscription();
   const [plans, setPlans] = useState<MealPlan[]>([]);
-  const atMealPlanLimit =
-    subscription?.max_saved_meal_plans !== null &&
-    subscription?.max_saved_meal_plans !== undefined &&
-    plans.length >= subscription.max_saved_meal_plans;
   const [loading, setLoading] = useState(true);
+  const [ativando, setAtivando] = useState<number | null>(null);
 
-  async function loadPlans() {
-    setLoading(true);
-    try {
-      const res = await api.get("/meal-plans/");
-      setPlans(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error(error);
-      setPlans([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const limite = subscription?.max_saved_meal_plans;
+  const noLimite = limite !== null && limite !== undefined && plans.length >= limite;
 
   useEffect(() => {
-    loadPlans();
+    let ativo = true;
+    (async () => {
+      try {
+        const res = await api.get("/meal-plans/");
+        if (ativo) setPlans(Array.isArray(res.data) ? res.data : []);
+      } catch (error) {
+        console.error(error);
+        if (ativo) setPlans([]);
+      } finally {
+        if (ativo) setLoading(false);
+      }
+    })();
+    return () => {
+      ativo = false;
+    };
   }, []);
 
-  async function handleDelete(id: number, e: React.MouseEvent) {
+  async function excluir(id: number, e: React.MouseEvent) {
     e.stopPropagation();
     if (!(await confirmDialog("Excluir este plano alimentar?", { danger: true }))) return;
     try {
@@ -56,42 +219,39 @@ export function MealPlans() {
     }
   }
 
+  async function ativar(id: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    setAtivando(id);
+    try {
+      const body: DiaryPlanBindingCreate = { meal_plan_id: id, start_date: toIsoDate(new Date()) };
+      await api.post("/diary/plan-bindings", body);
+      toast("Cardápio ativado a partir de hoje");
+      onAtivado();
+    } catch (err) {
+      showAlert(extractDiaryErrorMessage(err, "Não foi possível ativar este cardápio."), "error");
+    } finally {
+      setAtivando(null);
+    }
+  }
+
   if (loading) {
     return (
-      <div className="flex justify-center mt-20">
-        <Loader2 className="animate-spin h-8 w-8 text-teal-500" />
+      <div aria-hidden="true" className="space-y-2">
+        <Skeleton className="h-16 rounded-[22px]" />
+        <Skeleton className="h-16 rounded-[22px]" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-teal-600 dark:text-teal-500 flex items-center gap-2">
-          <CalendarRange className="h-7 w-7" /> Planos Alimentares
-        </h1>
-        <button
-          onClick={() =>
-            atMealPlanLimit
-              ? showAlert(
-                  `Seu plano permite no máximo ${subscription?.max_saved_meal_plans} planos alimentares salvos. Faça upgrade pra criar mais.`,
-                  "warning",
-                )
-              : navigate("/meal-plans/new")
-          }
-          className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs transition-colors disabled:opacity-50"
-        >
-          <Plus className="h-5 w-5" /> Criar Plano Manual
-        </button>
-      </div>
-
-      {subscription?.max_saved_meal_plans !== null && subscription?.max_saved_meal_plans !== undefined && (
-        <p className="text-xs text-zinc-400 -mt-4 mb-6">
-          {plans.length}/{subscription.max_saved_meal_plans} planos salvos
-          {atMealPlanLimit && (
+    <div>
+      {limite !== null && limite !== undefined && (
+        <p className="mb-2 text-xs text-mut">
+          {plans.length}/{limite} planos salvos
+          {noLimite && (
             <>
-              {" "}—{" "}
-              <button onClick={() => navigate("/planos")} className="text-teal-500 hover:underline font-medium">
+              {" — "}
+              <button type="button" onClick={() => navigate(ROUTES.assinatura)} className="font-bold text-act-text">
                 fazer upgrade
               </button>
             </>
@@ -100,61 +260,84 @@ export function MealPlans() {
       )}
 
       {plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 border-dashed text-center px-4">
-          <CalendarRange className="h-10 w-10 text-zinc-400 dark:text-zinc-700 mb-3" />
-          <p className="text-zinc-500 dark:text-zinc-400 mb-1">
-            Você ainda não tem planos alimentares salvos.
-          </p>
-          <p className="text-zinc-400 dark:text-zinc-500 text-sm">
-            Gere um cardápio com a IA e salve, ou monte um manualmente com suas receitas.
+        <div className="rounded-3xl border-2 border-dashed border-line p-6 text-center">
+          <CalendarRange className="mx-auto mb-2 h-9 w-9 text-mut" aria-hidden="true" />
+          <p className="text-sm font-extrabold">Você ainda não tem planos alimentares salvos.</p>
+          <p className="mt-1 text-sm text-mut">
+            Gere um cardápio com o Agente e salve, ou monte um manualmente com suas receitas.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ul className="overflow-hidden rounded-[22px] bg-card">
           {plans.map((plan) => (
-            <div
-              key={plan.id}
-              onClick={() => navigate(`/meal-plans/${plan.id}`)}
-              className="bg-white dark:bg-zinc-900 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-teal-300 dark:hover:border-teal-700 cursor-pointer transition-colors group"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  {plan.source === "ai" ? (
-                    <span className="p-2 rounded-full bg-purple-100 dark:bg-purple-500/10">
-                      <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    </span>
-                  ) : (
-                    <span className="p-2 rounded-full bg-teal-100 dark:bg-teal-500/10">
-                      <UserRound className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                    </span>
-                  )}
-                  <div>
-                    <h3 className="font-bold text-zinc-800 dark:text-zinc-100">
-                      {plan.title}
-                    </h3>
-                    <p className="text-xs text-zinc-400">
-                      {plan.days.length} dia(s) ·{" "}
-                      {format(new Date(plan.created_at), "dd/MM/yyyy")}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={(e) => handleDelete(plan.id, e)}
-                  className="text-zinc-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
-                <span>
-                  {plan.days.reduce((sum, d) => sum + d.meals.length, 0)} refeições
+            <li key={plan.id} className="flex items-center gap-2 border-b border-line px-3.5 py-3 last:border-b-0">
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.cardapio(plan.id))}
+                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+              >
+                <span className="flex h-[42px] w-[42px] flex-none items-center justify-center rounded-[14px] bg-act-soft text-act-text">
+                  <CalendarRange className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <ChevronRight className="h-4 w-4 text-zinc-400 dark:text-zinc-600 group-hover:text-teal-500 dark:group-hover:text-teal-400 transition-colors" />
-              </div>
-            </div>
+                <span className="min-w-0 flex-1">
+                  <b className="block truncate text-[15px]">
+                    {plan.title}{" "}
+                    {ativoId === plan.id && (
+                      <span className="ml-1 rounded-md bg-pos-soft px-1.5 py-px align-[2px] text-[9.5px] font-black tracking-wide text-pos-text">
+                        ATIVO
+                      </span>
+                    )}
+                  </b>
+                  <span className="block text-xs text-mut">
+                    {plan.days.length} dia(s) · {plan.days.reduce((sum, d) => sum + d.meals.length, 0)} refeições ·{" "}
+                    {format(new Date(plan.created_at), "dd/MM/yyyy")}
+                  </span>
+                </span>
+              </button>
+              {ativoId !== plan.id && (
+                <Button
+                  variant="outline"
+                  disabled={ativando === plan.id}
+                  onClick={(e) => ativar(plan.id, e)}
+                  className="px-3 py-1.5 text-[12.5px]"
+                >
+                  Ativar
+                </Button>
+              )}
+              <button
+                type="button"
+                onClick={(e) => excluir(plan.id, e)}
+                aria-label={`Excluir ${plan.title}`}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-mut"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
+
+      <div className="flex flex-wrap gap-2 pt-4">
+        <Button onClick={() => navigate(ROUTES.cardapioGerar)} className="flex-1">
+          <Sparkles aria-hidden="true" className="h-4 w-4" />
+          Gerar novo cardápio
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            noLimite
+              ? showAlert(
+                  `Seu plano permite no máximo ${limite} planos alimentares salvos. Faça upgrade pra criar mais.`,
+                  "warning",
+                )
+              : navigate(ROUTES.cardapioNovo)
+          }
+          className="flex-1"
+        >
+          <Plus aria-hidden="true" className="h-4 w-4" />
+          Criar plano manual
+        </Button>
+      </div>
     </div>
   );
 }
