@@ -1,5 +1,6 @@
 import type { MealSlot } from "../../types";
 import { RepetirDeOntem } from "./RepetirDeOntem";
+import { WaterCard } from "../agua/WaterCard";
 
 /**
  * Espaços do Hoje que outras frentes preenchem (trocando o corpo da função):
@@ -15,9 +16,6 @@ export interface RepetirSlotProps {
   slot: MealSlot;
 }
 
-function Agua(props: AguaSlotProps): null {
-  void props;
-  return null;
-}
+const Agua: (props: AguaSlotProps) => ReturnType<typeof WaterCard> = WaterCard;
 
 export const HojeSlots = { Agua, Repetir: RepetirDeOntem };

@@ -35,7 +35,7 @@ export function WaterCard({ date }: { date?: string }) {
           Água
         </h3>
         <span className="text-sm font-bold">
-          {dia ? `${total} de ${meta} ml` : "—"}
+          {dia ? `${total} de ${meta} ml` : "\u00a0"}
         </span>
       </div>
       <div
