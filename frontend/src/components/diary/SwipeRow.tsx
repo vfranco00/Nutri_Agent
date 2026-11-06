@@ -18,6 +18,7 @@ interface SwipeRowProps {
 export function SwipeRow({ children, onDelete, label, disabled }: SwipeRowProps) {
   const [dx, setDx] = useState(0);
   const [arrastando, setArrastando] = useState(false);
+  const dxRef = useRef(0);
   const inicio = useRef<{ x: number; y: number; travado: boolean } | null>(null);
 
   function aoComecar(e: React.PointerEvent) {
@@ -37,12 +38,18 @@ export function SwipeRow({ children, onDelete, label, disabled }: SwipeRowProps)
       if (Math.abs(mx) < 8) return;
       i.travado = true;
       setArrastando(true);
-      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+      } catch {
+        /* ponteiro sintético ou já solto: o gesto segue sem captura */
+      }
     }
-    setDx(Math.min(0, mx));
+    dxRef.current = Math.min(0, mx);
+    setDx(dxRef.current);
   }
   function aoSoltar() {
-    const passou = dx <= -LIMITE_PX;
+    const passou = dxRef.current <= -LIMITE_PX;
+    dxRef.current = 0;
     inicio.current = null;
     setArrastando(false);
     setDx(0);
@@ -50,8 +57,8 @@ export function SwipeRow({ children, onDelete, label, disabled }: SwipeRowProps)
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl">
-      <div className="absolute inset-y-0 right-0 flex w-24 items-center justify-end bg-red-600 pr-6 text-white" aria-hidden="true">
+    <div className="relative overflow-hidden">
+      <div style={{ opacity: dx < 0 ? 1 : 0 }} className="absolute inset-y-0 right-0 flex w-full items-center justify-end bg-red-600 pr-6 text-white" aria-hidden="true">
         <Trash2 className="h-5 w-5" />
       </div>
       <div
@@ -61,7 +68,7 @@ export function SwipeRow({ children, onDelete, label, disabled }: SwipeRowProps)
         onPointerUp={aoSoltar}
         onPointerCancel={aoSoltar}
         style={{ transform: `translateX(${dx}px)`, touchAction: "pan-y" }}
-        className={`relative bg-card ${arrastando ? "" : "transition-transform duration-[220ms] ease-out"}`}
+        className={`relative select-none ${arrastando ? "" : "transition-transform duration-[220ms] ease-out"}`}
       >
         {children}
         <button

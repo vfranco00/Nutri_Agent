@@ -144,7 +144,7 @@ export function Registrar({ onClose }: { onClose: () => void }) {
         <Tabs value={aba} onValueChange={(v) => setAba(v as Aba)}>
           <TabsList className="mb-3 gap-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {ABAS.map(([k, n]) => (
-              <TabsTab key={k} value={k} className="px-2.5 text-[13px]">{n}</TabsTab>
+              <TabsTab key={k} value={k} className="px-2 text-[13px]">{n}</TabsTab>
             ))}
           </TabsList>
 
