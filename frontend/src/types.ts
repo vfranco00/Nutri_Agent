@@ -439,3 +439,32 @@ export function isDiaryApiError(detail: unknown): detail is DiaryApiError {
   return typeof detail === 'object' && detail !== null && !Array.isArray(detail)
     && 'code' in (detail as Record<string, unknown>);
 }
+// ============================================================================
+// AGENTE NUVI — POST /agent/parse (espelha backend/app/schemas/agent.py)
+// ============================================================================
+
+export interface AgentParseRequest {
+  text?: string;
+  /** Data URL ou base64 puro de JPEG/PNG/WebP, até 4 MB decodificados. */
+  image_base64?: string;
+  /** 'YYYY-MM-DD' */
+  date: string;
+  meal_slot?: MealSlot | null;
+}
+
+export interface AgentParsedItem {
+  /** Como o agente entendeu o item; é o termo que o botão "Buscar" leva para a busca. */
+  name: string;
+  /** null = nada no catálogo nem no cache. */
+  food: FoodOption | null;
+  quantity: number;
+  unit: DiaryUnit;
+  confidence: 'alta' | 'baixa';
+  alternatives: FoodOption[];
+}
+
+export interface AgentParseResponse {
+  date: string;
+  meal_slot: MealSlot | null;
+  items: AgentParsedItem[];
+}

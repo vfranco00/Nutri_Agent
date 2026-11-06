@@ -41,6 +41,7 @@ import { Termos } from './pages/legal/Termos';
 import { Privacidade } from './pages/perfil/Privacidade';
 import { ConsentGate } from './components/consent/ConsentGate';
 import './lib/consents';
+import { Agente } from './pages/Agente';
 import { CodigoDeBarras } from './pages/registrar/CodigoDeBarras';
 import type { JSX } from 'react';
 
@@ -92,7 +93,7 @@ function AppRoutes() {
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
           <Route path={ROUTES.hoje} element={<Dashboard />} />
           <Route path={ROUTES.diario} element={<DiaryLog />} />
-          <Route path={ROUTES.agente} element={<EmBreve titulo="Agente Nuvi" />} />
+          <Route path={ROUTES.agente} element={<Agente />} />
           <Route path={ROUTES.progresso} element={<EmBreve titulo="Progresso" />} />
           <Route path={ROUTES.perfil} element={<Profile />} />
           <Route path={ROUTES.privacidadePerfil} element={<Privacidade />} />
