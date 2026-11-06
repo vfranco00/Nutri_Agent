@@ -11,6 +11,8 @@ name: Lembretes
 on:
   schedule:
     - cron: "*/5 * * * *"
+    # Retenção LGPD (backend/app/services/retention.py): uma vez por dia, 3h UTC.
+    - cron: "0 3 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -23,6 +25,7 @@ concurrency:
 jobs:
   disparar:
     name: Disparar lembretes
+    if: github.event.schedule != '0 3 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -38,3 +41,22 @@ jobs:
           curl -fsS --retry 3 --retry-delay 20 --max-time 90 -X POST \
             -H "X-Cron-Secret: $CRON_SECRET" \
             "$API_URL/internal/reminders/dispatch"
+
+  retencao:
+    name: Retenção de dados (LGPD)
+    if: github.event.schedule == '0 3 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Chamar /internal/retention/run
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_URL: ${{ vars.NUVI_API_URL || 'https://nutri-agent-api.onrender.com' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::warning::Segredo CRON_SECRET ainda não cadastrado no GitHub; nada a fazer."
+            exit 0
+          fi
+          curl -fsS --retry 3 --retry-delay 20 --max-time 90 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "$API_URL/internal/retention/run" > /dev/null

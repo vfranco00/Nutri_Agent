@@ -10,6 +10,7 @@ import sys
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.db.session import SessionLocal
+from app.services.retention import run_retention
 from app.services.subscription_lifecycle import run_subscription_lifecycle
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,16 @@ def _run_lifecycle_job() -> None:
         db.close()
 
 
+def _run_retention_job() -> None:
+    db = SessionLocal()
+    try:
+        run_retention(db)
+    except Exception:
+        logger.exception("Falha ao rodar o job de retenção")
+    finally:
+        db.close()
+
+
 def start_scheduler() -> None:
     global _scheduler
     if "pytest" in sys.modules:
@@ -41,6 +52,8 @@ def start_scheduler() -> None:
 
     _scheduler = BackgroundScheduler()
     _scheduler.add_job(_run_lifecycle_job, "interval", hours=24)
+    # Retenção LGPD: diário, 3h UTC (o cron externo também chama /internal/retention/run).
+    _scheduler.add_job(_run_retention_job, "cron", hour=3, minute=0)
     _scheduler.start()
     # Roda uma vez já na subida, sem esperar as primeiras 24h.
     _scheduler.add_job(_run_lifecycle_job)

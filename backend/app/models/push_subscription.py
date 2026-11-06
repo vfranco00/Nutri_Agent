@@ -24,3 +24,5 @@ class PushSubscription(Base):
     p256dh: Mapped[str] = mapped_column(String(255), nullable=False)
     auth: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=_agora_utc)
+    # Último envio que o provedor aceitou; base da retenção (90 dias sem sucesso).
+    last_success_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

@@ -89,6 +89,7 @@ def dispatch_due_reminders(db: Session, now_utc: datetime) -> DispatchResult:
         for sub in db.query(PushSubscription).filter(PushSubscription.user_id == r.user_id).all():
             saida = send_push(sub, payload)
             if saida == "ok":
+                sub.last_success_at = now_utc.replace(tzinfo=None)
                 resultado.sent += 1
             elif saida == "gone":
                 db.delete(sub)
