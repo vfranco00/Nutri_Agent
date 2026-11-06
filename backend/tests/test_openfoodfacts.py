@@ -223,7 +223,7 @@ def test_cache_de_outro_usuario_nao_e_lido(db_session, off_falso):
 
 
 def test_cache_por_codigo_nao_casa_com_resolve_por_nome(db_session, off_falso):
-    """A linha do código usa `barcode:<code>` como chave, e não o nome do produto. Um
+    """A linha do código usa `barcode:v2:<code>` como chave, e não o nome do produto. Um
     produto chamado "Leite" não pode virar a resposta do resolve de "leite"."""
     off_falso(resposta=_produto(nome="Leite"))
     user = _usuario(db_session)
@@ -231,4 +231,4 @@ def test_cache_por_codigo_nao_casa_com_resolve_por_nome(db_session, off_falso):
     off.buscar_por_codigo(db_session, user.id, CODIGO)
 
     linha = db_session.query(FoodCache).one()
-    assert linha.name_normalized == f"barcode:{CODIGO}"
+    assert linha.name_normalized == f"barcode:v2:{CODIGO}"

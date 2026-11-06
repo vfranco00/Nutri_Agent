@@ -257,6 +257,12 @@ export type FoodBaseUnit = 'g' | 'ml' | 'un';
  *  'openfoodfacts'/'llm' são estimativas isoladas por usuário (RS-17). */
 export type FoodSource = 'taco' | 'curated' | 'openfoodfacts' | 'llm' | 'user' | 'recipe';
 
+/** Atalho de quantidade na unidade base do alimento ("Lata" = 473 ml). */
+export interface FoodPortion {
+  label: string;
+  quantity: number;
+}
+
 /** Alimento pronto para virar entrada. Mesmo formato na busca e no resolve. */
 export interface FoodOption {
   /** 'catalog:<slug>' ou 'cache:<id>'. Opaco — não parsear, só repassar no POST. */
@@ -275,6 +281,8 @@ export interface FoodOption {
   is_estimate: boolean;
   /** Só `mine:` e `recipe:`: nome da porção ("1 fatia", "porção"). */
   portion_label?: string | null;
+  /** Atalhos do rótulo (porção, lata/garrafa/embalagem) na unidade base. Ausente/vazio = sem. */
+  portions?: FoodPortion[];
 }
 
 /** GET /diary/foods/search */

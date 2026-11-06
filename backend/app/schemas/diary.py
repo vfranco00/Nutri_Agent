@@ -76,6 +76,13 @@ def _validar_nome_alimento(v: str) -> str:
 # --------------------------------------------------------------------------------------
 
 
+class FoodPortion(BaseModel):
+    """Atalho de quantidade na unidade base do alimento: "Lata" = 473 (ml)."""
+
+    label: str
+    quantity: float
+
+
 class FoodOption(BaseModel):
     """Alimento pronto para virar entrada. MESMO formato na busca e no resolve."""
 
@@ -94,6 +101,8 @@ class FoodOption(BaseModel):
     is_estimate: bool
     # Rótulo da porção ("1 pote (40 g)") para `mine:` e `recipe:`. None nos demais.
     portion_label: Optional[str] = None
+    # Atalhos na unidade base (lata/garrafa/embalagem e porção do rótulo). Vazio = sem.
+    portions: list[FoodPortion] = []
 
 
 class FoodSearchResponse(BaseModel):

@@ -25,15 +25,41 @@ export function PorcaoSheet({ food, destino, onClose, onAdd }: PorcaoSheetProps)
   );
 }
 
+/** Atalhos de quantidade na unidade base: 200/250/350 ml para bebida, 50-200 g para o resto. */
+const ATALHOS_ML = [200, 250, 350];
+const ATALHOS_G = [50, 100, 150, 200];
+
+/** Líquido (ml) começa na lata/garrafa inteira; senão na porção do rótulo; senão 100. */
+function quantidadeInicial(food: FoodOption, padrao: { quantity: number; unit: DiaryUnit }): number {
+  if (padrao.unit !== food.base_unit) return padrao.quantity;
+  const porcoes = food.portions ?? [];
+  return porcoes[porcoes.length - 1]?.quantity ?? padrao.quantity;
+}
+
+function textoDosValores(food: FoodOption): string {
+  if (food.portion_label) return `Valores por ${food.portion_label}`;
+  if (food.base_unit === "g" || food.base_unit === "ml") return `Valores por 100 ${food.base_unit}`;
+  return "Valores do catálogo";
+}
+
 function Corpo({ food, destino, onAdd }: { food: FoodOption; destino: string; onAdd: PorcaoSheetProps["onAdd"] }) {
   const location = useLocation();
   const padrao = padraoDoMais(food);
-  const [quantity, setQuantity] = useState(padrao.quantity);
+  const [quantity, setQuantity] = useState(quantidadeInicial(food, padrao));
   const [unit, setUnit] = useState<DiaryUnit>(padrao.unit);
   const massa = unit === "g" || unit === "ml";
   const passo = massa ? 10 : 0.5;
   const minimo = massa ? 1 : 0.5;
-  const atalhos = massa ? [50, 100, 150, 200] : [0.5, 1, 1.5, 2];
+  const porcoes = unit === food.base_unit ? (food.portions ?? []) : [];
+  const genericos = unit === "ml" ? ATALHOS_ML : ATALHOS_G;
+  const atalhos: { valor: number; rotulo: string }[] = massa
+    ? [
+        ...porcoes.map((p) => ({ valor: p.quantity, rotulo: `${p.label} ${formatQuantity(p.quantity)} ${unit}` })),
+        ...genericos
+          .filter((v) => !porcoes.some((p) => p.quantity === v))
+          .map((v) => ({ valor: v, rotulo: `${formatQuantity(v)} ${unit}` })),
+      ]
+    : [0.5, 1, 1.5, 2].map((v) => ({ valor: v, rotulo: `${formatQuantity(v)} ×` }));
   const p = previa(food, quantity, unit);
 
   function trocarUnidade(u: DiaryUnit) {
@@ -44,7 +70,7 @@ function Corpo({ food, destino, onAdd }: { food: FoodOption; destino: string; on
   return (
     <div className="space-y-4 pb-2">
       <div className="flex flex-wrap items-center gap-2 text-sm text-mut">
-        <span>{food.portion_label ? `Valores por ${food.portion_label}` : "Valores do catálogo"}</span>
+        <span>{textoDosValores(food)}</span>
         {food.is_estimate ? <span className="rounded-full bg-soft px-2 py-0.5 text-xs font-bold">estimativa</span> : null}
         <Link
           to={ROUTES.codigoDeBarras}
@@ -79,9 +105,9 @@ function Corpo({ food, destino, onAdd }: { food: FoodOption; destino: string; on
       </div>
 
       <div className="flex flex-wrap gap-1.5">
-        {atalhos.map((v) => (
-          <button key={v} type="button" onClick={() => setQuantity(v)} className={`rounded-xl px-3.5 py-2 text-sm font-bold ${quantity === v ? "bg-act-soft text-ink" : "text-mut"}`}>
-            {formatQuantity(v)}{massa ? ` ${unit}` : " ×"}
+        {atalhos.map(({ valor, rotulo }) => (
+          <button key={rotulo} type="button" onClick={() => setQuantity(valor)} className={`rounded-xl px-3.5 py-2 text-sm font-bold ${quantity === valor ? "bg-act-soft text-ink" : "text-mut"}`}>
+            {rotulo}
           </button>
         ))}
       </div>

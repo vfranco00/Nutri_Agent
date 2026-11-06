@@ -89,3 +89,8 @@ class FoodCache(Base):
 
     # RS-21: torna um valor ruim da Open Food Facts rastreável e removível em lote.
     off_product_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+    # Tamanho da embalagem (lata, garrafa, pacote) e da porção do rótulo, na unidade base
+    # (ml para bebida, g para sólido). None = a fonte não informou.
+    package_quantity: Mapped[float | None] = mapped_column(Float, nullable=True)
+    serving_quantity: Mapped[float | None] = mapped_column(Float, nullable=True)

@@ -26,7 +26,7 @@ from app.core.normalize import normalize_food_name, normalizar_base_unit
 from app.core.plan_limits import PLAN_LIMITS
 from app.models.food_cache import FoodCache
 from app.models.food_catalog import FoodCatalog
-from app.schemas.diary import FoodOption
+from app.schemas.diary import FoodOption, FoodPortion
 from app.services import diary_math
 from app.services.ai import call_gemini
 
@@ -197,7 +197,29 @@ def opcao_do_cache(linha: FoodCache) -> Optional[FoodOption]:
         # is_estimate é calculado no servidor, nunca inferido no cliente.
         source=linha.source,
         is_estimate=linha.source in ("openfoodfacts", "llm"),
+        portions=porcoes_sugeridas(
+            base_unit, linha.package_quantity, linha.serving_quantity
+        ),
     )
+
+
+def porcoes_sugeridas(
+    base_unit: str, embalagem: Optional[float], porcao: Optional[float]
+) -> list[FoodPortion]:
+    """Atalhos de quantidade do rótulo: a porção declarada e a embalagem inteira."""
+    if base_unit not in ("g", "ml"):
+        return []
+    lata = (
+        "Lata" if base_unit == "ml" and embalagem and embalagem <= 600
+        else "Garrafa" if base_unit == "ml"
+        else "Embalagem"
+    )
+    saida: list[FoodPortion] = []
+    if porcao and porcao != embalagem:
+        saida.append(FoodPortion(label="Porção", quantity=porcao))
+    if embalagem:
+        saida.append(FoodPortion(label=lata, quantity=embalagem))
+    return saida
 
 
 # --------------------------------------------------------------------------------------
