@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { MessageCircleQuestionIcon, X, Send } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import { useAlert } from "../lib/AlertContext";
 import { useFeedback } from "../lib/FeedbackContext";
 import { BouncingDots } from "./BouncingDots";
+
+/** Telas públicas: só nelas o botão flutuante aparece. No app logado a ajuda fica no Perfil. */
+const ROTAS_PUBLICAS = ["/", "/login", "/register", "/privacidade", "/termos", "/verify-email", "/forgot-password", "/reset-password"];
 
 const CATEGORIES = [
   { value: "duvida", label: "Dúvida" },
@@ -15,6 +19,8 @@ const CATEGORIES = [
 
 export function FeedbackWidget() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
+  const mostrarBotao = ROTAS_PUBLICAS.includes(pathname);
   const { showAlert } = useAlert();
   const { isOpen, openFeedbackModal, closeFeedbackModal } = useFeedback();
   const [name, setName] = useState("");
@@ -47,6 +53,7 @@ export function FeedbackWidget() {
 
   return (
     <>
+      {mostrarBotao && (
       <button
         onClick={handleOpen}
         className="fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+68px+10px)] right-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-act text-nuvi-tinta shadow-lg transition-transform duration-[140ms] ease-out active:scale-[.97] md:bottom-6 md:right-6 md:h-12 md:w-12"
@@ -55,6 +62,7 @@ export function FeedbackWidget() {
       >
         <MessageCircleQuestionIcon className="h-5 w-5 md:h-6 md:w-6" />
       </button>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-nuvi-tinta/60 backdrop-blur-xs animate-fadeIn">

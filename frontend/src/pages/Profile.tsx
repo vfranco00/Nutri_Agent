@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAlert } from "../lib/AlertContext";
 import { useAuth } from "../lib/AuthContext";
+import { useFeedback } from "../lib/FeedbackContext";
 import { isFreeText } from "../lib/utils";
 import {
   type Profile as ProfileType,
@@ -23,6 +24,7 @@ import {
   Apple,
   CheckCircle2,
   Sparkles,
+  MessageCircleQuestion,
 } from "lucide-react";
 import {
   LineChart,
@@ -59,6 +61,7 @@ const PREFERENCE_FIELDS: { key: "allergies" | "food_likes" | "food_dislikes"; la
 export function Profile() {
   const { showAlert } = useAlert();
   const { refreshUser } = useAuth();
+  const { openFeedbackModal } = useFeedback();
   const [searchParams] = useSearchParams();
   const isOnboarding = searchParams.get("onboarding") === "1";
   const [loading, setLoading] = useState(false);
@@ -397,6 +400,15 @@ export function Profile() {
         </div>
 
         <div className="space-y-6">
+          <button
+            type="button"
+            onClick={() => openFeedbackModal()}
+            className={`${CARTAO} flex w-full items-center gap-3 text-left`}
+          >
+            <MessageCircleQuestion className="h-5 w-5 shrink-0 text-act-text" aria-hidden="true" />
+            <span className="flex-1 text-[17px] font-extrabold text-ink">Ajuda e sugestões</span>
+          </button>
+
           <div className={CARTAO}>
             <h3 className="mb-4 flex items-center gap-2 text-[17px] font-extrabold text-ink">
               <Scale className="h-5 w-5 text-act-text" /> Pesagem Rápida

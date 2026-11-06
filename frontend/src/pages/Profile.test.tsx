@@ -44,6 +44,22 @@ async function fillRequiredNumericFields(container: HTMLElement, user: ReturnTyp
   await user.type(heightInput, "180");
 }
 
+describe("Profile ajuda", () => {
+  it("tem o item Ajuda e sugestões e ele abre o modal de feedback", async () => {
+    const user = userEvent.setup();
+    const abrir = vi.fn();
+    vi.spyOn(await import("../lib/FeedbackContext"), "useFeedback").mockReturnValue({
+      isOpen: false,
+      openFeedbackModal: abrir,
+      closeFeedbackModal: vi.fn(),
+    });
+    await renderReadyProfile();
+    await user.click(screen.getByRole("button", { name: /ajuda e sugestões/i }));
+    expect(abrir).toHaveBeenCalledTimes(1);
+    vi.restoreAllMocks();
+  });
+});
+
 describe("Profile preference validation", () => {
   it("blocks saving when allergies is numbers-only", async () => {
     const user = userEvent.setup();

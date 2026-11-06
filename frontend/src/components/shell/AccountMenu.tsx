@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Moon, Sun } from "lucide-react";
+import { LogOut, MessageCircleQuestion, Moon, Sun } from "lucide-react";
 import { useAuth } from "../../lib/AuthContext";
+import { useFeedback } from "../../lib/FeedbackContext";
 import { ROUTES } from "../../routes";
 
 const LINKS: Array<[string, string]> = [
@@ -16,6 +17,7 @@ const LINKS: Array<[string, string]> = [
 export function AccountMenu({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { openFeedbackModal } = useFeedback();
   const [aberto, setAberto] = useState(false);
   const raiz = useRef<HTMLDivElement>(null);
   const inicial = (user?.full_name || user?.email || "N").trim().charAt(0).toUpperCase();
@@ -52,6 +54,18 @@ export function AccountMenu({ isDark, toggleTheme }: { isDark: boolean; toggleTh
               {nome}
             </Link>
           ))}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setAberto(false);
+              openFeedbackModal();
+            }}
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink hover:bg-soft"
+          >
+            <MessageCircleQuestion className="h-4 w-4" aria-hidden="true" />
+            Ajuda e sugestões
+          </button>
           <button type="button" role="menuitem" onClick={toggleTheme} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink hover:bg-soft">
             {isDark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
             {isDark ? "Modo claro" : "Modo escuro"}
