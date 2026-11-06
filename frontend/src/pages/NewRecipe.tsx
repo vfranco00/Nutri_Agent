@@ -38,11 +38,8 @@ export function NewRecipe() {
   const [totalCalories, setTotalCalories] = useState('');
   const [method, setMethod] = useState('fogao');
   const [category, setCategory] = useState('almoco');
-  // Escolha explícita de privacidade. O backend forçava is_public=true e publicava
-  // toda receita salva no feed da comunidade, sem o usuário saber — agora ele decide.
-  // Começa marcado pra manter o comportamento que a comunidade já tem hoje, mas é
-  // uma decisão visível e reversível, não um padrão escondido no servidor.
-  const [isPublic, setIsPublic] = useState(true);
+  // Receita nova nasce privada; publicar na Comunidade é uma escolha explícita do usuário.
+  const [isPublic, setIsPublic] = useState(false);
   const [ingredients, setIngredients] = useState<IngredientInput[]>([{ name: '', quantity: '', unit: '', calories: 0 }]);
 
   async function calculateIngredientCalories(index: number) {
@@ -174,14 +171,14 @@ export function NewRecipe() {
         <div className="flex items-center justify-between gap-4 rounded-3xl border border-line bg-card p-5">
           <span className="text-sm">
             <span className="flex items-center gap-2 font-extrabold text-ink">
-              <Users className="h-4 w-4" /> Compartilhar com a comunidade
+              <Users className="h-4 w-4" /> Publicar na Comunidade (seu primeiro nome aparece como autor)
             </span>
             <span className="mt-1 block text-mut">
               Outras pessoas poderão ver o título, os ingredientes e o modo de preparo.
-              Desligue para manter a receita só sua.
+              Desligado, a receita fica só sua.
             </span>
           </span>
-          <Switch checked={isPublic} onCheckedChange={setIsPublic} aria-label="Compartilhar com a comunidade" />
+          <Switch checked={isPublic} onCheckedChange={setIsPublic} aria-label="Publicar na Comunidade" />
         </div>
 
         <Button type="submit" disabled={loading} className="w-full py-4">
